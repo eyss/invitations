@@ -1,0 +1,13 @@
+[workspace]
+members = [
+"zomes/invitations"
+]
+
+[profile.dev]
+opt-level = "z"
+
+[profile.release]
+opt-level = "z"
+
+[patch.crates-io]
+

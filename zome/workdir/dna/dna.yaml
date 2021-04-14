@@ -1,0 +1,9 @@
+---
+manifest_version: "1"
+name: Invitations
+uuid: 00000000-0000-0000-0000-000000000000
+properties: ~
+zomes: 
+  - name: invitations
+    bundled: ../../target/wasm32-unknown-unknown/release/invitations.wasm
+
