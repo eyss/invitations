@@ -1,14 +1,12 @@
 use hdk::prelude::*;
 use std::time::Duration;
 
-
 pub mod handlers;
 
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct Invitation {
     pub inviter: AgentPubKey,
     pub invited: AgentPubKey,
-    pub status: String,
     pub timestamp: Duration,
 }
 
