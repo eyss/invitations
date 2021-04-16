@@ -38,6 +38,7 @@ pub fn send_invitation(guest: AgentPubKey) -> ExternResult<()> {
 }
 
 pub fn get_sent_invitations() -> ExternResult<Vec<Invitation>> {
+
     let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
 
     let sended_invitations_links: Vec<Link> = get_links(
@@ -47,6 +48,7 @@ pub fn get_sent_invitations() -> ExternResult<Vec<Invitation>> {
     .into_inner();
 
     get_invitations_entries_from_links(sended_invitations_links)
+
 }
 
 pub fn get_received_invitations() -> ExternResult<Vec<Invitation>> {
@@ -63,7 +65,7 @@ pub fn get_received_invitations() -> ExternResult<Vec<Invitation>> {
 
 pub fn reject_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
 
-    let invitation: Invitation = get_invitation_entry_from_header_hash(invitation_header_hash.clone())?;
+    let invitation: Invitation = get_invitation_entry_from_hash::<HeaderHash>(invitation_header_hash.clone())?;
 
     delete_entry(invitation_header_hash.clone())?;
 
@@ -81,7 +83,7 @@ pub fn reject_invitation(invitation_header_hash: HeaderHash) -> ExternResult<boo
 
 pub fn accept_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
 
-    let invitation: Invitation = get_invitation_entry_from_header_hash(invitation_header_hash.clone())?;
+    let invitation: Invitation = get_invitation_entry_from_hash::<HeaderHash>(invitation_header_hash.clone())?;
     
     let inviter: AgentPubKey = invitation.clone().inviter; 
     
@@ -100,34 +102,60 @@ pub fn accept_invitation(invitation_header_hash: HeaderHash) -> ExternResult<boo
 //HELPERS
 fn get_invitations_entries_from_links(links: Vec<Link>) -> ExternResult<Vec<Invitation>> {
     let mut invitations: Vec<Invitation> = vec![];
-
+    
     for link in links.iter() {
-        match get(link.target.clone(), GetOptions::content())? {
-            Some(element) => match element.entry().to_app_option::<Invitation>()? {
-                Some(invitation) => {
-                    invitations.push(invitation);
-                }
-                None => {}
-            },
 
-            None => {}
-        };
-    }
+        let invitation:Invitation =  get_invitation_entry_from_hash::<EntryHash>(link.target.clone())?;
 
+        invitations.push(invitation);
+
+    }   
+    // for link in links.iter() {
+    //     match get(link.target.clone(), GetOptions::content())? {
+    //         Some(element) => match element.entry().to_app_option::<Invitation>()? {
+    //             Some(invitation) => {
+    //                 invitations.push(invitation);
+    //             }
+    //             None => {}
+    //         },
+
+    //         None => {}
+    //     };
+    // }
+
+    // Ok(invitations)
     Ok(invitations)
 }
 
 
-fn get_invitation_entry_from_header_hash(invitation_header_hash: HeaderHash )->ExternResult<Invitation>{
 
-    let element: Element = get(invitation_header_hash.clone(), GetOptions::content())?.ok_or(
-        WasmError::Guest("we dont found the invitation entry for the given header_hash".into()),
-    )?;
+fn get_invitation_entry_from_hash<H>(input_hash: H)->ExternResult<Invitation> where  AnyDhtHash: From<H>{
 
-    let invitation:Invitation = element.entry().to_app_option::<Invitation>()?.ok_or(
-        WasmError::Guest("we dont found the invitation entry for the given header_hash".into())
-    )?;
 
-    return Ok(invitation);
+    match get(input_hash, GetOptions::content())?{
+
+        Some(element) => match element.entry().to_app_option::<Invitation>()?{
+
+            Some(invitation) =>{
+                return Ok(invitation)
+            },
+
+            None => {}
+        },
+        None => {}
+    }
+
+    return Err(WasmError::Guest("we dont found the invitation entry for the given header_hash".into()));
+
+
+
+    // let element: Element = get(invitation_header_hash.clone(), GetOptions::content())?.ok_or(
+    // )?;
+
+    // let invitation:Invitation = element.entry().to_app_option::<Invitation>()?.ok_or(
+    //     WasmError::Guest("we dont found the invitation entry for the given header_hash".into())
+    // )?;
+
+    // return Ok(invitation);
 }
 

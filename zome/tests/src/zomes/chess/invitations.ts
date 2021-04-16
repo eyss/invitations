@@ -54,14 +54,14 @@ export function ZomeTest(config, installables) {
 
         await delay(5000);
 
-        t.deepEqual(received_invitations, sended_invitations, "the sended invitations from alice are exactly the received for bobby")
+        // t.deepEqual(received_invitations, sended_invitations, "the sended invitations from alice are exactly the received for bobby")
 
 
-        const reject_invitation = await rejectInvitation(bobby_invitations_list[0])(bobby_conductor);
-        await delay(1000);
+        // const reject_invitation = await rejectInvitation(bobby_invitations_list[0])(bobby_conductor);
+        // await delay(1000);
 
-        const received_invitations_2 = await getReceivedInvitatons(bobby_conductor);
-        await delay(1000);
+        // const received_invitations_2 = await getReceivedInvitatons(bobby_conductor);
+        // await delay(1000);
 
 
 
@@ -70,8 +70,8 @@ export function ZomeTest(config, installables) {
         console.log("Hello World");
         console.log(sended_invitations);
         console.log(received_invitations);
-        console.log(bobby_invitations_list);
-        console.log(reject_invitation);
+        // console.log(bobby_invitations_list);
+        // console.log(reject_invitation);
 
     });
 
