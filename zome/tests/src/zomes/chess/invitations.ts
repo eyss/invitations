@@ -46,13 +46,16 @@ export function ZomeTest(config, installables) {
         let result_2 = await sendInvitation(bobbyPubKey)(alice_conductor);
         await delay(1000);
 
+        await delay(5000);
+
+
+        
         const received_invitations = await getReceivedInvitatons(bobby_conductor);
         await delay(1000);
 
         const sended_invitations  = await  getSentInvitations(alice_conductor);
         await delay(1000);
 
-        await delay(5000);
 
         // t.deepEqual(received_invitations, sended_invitations, "the sended invitations from alice are exactly the received for bobby")
 

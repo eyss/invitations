@@ -123,7 +123,6 @@ fn get_invitations_entries_from_links(links: Vec<Link>) -> ExternResult<Vec<Invi
     //     };
     // }
 
-    // Ok(invitations)
     Ok(invitations)
 }
 
