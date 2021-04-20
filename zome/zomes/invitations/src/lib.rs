@@ -1,22 +1,19 @@
 use hdk::prelude::*;
 
-mod signals;
 mod invitation;
+mod signals;
 
 use invitation::handlers;
 
 use invitation::{
     Invitation,
-    // SendInvitationInput
+    InvitationEntryInfo, // SendInvitationInput
+    InviteesList,
 };
 
-use signals::{
-    SignalDetails
-};
+use signals::SignalDetails;
 
-entry_defs![
-    Invitation::entry_def()  
-];
+entry_defs![Invitation::entry_def()];
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
@@ -48,17 +45,17 @@ fn recv_remote_signal(signal: ExternIO) -> ExternResult<()> {
 }
 
 #[hdk_extern]
-fn send_invitation(input:AgentPubKey)->ExternResult<()>{
-    return handlers::send_invitation(input);
+fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
+    return handlers::send_invitation(invitees_list);
 }
 
 #[hdk_extern]
-fn get_sent_invitations(_:()) -> ExternResult<Vec<Invitation>> {
+fn get_sent_invitations(_: ()) -> ExternResult<Vec<InvitationEntryInfo>> {
     return handlers::get_sent_invitations();
 }
 
 #[hdk_extern]
-fn get_received_invitations(_:()) -> ExternResult<Vec<Invitation>> {
+fn get_received_invitations(_: ()) -> ExternResult<Vec<InvitationEntryInfo>> {
     return handlers::get_received_invitations();
 }
 
@@ -71,6 +68,3 @@ fn accept_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
 fn reject_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
     return handlers::reject_invitation(invitation_header_hash);
 }
-
-
-

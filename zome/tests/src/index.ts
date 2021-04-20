@@ -16,22 +16,15 @@ const network = {
   bootstrap_service: "https://bootstrap-staging.holo.host/",
 };
 
-const config = Config.gen({network});
+const config = Config.gen();
 
 const scores_zome = path.join("../workdir/dna/Invitations.dna");
 
-const installAgent: InstallAgentsHapps = [[[scores_zome]]];
 
-const install2Agents: InstallAgentsHapps = [[[scores_zome]], [[scores_zome]]];
-
-const install3Agents: InstallAgentsHapps = [[[scores_zome]], [[scores_zome]], [[scores_zome]]];
-
-const installables: Installables = {
-  one: installAgent,
-  two: install2Agents,
-  three: install3Agents,
-};
+const installAgents: InstallAgentsHapps = [[[scores_zome]], [[scores_zome]]];
 
 
-invitations( config, installables);
+
+
+invitations( config, installAgents);
 

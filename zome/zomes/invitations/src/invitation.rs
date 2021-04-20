@@ -6,7 +6,7 @@ pub mod handlers;
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct Invitation {
     pub inviter: AgentPubKey,
-    pub invited: AgentPubKey,
+    pub invitees: Vec<AgentPubKey>,
     pub timestamp: Duration,
 }
 
@@ -22,6 +22,22 @@ entry_def!(Invitation
 
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub struct SendInvitationInput( pub AgentPubKey );
+
+
+#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
+pub struct InviteesList(pub Vec<AgentPubKey>);
+
+//this struct wiil be used as an output value an will contain helpfull information for the ui 
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct InvitationEntryInfo {
+    pub invitation:Invitation,
+    pub invitation_entry_hash: EntryHash,
+    pub invitation_header_hash:HeaderHash
+}
+
+
+
+
 
 
 

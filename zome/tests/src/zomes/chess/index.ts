@@ -1,8 +1,8 @@
 import {ZomeTest} from './invitations'
 
 
-export default ( config, installables)=>{
+export default ( config, installAgents:any)=>{
 
-    ZomeTest(config,installables)
+    ZomeTest(config,installAgents)
 
 }
