@@ -4,32 +4,27 @@ use crate::signals::{SignalDetails, SignalName, SignalPayload};
 
 use super::{Invitation, InvitationEntryInfo, InviteesList};
 
+//SIMPLIFICAR LOS LINKS PARA PODER SIMPLIFICAR EL FUNCIONAMIENTO DEL ZOME , get received and get sent == get pending
+
 pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
-    //#1 WE CREATE THE INVITATION ENTRY:
     let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
+    let mut invited_agents: Vec<AgentPubKey> = invitees_list.0.clone();
+    invited_agents.append(&mut vec![agent_pub_key.clone()]);
 
     let invitation = Invitation {
-        invitees: invitees_list.clone().0,
+        invitees: invitees_list.0.clone(),
         inviter: agent_pub_key.clone(),
         timestamp: sys_time()?,
     };
 
     let invitation_entry_hash: EntryHash = hash_entry(invitation.clone())?;
-    let _invitation_header_hash: HeaderHash = create_entry(invitation.clone())?;
+    create_entry(invitation.clone())?;
 
-    // #2 WE LINK THE INVITATION CREATOR TO THIS INVITATION ENTRY
-    create_link(
-        agent_pub_key.into(),
-        invitation_entry_hash.clone(),
-        LinkTag::new(String::from("Inviter")),
-    )?;
-
-    for invitee in invitees_list.clone().0.iter() {
-        // #2  WE HAVE TO LINK EACH INVITEE TO THIS INVITATION ENTRY
+    for agent in invited_agents.into_iter() {
         create_link(
-            invitee.clone().into(),
+            agent.into(),
             invitation_entry_hash.clone(),
-            LinkTag::new(String::from("Invited")),
+            LinkTag::new(String::from("Invitee")),
         )?;
     }
 
@@ -39,44 +34,91 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
     };
 
     remote_signal(ExternIO::encode(signal)?, invitees_list.0)?;
-
-    Ok(())
+    return Ok(());
 }
 
-pub fn get_sent_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
+pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
     let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
+    let mut pending_invitations: Vec<InvitationEntryInfo> = vec![];
 
-    let sended_invitations_links: Vec<Link> = get_links(
+    let pending_invitations_links: Vec<Link> = get_links(
         agent_pub_key.into(),
-        Some(LinkTag::new(String::from("Inviter"))),
+        Some(LinkTag::new(String::from("Invitee"))),
     )?
     .into_inner();
 
-    get_invitations_entries_info_from_links(sended_invitations_links)
+    for link in pending_invitations_links.into_iter() {
+        pending_invitations.push(get_invitations_entry_info(link.target)?);
+    }
+
+    return Ok(pending_invitations);
 }
 
-pub fn get_received_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
-    let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
+pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    // let invitation_entry_info: InvitationEntryInfo = get_invitation_entry_info::<HeaderHash>(invitation_header_hash.clone())?;
 
-    let received_invitations_links: Vec<Link> = get_links(
-        agent_pub_key.into(),
-        Some(LinkTag::new(String::from("Invited"))),
+    let my_pending_invitations_links = get_links(
+        agent_info()?.agent_latest_pubkey.into(),
+        Some(LinkTag::new(String::from("Invitee"))),
     )?
     .into_inner();
 
-    get_invitations_entries_info_from_links(received_invitations_links)
+    let invitation_link_to_reject: Vec<Link> = my_pending_invitations_links
+        .into_iter()
+        .filter(|link| {
+            if link.target == invitation_entry_hash.clone() {
+                return true;
+            }
+            return false;
+        })
+        .collect::<Vec<Link>>();
+
+    //DELETE MI LINK TO THE INVITATION I WANT TO REJECT    
+    for invitation_link in invitation_link_to_reject.into_iter(){
+        delete_link(invitation_link.create_link_hash)?;
+    }
+
+    //MARK THE INVITATION ENTRY AS DELETED
+    
+    let invitation_entry_element: Element = get( invitation_entry_hash , GetOptions::content())?
+    .ok_or_else(|| WasmError::Guest( "we dont found the invitation entry for the given hash".into()))?;
+
+    delete_entry( invitation_entry_element.header_address().to_owned())?;
+
+    // let signal: SignalDetails = SignalDetails {
+    //     name: SignalName::INVITATION_REJECTED.to_owned(),
+    //     payload: SignalPayload::InvitationRejected(invitation_entry_info.invitation.clone()),
+    // };
+
+    // remote_signal(
+    //     ExternIO::encode(signal)?,
+    //     invitation_entry_info.invitation.invitees,
+    // )?;
+
+    Ok(true)
 }
 
-pub fn reject_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
-    //THE CURRENT IMPLEMETATION OF THE INVITATION WILL BE THIS: IF AT LEAST ONE INVITEES REJECTED THE INVITATION THE INVITATION WILL BE DELETED
+pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    // # WE WILL HANDLE THE INVITATION ACCEPTING PROCESS A BIT DIFERENCE DEPENDING IF THE INVITATION HAVE ONE OR SEVERAL INVITEES
+    // #1 WE GET THE INVITATION ENTRY
+    let invitation_entry_info: InvitationEntryInfo = get_invitations_entry_info(invitation_entry_hash.clone())?;
 
-    let invitation_entry_info: InvitationEntryInfo =
-        get_invitation_entry_info::<HeaderHash>(invitation_header_hash.clone())?;
-    delete_invitation_entry(invitation_entry_info.clone())?;
+    // we will check if the agent attempting to accept this invitation is an invitee
+    
+
+
+    
+    
+    create_link(
+        invitation_entry_hash.clone(),
+        agent_info()?.agent_latest_pubkey.into(),
+        LinkTag::new(String::from("Accepted")),
+    )?;
+
 
     let signal: SignalDetails = SignalDetails {
-        name: SignalName::INVITATION_REJECTED.to_owned(),
-        payload: SignalPayload::InvitationRejected(invitation_entry_info.invitation.clone()),
+        name: SignalName::INVITATION_ACCEPTED.to_owned(),
+        payload: SignalPayload::InvitationAccepted(invitation_entry_info.invitation.clone()),
     };
 
     remote_signal(
@@ -87,138 +129,136 @@ pub fn reject_invitation(invitation_header_hash: HeaderHash) -> ExternResult<boo
     Ok(true)
 }
 
-pub fn accept_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
-    // # WE WILL HANDLE THE INVITATION ACCEPTING PROCESS A BIT DIFERENCE DEPENDING IF THE INVITATION HAVE ONE OR SEVERAL INVITEES
-    // #1 WE GET THE INVITATION ENTRY
+// //HELPERS
+fn get_invitations_entry_info(
+    invitation_entry_hash: EntryHash,
+) -> ExternResult<InvitationEntryInfo> {
+    let invitation_entry_element: Element =
+        get(invitation_entry_hash.clone(), GetOptions::content())?
+            .ok_or_else(|| WasmError::Guest("we dont found the given hash".into()))?;
 
-    let invitation_entry_info: InvitationEntryInfo =
-        get_invitation_entry_info::<HeaderHash>(invitation_header_hash.clone())?;
-    let invitation: Invitation = invitation_entry_info.clone().invitation;
-    let invitation_entry_hash: EntryHash = invitation_entry_info.clone().invitation_entry_hash;
-    // let invitation_header_hash: HeaderHash = invitation_entry_info.clone().invitation_header_hash;
+    let invitation_header_hash: HeaderHash =
+        invitation_entry_element.clone().header_address().to_owned();
 
-    let signal: SignalDetails;
+    let invitation_entry: Invitation = invitation_entry_element
+        .clone()
+        .entry()
+        .to_app_option()?
+        .ok_or_else(|| WasmError::Guest("we dont found the given hash".into()))?;
 
-    // #2 WE HAVE TO CHECK HOW MANY OF THE INVITEES ALREADY ACCEPTED THIS INVITATION, IF ALL OF THEN ACEPPTED WE CAN DELETE THE INVITATION ENTRY, AND ALL THE LINKS BETWEEN EACH AGENT AND THIS INVITATION
-    // IF NOT WE JUST CREATE A NEW  LINK  BETWEEN THE AGENT WHO CALLS THIS METHOD AND THE INVITATION ENTRY TO TELL THE OTHERS INVITEES WE HAVE ACCEPTED THIS INVITATION
+    //GET LINKS ON THE ENTRY HASH TO KNOWN WICH INVITEES HAVE ALREADY ACCEPTED THIS INVITATION
 
-    let mut invitatees_who_already_accepted: Vec<AgentPubKey> = get_links(
+    let invitees_who_accepted: Vec<AgentPubKey> = get_links(
         invitation_entry_hash.clone(),
-        Some(LinkTag::new(String::from("accepted"))),
+        Some(LinkTag::new("Accepted")),
     )?
     .into_inner()
-    .iter()
+    .into_iter()
     .map(|link| -> AgentPubKey {
-        let invitee_pub_key: AgentPubKey = link.target.clone().into(); //THIS ASSUMPTION HERE IS BEACUSE WE KNOW THE TARGETS OF THIS LINKS WILL BE THE INVITEES_PUB_KEYS
-        return invitee_pub_key;
+        return link.target.into();
     })
     .collect();
 
-    invitatees_who_already_accepted.append(&mut vec![agent_info()?.agent_latest_pubkey]);
+    let invitation_entry_details =
+        get_details::<HeaderHash>(invitation_header_hash.clone(), GetOptions::content())?
+            .ok_or_else(|| {
+                WasmError::Guest("we dont found the details for the  given hash".into())
+            })?;
 
-    if invitation.invitees == invitatees_who_already_accepted {
-        // #3 ALL THE INVITEES ACCEPTED THIS INVITATION WE WILL DELETE THE ENTRY AND ALL THE LINKS BETWEEN ENTRIES AND INVITEES
+    match invitation_entry_details {
+        Details::Element(element_details) => {
+            let invitees_who_rejected: Vec<AgentPubKey> = element_details
+                .deletes
+                .into_iter()
+                .map(
+                    |delete_signed_header_hashed: SignedHeaderHashed| -> AgentPubKey {
+                        let header_author: AgentPubKey =
+                            delete_signed_header_hashed.header().author().to_owned();
+                        return header_author;
+                    },
+                )
+                .collect();
 
-        delete_invitation_entry(invitation_entry_info)?;
-
-        signal = SignalDetails {
-            name: SignalName::INVITATION_ACCEPTED.to_owned(),
-            payload: SignalPayload::InvitationAccepted(invitation.clone()),
-        };
-    } else {
-        create_link(
-            invitation_entry_hash.clone(),
-            agent_info()?.agent_latest_pubkey.into(),
-            LinkTag::new(String::from("accepted")),
-        )?;
-
-        signal = SignalDetails {
-            name: SignalName::INVITATION_UPDATED.to_owned(),
-            payload: SignalPayload::InvitationStatusUpdated(invitation_entry_hash),
-        };
-    }
-
-    remote_signal(ExternIO::encode(signal)?, invitation.invitees)?;
-
-    Ok(true)
-}
-
-// //HELPERS
-fn get_invitations_entries_info_from_links(
-    links: Vec<Link>,
-) -> ExternResult<Vec<InvitationEntryInfo>> {
-    let mut invitations_entries_info: Vec<InvitationEntryInfo> = vec![];
-
-    for link in links.into_iter() {
-        let invitation_entry_info: InvitationEntryInfo =
-            get_invitation_entry_info::<EntryHash>(link.target)?;
-        invitations_entries_info.push(invitation_entry_info);
-    }
-    Ok(invitations_entries_info)
-}
-
-fn get_invitation_entry_info<H>(input_hash: H) -> ExternResult<InvitationEntryInfo>
-where
-    AnyDhtHash: From<H>,
-{
-    match get(input_hash, GetOptions::content())? {
-        Some(element) => match element.entry().to_app_option::<Invitation>()? {
-            Some(invitation) => {
-                return Ok(InvitationEntryInfo {
-                    invitation: invitation.clone(),
-                    invitation_entry_hash: hash_entry(invitation)?,
-                    invitation_header_hash: element.header_address().to_owned(),
-                });
-            }
-            None => {}
-        },
-        None => {}
+            return Ok(InvitationEntryInfo {
+                invitation: invitation_entry,
+                invitation_entry_hash,
+                invitation_header_hash,
+                invitees_who_accepted,
+                invitees_who_rejected,
+            });
+        }
+        _ => {}
     }
 
     return Err(WasmError::Guest(
-        "we dont found the invitation entry for the given hash".into(),
+        "we dont found the invitation info for this hash ".into(),
     ));
 }
 
-fn delete_invitation_entry(invitation_entry_info: InvitationEntryInfo) -> ExternResult<()> {
-    let invitation: Invitation = invitation_entry_info.invitation;
-    let invitation_entry_hash: EntryHash = invitation_entry_info.invitation_entry_hash;
-    let invitation_header_hash: HeaderHash = invitation_entry_info.invitation_header_hash;
+// fn get_invitation_entry_info<H>(input_hash: H) -> ExternResult<InvitationEntryInfo>
+// where
+//     AnyDhtHash: From<H>,
+// {
+//     match get(input_hash, GetOptions::content())? {
+//         Some(element) => match element.entry().to_app_option::<Invitation>()? {
+//             Some(invitation) => {
+//                 return Ok(InvitationEntryInfo {
+//                     invitation: invitation.clone(),
+//                     invitation_entry_hash: hash_entry(invitation)?,
+//                     invitation_header_hash: element.header_address().to_owned(),
+//                 });
+//             }
+//             None => {}
+//         },
+//         None => {}
+//     }
 
-    for link in get_links(invitation_entry_hash.clone(), None)?
-        .into_inner()
-        .into_iter()
-    {
-        delete_link(link.create_link_hash)?;
-    }
+//     return Err(WasmError::Guest(
+//         "we dont found the invitation entry for the given hash".into(),
+//     ));
+// }
 
-    for invitee in invitation.clone().invitees.into_iter() {
-        let invitee_links: Vec<Link> = get_links(
-            invitee.clone().into(),
-            Some(LinkTag::new(String::from("Invited"))),
-        )?
-        .into_inner();
+//clear invitation method should be added (Header), eliminar mi link hacia la entry (cuando le dan a la X)
 
-        for link in invitee_links.into_iter() {
-            if link.target == invitation_entry_hash {
-                delete_link(link.create_link_hash)?;
-            }
-        }
-    }
+// fn delete_invitation_entry(invitation_entry_info: InvitationEntryInfo) -> ExternResult<()> {
+//     let invitation: Invitation = invitation_entry_info.invitation;
+//     let invitation_entry_hash: EntryHash = invitation_entry_info.invitation_entry_hash;
+//     let invitation_header_hash: HeaderHash = invitation_entry_info.invitation_header_hash;
 
-    let inviter_links: Vec<Link> = get_links(
-        invitation.inviter.clone().into(),
-        Some(LinkTag::new(String::from("Inviter"))),
-    )?
-    .into_inner();
+//     for link in get_links(invitation_entry_hash.clone(), None)?
+//         .into_inner()
+//         .into_iter()
+//     {
+//         delete_link(link.create_link_hash)?;
+//     }
 
-    for link in inviter_links.into_iter() {
-        if link.target == invitation_entry_hash {
-            delete_link(link.create_link_hash)?;
-        }
-    }
+//     for invitee in invitation.clone().invitees.into_iter() {
+//         let invitee_links: Vec<Link> = get_links(
+//             invitee.clone().into(),
+//             Some(LinkTag::new(String::from("Invited"))),
+//         )?
+//         .into_inner();
 
-    delete_entry(invitation_header_hash)?;
+//         for link in invitee_links.into_iter() {
+//             if link.target == invitation_entry_hash {
+//                 delete_link(link.create_link_hash)?;
+//             }
+//         }
+//     }
 
-    Ok(())
-}
+//     let inviter_links: Vec<Link> = get_links(
+//         invitation.inviter.clone().into(),
+//         Some(LinkTag::new(String::from("Inviter"))),
+//     )?
+//     .into_inner();
+
+//     for link in inviter_links.into_iter() {
+//         if link.target == invitation_entry_hash {
+//             delete_link(link.create_link_hash)?;
+//         }
+//     }
+
+//     delete_entry(invitation_header_hash)?;
+
+//     Ok(())
+// }

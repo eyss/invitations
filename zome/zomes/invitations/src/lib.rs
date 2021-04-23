@@ -7,7 +7,7 @@ use invitation::handlers;
 
 use invitation::{
     Invitation,
-    InvitationEntryInfo, // SendInvitationInput
+    InvitationEntryInfo, 
     InviteesList,
 };
 
@@ -50,21 +50,18 @@ fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
 }
 
 #[hdk_extern]
-fn get_sent_invitations(_: ()) -> ExternResult<Vec<InvitationEntryInfo>> {
-    return handlers::get_sent_invitations();
+fn get_my_pending_invitations(_: ()) -> ExternResult<Vec<InvitationEntryInfo>> {
+    return handlers::get_my_pending_invitations();
 }
 
 #[hdk_extern]
-fn get_received_invitations(_: ()) -> ExternResult<Vec<InvitationEntryInfo>> {
-    return handlers::get_received_invitations();
+fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    return handlers::accept_invitation(invitation_entry_hash);
 }
 
 #[hdk_extern]
-fn accept_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
-    return handlers::accept_invitation(invitation_header_hash);
+fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    return handlers::reject_invitation(invitation_entry_hash);
 }
 
-#[hdk_extern]
-fn reject_invitation(invitation_header_hash: HeaderHash) -> ExternResult<bool> {
-    return handlers::reject_invitation(invitation_header_hash);
-}
+

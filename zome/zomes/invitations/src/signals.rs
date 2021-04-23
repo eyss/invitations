@@ -1,8 +1,6 @@
 use hdk::prelude::*;
 
-use crate::invitation::{
-    Invitation
-};
+use crate::invitation::Invitation;
 
 // Signal Details is a warpper for all the signals we can send from the happ
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
@@ -20,7 +18,6 @@ pub enum SignalPayload {
     InvitationRejected(Invitation),
 }
 
-
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub struct SignalName;
 impl SignalName {
@@ -29,5 +26,3 @@ impl SignalName {
     pub const INVITATION_UPDATED: &'static str = "invitation updated";
     pub const INVITATION_REJECTED: &'static str = "invitation rejected";
 }
-
-

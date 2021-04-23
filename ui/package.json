@@ -25,13 +25,13 @@
     "publish-to-branch": "npm run lint && npm run build && cp package.json dist && gh-pages -d dist -b ui-build"
   },
   "dependencies": {
-    "@holochain-open-dev/common": "git+https://github.com/holochain-open-dev/common.git#ui-build",
-    "lit-element": "^2.4.0",
-    "lit-html": "^1.3.0",
     "@adobe/lit-mobx": "^1.0.1",
+    "@holochain-open-dev/common": "git+https://github.com/holochain-open-dev/common.git#ui-build",
     "@holochain-open-dev/profiles": "git+https://github.com/holochain-open-dev/profiles.git#ui-build",
     "@holochain/conductor-api": "^0.0.3",
-    "@rollup/plugin-replace": "^2.4.2",
+    "lit": "^2.0.0-rc.1",
+    "lit-element": "^2.4.0",
+    "lit-html": "^1.3.0",
     "mobx": "^6.2.0"
   },
   "devDependencies": {

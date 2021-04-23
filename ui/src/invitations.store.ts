@@ -13,10 +13,20 @@ import { AgentPubKey, HeaderHash, Invitation } from './types';
 
 
 export class InvitationsStore {
+
+
+    //MODIFICAR LOS TIPOS A DICCIONARIOS (invitation pending)
+
     @observable
     public receivedInvitations: Invitation[] = [];
+
     @observable
     public sentInvitations: Invitation[] = [];
+
+
+    @observable 
+    public Invitees: AgentPubKey[] = [];
+
 
     constructor(
         protected invitationsService: InvitationsService,
@@ -24,8 +34,29 @@ export class InvitationsStore {
       ) {
         makeObservable(this);
       }
-    
 
+    @action
+    public async AddInvitee(agent_pub_key:AgentPubKey): Promise<void> {
+
+    const invitees = [...this.Invitees, agent_pub_key];
+
+        runInAction(() => {
+            // Actualizar los datos dentro del runInAction para hacer trigger del render
+            this.Invitees = invitees;
+        });
+    }
+
+    @action
+    public async RemoveInvitee(agent_pub_key:AgentPubKey): Promise<void> {
+
+    const invitees = this.Invitees.filter((invitee)=> invitee != agent_pub_key);
+
+        runInAction(() => {
+            // Actualizar los datos dentro del runInAction para hacer trigger del render
+            this.Invitees = invitees;
+        });
+    }
+  
     @action
     public async fetchMyReceivedInvititations(): Promise<void> {
         // Pedir al backend
@@ -73,4 +104,4 @@ export class InvitationsStore {
         })
 
     }
-};
+}

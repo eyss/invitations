@@ -4,20 +4,7 @@ import {
   connectDeps,
   DepsElement,
 } from '@holochain-open-dev/common';
-import { SearchAgent, ListProfiles } from '@holochain-open-dev/profiles';
-import { MobxReactionUpdate } from '@adobe/lit-mobx';
-import { InvitationsStore } from '../invitations.store';
-import { Button } from 'scoped-material-components/mwc-button';
-import  {List} from 'scoped-material-components/mwc-list';
-import  {ListItem} from 'scoped-material-components/mwc-list-item';
 
-// <mwc-list>
-//   <mwc-list-item>Item 0</mwc-list-item>
-//   <mwc-list-item>Item 1</mwc-list-item>
-//   <mwc-list-item>Item 2</mwc-list-item>
-//   <mwc-list-item>Item 3</mwc-list-item>
-// </mwc-list>
-import { Invitation } from '../types';
 
 export abstract class CreateInvitation extends MobxReactionUpdate(BaseElement) implements DepsElement<InvitationsStore> {
   

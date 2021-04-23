@@ -5,6 +5,6 @@ export interface Invitation{
     inviter: AgentPubKey,
     invited: AgentPubKey,
     timestamp: any    
-};
+}
 
 export type Dictionary<T> = { [key: string]: T };

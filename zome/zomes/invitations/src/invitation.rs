@@ -21,23 +21,14 @@ entry_def!(Invitation
 );
 
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
-pub struct SendInvitationInput( pub AgentPubKey );
-
-
-#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub struct InviteesList(pub Vec<AgentPubKey>);
 
-//this struct wiil be used as an output value an will contain helpfull information for the ui 
+//this struct wiil be used as an output value an will contain helpfull information for the ui
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct InvitationEntryInfo {
-    pub invitation:Invitation,
+    pub invitation: Invitation,
     pub invitation_entry_hash: EntryHash,
-    pub invitation_header_hash:HeaderHash
+    pub invitation_header_hash: HeaderHash,
+    pub invitees_who_accepted: Vec<AgentPubKey>,
+    pub invitees_who_rejected: Vec<AgentPubKey>,
 }
-
-
-
-
-
-
-

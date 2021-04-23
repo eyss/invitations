@@ -3,10 +3,9 @@ import { Orchestrator,  Player, } from "@holochain/tryorama";
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const sendInvitation = (guest_pub_key) => (conductor) => conductor.call("invitations", "send_invitation", [guest_pub_key]);
-const getSentInvitations = (conductor) => conductor.call("invitations", "get_sent_invitations",);
-const getReceivedInvitatons = (conductor) => conductor.call("invitations", "get_received_invitations",);
-const acceptInvitation = (invitation_header_hash) =>(conductor) => conductor.call("invitations", "accept_invitation",invitation_header_hash);
-const rejectInvitation = (invitation_header_hash) => (conductor) => conductor.call("invitations", "reject_invitation",invitation_header_hash);
+const getPendingInvitations = (conductor) => conductor.call("invitations", "get_my_pending_invitations",);
+const acceptInvitation = (invitation_entry_hash) =>(conductor) => conductor.call("invitations", "accept_invitation",invitation_entry_hash);
+const rejectInvitation = (invitation_entry_hash) => (conductor) => conductor.call("invitations", "reject_invitation",invitation_entry_hash);
 
 export function ZomeTest(config, installAgents) {
 
@@ -20,7 +19,6 @@ export function ZomeTest(config, installAgents) {
         const [[bobby_happ]] = await bobby.installAgentsHapps(installAgents);
 
         await s.shareAllNodes([alice,bobby]);
-
         
         const alicePubKey = alice_happ.agent;
         const bobbyPubKey = bobby_happ.agent;
@@ -38,64 +36,49 @@ export function ZomeTest(config, installAgents) {
         })
 
         let result = await sendInvitation(bobbyPubKey)(alice_conductor);
-        await delay(1000);
+        await delay(100);
 
-        let result_2 = await sendInvitation(bobbyPubKey)(alice_conductor);
-        await delay(1000);
-
-
-
-
-
-
-
-        // let bobby_invitations_list :Buffer[] = [];
-
-        // bobby.setSignalHandler((signal) => {
-
-        //     bobby_invitations_list.push(signal.data.payload.payload.InvitationReceived);
-        //     console.log("Bobby has received Signal:",signal)
-        // })
-
-        // alice.setSignalHandler((signal) => {
-        //     console.log("Alice has received Signal:",signal)
-        // })
-
-        // let result = await sendInvitation(bobbyPubKey)(alice_conductor);
-        // await delay(1000);
-
-        // let result_2 = await sendInvitation(bobbyPubKey)(alice_conductor);
-        // await delay(1000);
-
-        // await delay(5000);
-
-
-        
-        // const received_invitations = await getReceivedInvitatons(bobby_conductor);
-        // await delay(1000);
-
-        // const sended_invitations  = await  getSentInvitations(alice_conductor);
-        // await delay(1000);
-
-
-        // // t.deepEqual(received_invitations, sended_invitations, "the sended invitations from alice are exactly the received for bobby")
-
-
-        // // const reject_invitation = await rejectInvitation(bobby_invitations_list[0])(bobby_conductor);
-        // // await delay(1000);
-
-        // // const received_invitations_2 = await getReceivedInvitatons(bobby_conductor);
-        // // await delay(1000);
-
-
-
+        // {
+        //     invitation: {
+        //       inviter: <Buffer 84 20 24 5e 4b 99 bd 3c b4 df 0c 6f ff 2a 90 6d 1d 76 17 0e 01 60 ed a9 fb 1d 0d f7 be 41 bf d0 7d 46 4e c0 d8 65 19>,
+        //       invitees: [Array],
+        //       timestamp: [Object]
+        //     },
+        //     invitation_entry_hash: <Buffer 84 21 24 7b 93 1e eb 0a be 8c c7 e5 24 0f d5 ae c0 a3 ff 09 77 2c d3 b3 05 fb 2c 53 df 7f b0 6f 99 88 47 75 54 0e cf>,
+        //     invitation_header_hash: <Buffer 84 29 24 89 02 eb ea 2e 12 df 87 c9 de d7 8a d9 e7 82 5f a5 56 bc 58 31 aa ce 4a 3a 58 a2 3c 78 12 35 4b 56 63 a2 b3>,
+        //     invitees_who_accepted: [],
+        //     invitees_who_rejected: []
+        // }
     
 
-        // console.log("Hello World");
-        // console.log(sended_invitations);
-        // console.log(received_invitations);
-        // // console.log(bobby_invitations_list);
-        // // console.log(reject_invitation);
+        let bobby_invitations = await getPendingInvitations(bobby_conductor);
+        await delay(100);
+        let  alice_invitations = await getPendingInvitations(alice_conductor);
+        await delay(100);
+
+
+        console.log("Hello World");
+-
+        console.log(bobbyPubKey);
+        console.log(`Bobby Invitation list:`);
+        console.log(bobby_invitations);
+        
+        console.log(alicePubKey);
+        console.log(`Alice Invitation list:`);
+        console.log(alice_invitations);
+
+
+        await acceptInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
+        await delay(1000);
+
+        bobby_invitations = await getPendingInvitations(bobby_conductor);
+        await delay(100);
+
+        console.log(bobbyPubKey);
+        console.log(`Bobby Invitation list:`);
+        console.log(bobby_invitations);
+
+
 
     });
 
