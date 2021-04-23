@@ -4,8 +4,6 @@ use crate::signals::{SignalDetails, SignalName, SignalPayload};
 
 use super::{Invitation, InvitationEntryInfo, InviteesList};
 
-//SIMPLIFICAR LOS LINKS PARA PODER SIMPLIFICAR EL FUNCIONAMIENTO DEL ZOME , get received and get sent == get pending
-
 pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
     let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
     let mut invited_agents: Vec<AgentPubKey> = invitees_list.0.clone();
@@ -57,8 +55,10 @@ pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
 pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     // let invitation_entry_info: InvitationEntryInfo = get_invitation_entry_info::<HeaderHash>(invitation_header_hash.clone())?;
 
+    let my_pub_key:AgentPubKey =  agent_info()?.agent_latest_pubkey.into();
+
     let my_pending_invitations_links = get_links(
-        agent_info()?.agent_latest_pubkey.into(),
+        my_pub_key.clone().into(),
         Some(LinkTag::new(String::from("Invitee"))),
     )?
     .into_inner();
@@ -73,27 +73,43 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
         })
         .collect::<Vec<Link>>();
 
-    //DELETE MI LINK TO THE INVITATION I WANT TO REJECT    
-    for invitation_link in invitation_link_to_reject.into_iter(){
+    //DELETE MI LINK TO THE INVITATION I WANT TO REJECT
+    for invitation_link in invitation_link_to_reject.into_iter() {
         delete_link(invitation_link.create_link_hash)?;
     }
 
     //MARK THE INVITATION ENTRY AS DELETED
-    
-    let invitation_entry_element: Element = get( invitation_entry_hash , GetOptions::content())?
-    .ok_or_else(|| WasmError::Guest( "we dont found the invitation entry for the given hash".into()))?;
 
-    delete_entry( invitation_entry_element.header_address().to_owned())?;
+    let invitation_entry_element: Element = get(invitation_entry_hash.clone(), GetOptions::content())?
+        .ok_or_else(|| {
+            WasmError::Guest("we dont found the invitation entry for the given hash".into())
+        })?;
 
-    // let signal: SignalDetails = SignalDetails {
-    //     name: SignalName::INVITATION_REJECTED.to_owned(),
-    //     payload: SignalPayload::InvitationRejected(invitation_entry_info.invitation.clone()),
-    // };
+    delete_entry(invitation_entry_element.header_address().to_owned())?;
 
-    // remote_signal(
-    //     ExternIO::encode(signal)?,
-    //     invitation_entry_info.invitation.invitees,
-    // )?;
+    // NOTIFY ALL THE INVITEES
+
+    let invitation_entry_invitees:Vec<AgentPubKey> = invitation_entry_element
+        .entry()
+        .to_app_option::<Invitation>()?
+        .ok_or_else(|| {
+            WasmError::Guest("we dont found the invitation entry for the given element".into())
+        })?.invitees.into_iter().filter(|invitee|{
+
+           if  invitee.to_owned() != my_pub_key.clone(){  return true;  }
+           return false;
+
+        }).collect();
+
+    let signal: SignalDetails = SignalDetails {
+        name: SignalName::INVITATION_REJECTED.to_owned(),
+        payload: SignalPayload::InvitationRejected(invitation_entry_hash),
+    };
+
+    remote_signal(
+        ExternIO::encode(signal)?,
+        invitation_entry_invitees,
+    )?;
 
     Ok(true)
 }
@@ -101,32 +117,32 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     // # WE WILL HANDLE THE INVITATION ACCEPTING PROCESS A BIT DIFERENCE DEPENDING IF THE INVITATION HAVE ONE OR SEVERAL INVITEES
     // #1 WE GET THE INVITATION ENTRY
-    let invitation_entry_info: InvitationEntryInfo = get_invitations_entry_info(invitation_entry_hash.clone())?;
+    let invitation_entry_info: InvitationEntryInfo =
+        get_invitations_entry_info(invitation_entry_hash.clone())?;
 
     // we will check if the agent attempting to accept this invitation is an invitee
-    
+    if invitation_entry_info
+        .invitation
+        .invitees
+        .contains(&agent_info()?.agent_latest_pubkey)
+    {
+        create_link(
+            invitation_entry_hash.clone(),
+            agent_info()?.agent_latest_pubkey.into(),
+            LinkTag::new(String::from("Accepted")),
+        )?;
+        let signal: SignalDetails = SignalDetails {
+            name: SignalName::INVITATION_ACCEPTED.to_owned(),
+            payload: SignalPayload::InvitationAccepted(invitation_entry_info.invitation.clone()),
+        };
+        remote_signal(
+            ExternIO::encode(signal)?,
+            invitation_entry_info.invitation.invitees,
+        )?;
+        return Ok(true);
+    }
 
-
-    
-    
-    create_link(
-        invitation_entry_hash.clone(),
-        agent_info()?.agent_latest_pubkey.into(),
-        LinkTag::new(String::from("Accepted")),
-    )?;
-
-
-    let signal: SignalDetails = SignalDetails {
-        name: SignalName::INVITATION_ACCEPTED.to_owned(),
-        payload: SignalPayload::InvitationAccepted(invitation_entry_info.invitation.clone()),
-    };
-
-    remote_signal(
-        ExternIO::encode(signal)?,
-        invitation_entry_info.invitation.invitees,
-    )?;
-
-    Ok(true)
+    Ok(false)
 }
 
 // //HELPERS

@@ -15,7 +15,7 @@ pub enum SignalPayload {
     InvitationAccepted(Invitation), //THE INVITATION ARE ACCEPTED IF ALL THE INVITEES HAVE ACCEPTED THE INVITATION
     InvitationReceived(EntryHash),
     InvitationStatusUpdated(EntryHash), //THE INVITATION STATUS IS UPDATED EVERYTIME ONE OF THE INVITEES ACCEPTED THE INVITATION,  BUT NOT ALL OF THEM HAVE ACCEPTED YET
-    InvitationRejected(Invitation),
+    InvitationRejected(EntryHash),
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
