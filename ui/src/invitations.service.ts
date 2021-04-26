@@ -1,5 +1,5 @@
 import { AppWebsocket, CellId } from '@holochain/conductor-api';
-import { AgentPubKey, HeaderHash, Invitation } from './types'
+import { AgentPubKey, HeaderHash, InvitationEntryInfo } from './types'
 
 export class InvitationsService {
     
@@ -13,13 +13,9 @@ export class InvitationsService {
         return this.callZome('send_invitation', input);
     }
 
-    async getSentInvitations():Promise<Invitation[]>{
-        return this.callZome('get_sent_invitations', null);
+    async getMyPendingInvitations():Promise<InvitationEntryInfo[]>{
+        return this.callZome('get_my_pending_invitations', null);
     }  
-
-    async getReceivedInvitations():Promise<Invitation[]>{
-        return this.callZome('get_received_invitations', null);
-    }
 
     async acceptInvitation(invitation_header_hash: HeaderHash):Promise<boolean>{
         return this.callZome('accept_invitation', invitation_header_hash);

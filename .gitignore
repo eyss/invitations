@@ -4,4 +4,5 @@ dist/
 .cargo/
 *.dna
 *.happ
+*.hc
 prueba/

@@ -9,24 +9,13 @@ import {
 import { InvitationsService } from './invitations.service';
 import { ProfilesService, ProfilesStore } from '@holochain-open-dev/profiles';
 
-import { AgentPubKey, HeaderHash, Invitation } from './types';
+import { AgentPubKey, HeaderHash, Invitation, Dictionary, InvitationEntryInfo } from './types';
 
 
 export class InvitationsStore {
 
-
-    //MODIFICAR LOS TIPOS A DICCIONARIOS (invitation pending)
-
     @observable
-    public receivedInvitations: Invitation[] = [];
-
-    @observable
-    public sentInvitations: Invitation[] = [];
-
-
-    @observable 
-    public Invitees: AgentPubKey[] = [];
-
+    public invitations: Dictionary<InvitationEntryInfo> = {}; 
 
     constructor(
         protected invitationsService: InvitationsService,
@@ -34,48 +23,18 @@ export class InvitationsStore {
       ) {
         makeObservable(this);
       }
+    
 
     @action
-    public async AddInvitee(agent_pub_key:AgentPubKey): Promise<void> {
-
-    const invitees = [...this.Invitees, agent_pub_key];
-
-        runInAction(() => {
-            // Actualizar los datos dentro del runInAction para hacer trigger del render
-            this.Invitees = invitees;
-        });
-    }
-
-    @action
-    public async RemoveInvitee(agent_pub_key:AgentPubKey): Promise<void> {
-
-    const invitees = this.Invitees.filter((invitee)=> invitee != agent_pub_key);
-
-        runInAction(() => {
-            // Actualizar los datos dentro del runInAction para hacer trigger del render
-            this.Invitees = invitees;
-        });
-    }
-  
-    @action
-    public async fetchMyReceivedInvititations(): Promise<void> {
+    public async fectMyPendingInvitations(): Promise<void> {
         // Pedir al backend
-        const received_invitations: Invitation[] = await this.invitationsService.getReceivedInvitations();
+        const pending_invitations_entries_info: InvitationEntryInfo[] = await this.invitationsService.getMyPendingInvitations();
 
         runInAction(() => {
             // Actualizar los datos dentro del runInAction para hacer trigger del render
-            this.receivedInvitations = received_invitations;
-        });
-    }
-
-    @action
-    public async fectMySentInvitations(): Promise<void> {
-        // Pedir al backend
-        const sent_invitations: Invitation[] = await this.invitationsService.getSentInvitations();
-
-        runInAction(() => {
-            // Actualizar los datos dentro del runInAction para hacer trigger del render
-            this.receivedInvitations = sent_invitations;
+            for (const invitation_entry_info of pending_invitations_entries_info) {
+                this.invitations[invitation_entry_info.invitation_entry_hash] = invitation_entry_info;
+            }
         });
     }
 
@@ -83,7 +42,7 @@ export class InvitationsStore {
     public async sendInvitation(guest: AgentPubKey){
         const create_invitation = await this.invitationsService.SendInvitation(guest);
         runInAction(async ()=>{
-            await this.fectMySentInvitations();
+            await this.fectMyPendingInvitations();
         })
     }
 
@@ -91,7 +50,7 @@ export class InvitationsStore {
         const accept_invitation = await this.invitationsService.acceptInvitation(invitation_header_hash);
 
         runInAction(async ()=>{
-            await this.fetchMyReceivedInvititations();
+            await this.fectMyPendingInvitations();
         })
 
     }    
@@ -100,8 +59,8 @@ export class InvitationsStore {
         const reject_invitation = await this.invitationsService.rejectInvitation(invitation_header_hash);
 
         runInAction(async ()=>{
-            await this.fetchMyReceivedInvititations();
+            await this.fectMyPendingInvitations();
         })
 
     }
-}
+};

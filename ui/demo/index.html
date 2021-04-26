@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html lang="en-GB">
-  <head>
-    <meta charset="utf-8" />
-  </head>
-  <body>
+<head>
+  <meta charset="utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet" />
+</head>
 
+<body>
+  <invitations-list></invitations-list>
 
-    <create-invitation></create-invitation>
-
-
-    <script type="module">
-
+  <script type="module">
     import { html, render } from 'lit-html';
-    
     import {
-      CreateInvitation,
+      InvitationsList,
       InvitationsService,
       InvitationsStore,
-      } from '../dist';
+    } from '../dist';
 
+    import ConductorApi from '@holochain/conductor-api';
+    import { connectDeps } from '@holochain-open-dev/common';
 
-      import {Buffer} from 'buffer';
+    // (async function () {
+    //   let store = undefined;
+    //   const appWebsocket = await ConductorApi.AppWebsocket.connect(
+    //     'ws://localhost:8888'
+    //   );
+    //   const appInfo = await appWebsocket.appInfo({
+    //     installed_app_id: 'test-app',
+    //   });
 
-      import {
-        ProfilesStore,
-        ProfilesService,
-      } from '@holochain-open-dev/profiles';
+    //   const cellId = appInfo.cell_data[0].cell_id;
 
+    // })();
+
+    customElements.define('invitations-list', InvitationsList);
+  </script>
+
+  <!-- <script type="module">
+      import { html, render } from 'lit-html';
       import ConductorApi from '@holochain/conductor-api';
+      import { HodCalendarEvent } from '../dist';
       import { connectDeps } from '@holochain-open-dev/common';
 
-
       (async function () {
-
+        let store = undefined;
         const appWebsocket = await ConductorApi.AppWebsocket.connect(
           'ws://localhost:8888'
         );
@@ -42,23 +52,12 @@
 
         const cellId = appInfo.cell_data[0].cell_id;
 
-        const service = new ProfilesService(appWebsocket, cellId);
-        const profilesStore = new ProfilesStore(service);
-
-        const invitationsService = new InvitationsService(appWebsocket, cellId);
-        const invitiationsStore = new InvitationsStore(
-          invitationsService,
-          profilesStore
-        );
-
         customElements.define(
-          'create-invitation',
-          connectDeps(CreateInvitation, invitiationsStore)
+          'hod-calendar-event',
+          connectDeps(HodCalendarEvent, { appWebsocket, cellId })
         );
       })();
+    </script> -->
+</body>
 
-      (async function () {})();
-
-    </script>
-  </body>
 </html>
