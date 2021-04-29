@@ -4,14 +4,10 @@ import {
   connectDeps,
   DepsElement,
 } from '@holochain-open-dev/common';
-import { SearchAgent } from '@holochain-open-dev/profiles';
+import { CreateProfileForm, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 import { html, css, property } from 'lit-element';
 import { InvitationsStore } from '../invitations.store';
 import { InvitationItem } from './InvitationItem';
-
-// abstract class CreateInvitation
-//   extends MobxReactionUpdate(BaseElement)
-//   implements DepsElement<InvitationsStore>
 
 export abstract class CreateInvitation
   extends MobxReactionUpdate(BaseElement)
@@ -22,7 +18,8 @@ export abstract class CreateInvitation
     return html`
       <div class="invitations">
         <h1>Hello World</h1>
-        <search-agent include-myself></search-agent>
+        <search-agent include-myself ></search-agent>
+        <h1>LOGIN</h1>
       </div>
     `;
   }
@@ -30,6 +27,7 @@ export abstract class CreateInvitation
   getScopedElements() {
     return {
       'search-agent': connectDeps(SearchAgent, this._deps.profilesStore),
+      'create-profile-form': connectDeps(CreateProfileForm, this._deps.profilesStore),
     };
   }
 }

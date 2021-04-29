@@ -24,7 +24,6 @@ export default [
       'node_modules/isomorphic-ws/**/*',
       'node_modules/@msgpack/**/*',
       'node_modules/@holochain/conductor-api/**/*',
-      'node_modules/fs/**/*'
     ],
   }),
 ];

@@ -11,8 +11,13 @@
   </head>
 
   <body>
-    <invitations-list></invitations-list>
-    <!-- <create-invitation></create-invitation> -->
+    <!-- <invitations-list></invitations-list> -->
+    <create-invitation></create-invitation>
+
+    <profile-prompt>
+      <search-agent include-myself ></search-agent>
+    </profile-prompt>
+
 
     <script type="module">
       import { html, render } from 'lit-html';
@@ -26,6 +31,7 @@
       import {
         ProfilesService,
         ProfilesStore,
+        ProfilePrompt,
       } from '@holochain-open-dev/profiles';
 
       import ConductorApi from '@holochain/conductor-api';
@@ -54,15 +60,25 @@
           profile_store
         );
 
-        customElements.define(
-          'create-invitation',
-          connectDeps(CreateInvitation, invitations_store)
-        );
+        // customElements.define(
+        //   'create-invitation',
+        //   connectDeps(CreateInvitation, invitations_store)
+        // );
 
         customElements.define(
           'invitations-list',
           connectDeps(InvitationsList, invitations_store) 
         );
+        
+        // await profile_service.getMyProfile()
+
+
+        customElements.define(
+          'profile-prompt',
+          connectDeps(ProfilePrompt, profile_store)
+        );
+
+
       })();
     </script>
 
