@@ -4,7 +4,7 @@ export type EntryHash = string;
 
 export interface Invitation{
     inviter: AgentPubKey,
-    invited: AgentPubKey,
+    invitees: AgentPubKey[],
     timestamp: any    
 };
 

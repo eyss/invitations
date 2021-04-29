@@ -55,7 +55,7 @@ pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
 pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     // let invitation_entry_info: InvitationEntryInfo = get_invitation_entry_info::<HeaderHash>(invitation_header_hash.clone())?;
 
-    let my_pub_key:AgentPubKey =  agent_info()?.agent_latest_pubkey.into();
+    let my_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
 
     let my_pending_invitations_links = get_links(
         my_pub_key.clone().into(),
@@ -80,8 +80,8 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 
     //MARK THE INVITATION ENTRY AS DELETED
 
-    let invitation_entry_element: Element = get(invitation_entry_hash.clone(), GetOptions::content())?
-        .ok_or_else(|| {
+    let invitation_entry_element: Element =
+        get(invitation_entry_hash.clone(), GetOptions::content())?.ok_or_else(|| {
             WasmError::Guest("we dont found the invitation entry for the given hash".into())
         })?;
 
@@ -89,27 +89,28 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 
     // NOTIFY ALL THE INVITEES
 
-    let invitation_entry_invitees:Vec<AgentPubKey> = invitation_entry_element
+    let invitation_entry_invitees: Vec<AgentPubKey> = invitation_entry_element
         .entry()
         .to_app_option::<Invitation>()?
         .ok_or_else(|| {
             WasmError::Guest("we dont found the invitation entry for the given element".into())
-        })?.invitees.into_iter().filter(|invitee|{
-
-           if  invitee.to_owned() != my_pub_key.clone(){  return true;  }
-           return false;
-
-        }).collect();
+        })?
+        .invitees
+        .into_iter()
+        .filter(|invitee| {
+            if invitee.to_owned() != my_pub_key.clone() {
+                return true;
+            }
+            return false;
+        })
+        .collect();
 
     let signal: SignalDetails = SignalDetails {
         name: SignalName::INVITATION_REJECTED.to_owned(),
         payload: SignalPayload::InvitationRejected(invitation_entry_hash),
     };
 
-    remote_signal(
-        ExternIO::encode(signal)?,
-        invitation_entry_invitees,
-    )?;
+    remote_signal(ExternIO::encode(signal)?, invitation_entry_invitees)?;
 
     Ok(true)
 }
@@ -143,6 +144,23 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
     }
 
     Ok(false)
+}
+
+pub fn _clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    
+    let _ = get_links(
+        agent_info()?.agent_latest_pubkey.into(),
+        Some(LinkTag::new("Invitee")),
+    )?
+    .into_inner()
+    .into_iter()
+    .filter(|link| link.target == invitation_entry_hash.clone())
+    .map(|link_to_invitation| -> ExternResult<()> {
+        delete_entry(link_to_invitation.create_link_hash)?;
+        Ok(())
+    });
+
+    return Ok(true);
 }
 
 // //HELPERS

@@ -1,41 +1,72 @@
 <!DOCTYPE html>
 <html lang="en-GB">
-<head>
-  <meta charset="utf-8" />
-  <link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet" />
-</head>
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Material+Icons&display=block"
+      rel="stylesheet"
+    />
 
-<body>
-  <invitations-list></invitations-list>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  </head>
 
-  <script type="module">
-    import { html, render } from 'lit-html';
-    import {
-      InvitationsList,
-      InvitationsService,
-      InvitationsStore,
-    } from '../dist';
+  <body>
+    <invitations-list></invitations-list>
+    <!-- <create-invitation></create-invitation> -->
 
-    import ConductorApi from '@holochain/conductor-api';
-    import { connectDeps } from '@holochain-open-dev/common';
+    <script type="module">
+      import { html, render } from 'lit-html';
+      import {
+        CreateInvitation,
+        InvitationsList,
+        InvitationsService,
+        InvitationsStore,
+      } from '../dist';
 
-    // (async function () {
-    //   let store = undefined;
-    //   const appWebsocket = await ConductorApi.AppWebsocket.connect(
-    //     'ws://localhost:8888'
-    //   );
-    //   const appInfo = await appWebsocket.appInfo({
-    //     installed_app_id: 'test-app',
-    //   });
+      import {
+        ProfilesService,
+        ProfilesStore,
+      } from '@holochain-open-dev/profiles';
 
-    //   const cellId = appInfo.cell_data[0].cell_id;
+      import ConductorApi from '@holochain/conductor-api';
+      import { connectDeps } from '@holochain-open-dev/common';
 
-    // })();
+      (async function () {
+        let store = undefined;
+        const appWebsocket = await ConductorApi.AppWebsocket.connect(
+          'ws://localhost:8888'
+        );
+        const appInfo = await appWebsocket.appInfo({
+          installed_app_id: 'test-app',
+        });
 
-    customElements.define('invitations-list', InvitationsList);
-  </script>
+        const cellId = appInfo.cell_data[0].cell_id;
 
-  <!-- <script type="module">
+        const profile_service = new ProfilesService(appWebsocket, cellId);
+        const profile_store = new ProfilesStore(profile_service);
+
+        const invitations_service = new InvitationsService(
+          appWebsocket,
+          cellId
+        );
+        const invitations_store = new InvitationsStore(
+          invitations_service,
+          profile_store
+        );
+
+        customElements.define(
+          'create-invitation',
+          connectDeps(CreateInvitation, invitations_store)
+        );
+
+        customElements.define(
+          'invitations-list',
+          connectDeps(InvitationsList, invitations_store) 
+        );
+      })();
+    </script>
+
+    <!-- <script type="module">
       import { html, render } from 'lit-html';
       import ConductorApi from '@holochain/conductor-api';
       import { HodCalendarEvent } from '../dist';
@@ -58,6 +89,5 @@
         );
       })();
     </script> -->
-</body>
-
+  </body>
 </html>
