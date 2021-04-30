@@ -30,6 +30,7 @@
     "@holochain-open-dev/common": "git+https://github.com/holochain-open-dev/common.git#ui-build",
     "@holochain/conductor-api": "0.0.3",
     "@material/mwc-button": "^0.20.0",
+    "@material/mwc-circular-progress": "^0.20.0",
     "@material/mwc-list": "^0.20.0",
     "@material/mwc-tab-bar": "^0.20.0",
     "fs": "0.0.1-security",

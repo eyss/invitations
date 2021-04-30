@@ -4,10 +4,17 @@ import {
   connectDeps,
   DepsElement,
 } from '@holochain-open-dev/common';
-import { CreateProfileForm, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
+import {
+  CreateProfileForm,
+  ProfilePrompt,
+  SearchAgent,
+} from '@holochain-open-dev/profiles';
 import { html, css, property } from 'lit-element';
 import { InvitationsStore } from '../invitations.store';
-import { InvitationItem } from './InvitationItem';
+import { InvitationItem } from './invitation-item';
+
+
+import {CircularProgress} from '@material/mwc-circular-progress';
 
 export abstract class CreateInvitation
   extends MobxReactionUpdate(BaseElement)
@@ -16,18 +23,16 @@ export abstract class CreateInvitation
 
   render() {
     return html`
-      <div class="invitations">
-        <h1>Hello World</h1>
-        <search-agent include-myself ></search-agent>
-        <h1>LOGIN</h1>
-      </div>
+
+      <h1>Hello WOrld</h1>
+
     `;
   }
 
   getScopedElements() {
     return {
-      'search-agent': connectDeps(SearchAgent, this._deps.profilesStore),
-      'create-profile-form': connectDeps(CreateProfileForm, this._deps.profilesStore),
+      'mwc-circular-progress': CircularProgress,
     };
   }
+
 }

@@ -8,7 +8,7 @@ import {
 import { SearchAgent } from '@holochain-open-dev/profiles';
 import { html, css, LitElement, property } from 'lit-element';
 import { InvitationsStore } from '../invitations.store';
-import { InvitationItem } from './InvitationItem';
+import { InvitationItem } from './invitation-item';
 
 import { Icon } from '@material/mwc-icon';
 import { List } from '@material/mwc-list';
