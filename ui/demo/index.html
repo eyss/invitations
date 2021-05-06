@@ -10,14 +10,18 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
   </head>
 
+
+  <link rel="stylesheet" href="styles.css">
+
+
   <body>
     <!-- <invitations-list></invitations-list> -->
     <profile-prompt>
-      <!-- <search-agent include-myself ></search-agent> -->
       <create-invitation></create-invitation>
     </profile-prompt>
 
 
+    <invitations-list></invitations-list>
 
     <script type="module">
       import { html, render } from 'lit-html';
@@ -35,13 +39,18 @@
         SearchAgent
       } from '@holochain-open-dev/profiles';
 
-      import ConductorApi from '@holochain/conductor-api';
+      import ConductorApi  from '@holochain/conductor-api';
       import { connectDeps } from '@holochain-open-dev/common';
+
+      const signalCb = (signal) => {
+        // impl...
+        console.log(signal.data.payload.payload);
+      }
 
       (async function () {
         let store = undefined;
         const appWebsocket = await ConductorApi.AppWebsocket.connect(
-          'ws://localhost:8888'
+          'ws://localhost:8888', 12000, signalCb
         );
         const appInfo = await appWebsocket.appInfo({
           installed_app_id: 'test-app',

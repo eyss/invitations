@@ -9,7 +9,7 @@ export class InvitationsService {
     public zomeName = 'invitations'
   ) {}
 
-    async SendInvitation(input: AgentPubKey):Promise<void>{
+    async SendInvitation(input: AgentPubKey[]):Promise<void>{
         return this.callZome('send_invitation', input);
     }
 

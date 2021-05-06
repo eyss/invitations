@@ -74,32 +74,56 @@ export abstract class InvitationItem
     }
 
     .data {
-      padding: 0.3em;
-      margin: 0.3em;
+      padding: 1em;
+      margin: 1em;
       display: flex;
       align-items: flex-start;
       // justify-content: flex-start;
       // border: 1px solid gray;
 
+      color: rgba(0, 0, 0, 0.54);
       flex-direction: column;
+      overflow-x: hidden;
     }
 
     .data .center {
       align-self: center;
     }
+    .secondary-text{
+      color: rgba(0, 0, 0, 0.54)
+    }
+  
+
   `;
 
   firstUpdated() {
-
     this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
     this.setInvitationStatus();
+  }
+
+  async _updateItemInfo(){
+    // await this._deps.fectMyPendingInvitations();//this statement its called from the store 
+    this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
+    this.requestUpdate();
+  }
+
+
+  async _rejectInvitation(){
+    console.log("Rejecting invitation");
+    await this._deps.rejectInvitation(this.invitation_entry_hash);
+    await this._updateItemInfo();
+  }
+
+  async _aceptInvitation(){
+    console.log("Acepcting invitation");
+    await this._deps.acceptInvitation(this.invitation_entry_hash);
+    await this._updateItemInfo();
   }
 
   setInvitationStatus() {
 
     if (this.invitation_entry_info.invitees_who_rejected.length > 0) {
       this.status = 'rejected';
-      this.icon = 'thumb_down_off_alt';
       return;
     }
     if (
@@ -107,101 +131,114 @@ export abstract class InvitationItem
       this.invitation_entry_info.invitation.invitees.length
     ) {
       this.status = 'accepted';
-      this.icon = 'thumb_up_off_alt';
+     
 
       return;
     }
     this.status = 'pending';
-    this.icon = 'pending';
+    
     return;
   }
 
   render() {
 
     return html`
-      <mwc-list-item twoline graphic="avatar" hasMeta @click="${this._toggle}">
-        <span>Invitation Entry</span>
-        <span slot="secondary"
-          >${this.invitation_entry_info.invitation_entry_hash}</span
-        >
+      <mwc-list-item twoline graphic="avatar" hasMeta @click="${this._toggle}" >
+      
         <mwc-icon slot="graphic">mail</mwc-icon>
-        <mwc-icon slot="meta">${this.icon}</mwc-icon>
+        <span>Invitation Entry:   <span class="secondary-text"> ${this.status}</span> </span>
+
+        ${this.status == "rejected"?
+          html`
+            <span slot="secondary"> rejected by : ${this.invitation_entry_info.invitees_who_rejected.length}/${this.invitation_entry_info.invitation.invitees.length} invitees </span>
+          `:
+          html`
+            <span slot="secondary"> accepted by : ${this.invitation_entry_info.invitees_who_accepted.length}/${this.invitation_entry_info.invitation.invitees.length} invitees </span>
+            `
+          }
+          <mwc-icon slot="meta">info</mwc-icon>
+
       </mwc-list-item>
 
-      ${this.activated
-        ? html` <div class="invitation_info">
-            <mwc-tab-bar activeIndex="0">
-              <mwc-tab
-                @click="${this._setActiveTab}"
-                label="Invitation Info"
-                value="0"
-              ></mwc-tab>
-              <mwc-tab
-                @click="${this._setActiveTab}"
-                label="Accepted By"
-                value="1"
-              ></mwc-tab>
-              <mwc-tab
-                @click="${this._setActiveTab}"
-                label="Rejected By"
-                value="2"
-              ></mwc-tab>
-            </mwc-tab-bar>
 
-            ${this.active_tab == 0
-              ? html`
-                  <div class="data">
-                    <div class="center">TITLE</div>
-                    <div>
-                      Inviter: ${this.invitation_entry_info.invitation.inviter}
-                    </div>
-                    <div>
-                      Invitees:
-                      <ul>
-                        ${this.invitation_entry_info.invitation.invitees.map(
-                          invitee => html` <li>${invitee}</li> `
-                        )}
-                      </ul>
-                    </div>
+    ${this.activated
+      ? html` <div class="">
+          <mwc-tab-bar activeIndex="0">
+            <mwc-tab
+              @click="${this._setActiveTab}"
+              label="Invitation Info"
+              value="0"
+            ></mwc-tab>
+            <mwc-tab
+              @click="${this._setActiveTab}"
+              label="Accepted By"
+              value="1"
+            ></mwc-tab>
+            <mwc-tab
+              @click="${this._setActiveTab}"
+              label="Rejected By"
+              value="2"
+            ></mwc-tab>
+          </mwc-tab-bar>
 
-                    <div>
-                      Timestamp:${this.invitation_entry_info.invitation
-                        .timestamp}
-                    </div>
 
-                    <div class="center">
-                      ${this.status == 'pending'
-                        ? html`
-                            <mwc-button
-                              label="ACCEPT"
-                              icon="check"
-                            ></mwc-button>
-                            <mwc-button
-                              label="REJECT"
-                              icon="close"
-                            ></mwc-button>
-                          `
-                        : html``}
-                      ${this.status == 'rejected'
-                        ? html`
-                            <mwc-button
-                              label="DELETE"
-                              icon="delete"
-                            ></mwc-button>
-                          `
-                        : html``}
-                      ${this.status == 'accepted'
-                        ? html`
-                            <mwc-button
-                              label="ACCEPTED"
-                              icon="done"
-                            ></mwc-button>
-                          `
-                        : html``}
-                    </div>
+          ${this.active_tab == 0
+            ? html`
+                <div class="data">
+                  <div>
+                    Inviter: ${this.invitation_entry_info.invitation.inviter}
                   </div>
-                `
-              : html``}
+                  <div>
+                    Invitees:
+                    <ul>
+                      ${this.invitation_entry_info.invitation.invitees.map(
+                        invitee => html` <li>${invitee}</li> `
+                      )}
+                    </ul>
+                  </div>
+
+                  <div>
+                    Timestamp:${this.invitation_entry_info.invitation
+                      .timestamp}
+                  </div>
+
+                  <div class="center">
+                    ${this.status == 'pending'
+                      ? html`
+                          <mwc-button
+                            label="ACCEPT"
+                            icon="check"
+
+                            @click="${this._aceptInvitation}"
+                          ></mwc-button>
+                          <mwc-button
+                            label="REJECT"
+                            icon="close"
+
+                            @click="${this._rejectInvitation}"
+                          ></mwc-button>
+                        `
+                      : html``}
+                    ${this.status == 'rejected'
+                      ? html`
+                          <mwc-button
+                            label="DELETE"
+                            icon="delete"
+                          ></mwc-button>
+                        `
+                      : html``}
+                    ${this.status == 'accepted'
+                      ? html`
+                          <mwc-button
+                            label="ACCEPTED"
+                            icon="done"
+                          ></mwc-button>
+                        `
+                      : html``}
+                  </div>
+                </div>
+              `
+            : html``}
             ${this.active_tab == 1
               ? html`
                   <div class="data">
@@ -229,9 +266,13 @@ export abstract class InvitationItem
                     </div>
                   </div>
                 `
-              : html``}
-          </div>`
-        : html``}
+              : html``}            
+
+
+
+
+        </div>`
+      : html``}
     `;
   }
 
@@ -270,3 +311,26 @@ export abstract class InvitationItem
     }
   }
 }
+
+// twoline graphic="avatar" hasMeta
+// <span>Invitation Entry</span>
+// <span slot="secondary">${this.invitation_entry_info.invitation_entry_hash} </span>
+// <mwc-icon slot="graphic">mail</mwc-icon>
+// <mwc-button slot="meta">Hola</mwc-button>
+
+
+// <div style="display:flex" class="list-item" >
+        
+// <mwc-list-item class="no-hover" twoline graphic="avatar" hasMeta>
+
+//   <span>Invitation Entry</span>
+//   <span slot="secondary">${this.invitation_entry_info.invitation_entry_hash} </span>
+//   <mwc-icon slot="graphic">mail</mwc-icon>
+  
+// </mwc-list-item>
+
+// <mwc-button slot="meta" style="align-self:center;">Hola</mwc-button>
+
+// </div>
+
+      // <mwc-button  style="align-self:center;">Hola</mwc-button>

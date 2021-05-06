@@ -81,8 +81,7 @@ export class InvitationsStore {
     @action
     public async fectMyPendingInvitations()  {  //Promise<void>
         // Pedir al backend
-        
-        // const pending_invitations_entries_info: InvitationEntryInfo[] = await this.invitationsService.getMyPendingInvitations();
+        const pending_invitations_entries_info: InvitationEntryInfo[] = await this.invitationsService.getMyPendingInvitations();
 
         runInAction(() => {
             // Actualizar los datos dentro del runInAction para hacer trigger del render
@@ -91,7 +90,7 @@ export class InvitationsStore {
             // }
 
             //temporal assignment of the values fo testing purposes 
-            data.map((invitation_entry_info) =>{
+            pending_invitations_entries_info.map((invitation_entry_info) =>{
                 this.invitations[invitation_entry_info.invitation_entry_hash] = invitation_entry_info;
             });
         });
@@ -105,8 +104,9 @@ export class InvitationsStore {
     }
 
     @action 
-    public async sendInvitation(guest: AgentPubKey){
-        const create_invitation = await this.invitationsService.SendInvitation(guest);
+    public async sendInvitation(inviteesList: AgentPubKey[]){
+        const create_invitation = await this.invitationsService.SendInvitation(inviteesList);
+        
         runInAction(async ()=>{
             await this.fectMyPendingInvitations();
         })
