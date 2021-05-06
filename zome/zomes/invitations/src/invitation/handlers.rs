@@ -117,6 +117,12 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
     //     .collect();
 
     // NOTIFY ALL THE INVITEES
+
+    create_link(
+        invitation_entry_hash.clone(),
+        agent_info()?.agent_latest_pubkey.into(),
+        LinkTag::new(String::from("Rejected")),
+    )?;
     
     
     // NOTIFY ALL THE INVITEES (except for those who rejected this invitation before)
@@ -194,16 +200,16 @@ pub fn _clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
     return Ok(true);
 }
 
-// //HELPERS
+//HELPERS
 fn get_invitations_entry_info(
     invitation_entry_hash: EntryHash,
 ) -> ExternResult<InvitationEntryInfo> {
+
     let invitation_entry_element: Element =
         get(invitation_entry_hash.clone(), GetOptions::content())?
-            .ok_or_else(|| WasmError::Guest("we dont found the given hash".into()))?;
+            .ok_or_else(|| WasmError::Guest("we dont found the given hash ".into()))?;
 
-    let invitation_header_hash: HeaderHash =
-        invitation_entry_element.clone().header_address().to_owned();
+    let invitation_header_hash: HeaderHash = invitation_entry_element.clone().header_address().to_owned();
 
     let invitation_entry: Invitation = invitation_entry_element
         .clone()
@@ -212,6 +218,8 @@ fn get_invitations_entry_info(
         .ok_or_else(|| WasmError::Guest("we dont found the given hash".into()))?;
 
     //GET LINKS ON THE ENTRY HASH TO KNOWN WICH INVITEES HAVE ALREADY ACCEPTED THIS INVITATION
+
+    //INVITEES WHO ACCEPTED
 
     let invitees_who_accepted: Vec<AgentPubKey> = get_links(
         invitation_entry_hash.clone(),
@@ -224,41 +232,100 @@ fn get_invitations_entry_info(
     })
     .collect();
 
-    let invitation_entry_details =
-        get_details::<HeaderHash>(invitation_header_hash.clone(), GetOptions::content())?
-            .ok_or_else(|| {
-                WasmError::Guest("we dont found the details for the  given hash".into())
-            })?;
+    //INVITEES WHO REJECTED
 
-    match invitation_entry_details {
-        Details::Element(element_details) => {
-            let invitees_who_rejected: Vec<AgentPubKey> = element_details
-                .deletes
-                .into_iter()
-                .map(
-                    |delete_signed_header_hashed: SignedHeaderHashed| -> AgentPubKey {
-                        let header_author: AgentPubKey =
-                            delete_signed_header_hashed.header().author().to_owned();
-                        return header_author;
-                    },
-                )
-                .collect();
+    let invitees_who_rejected: Vec<AgentPubKey> = get_links(
+        invitation_entry_hash.clone(),
+        Some(LinkTag::new("Rejected")),
+    )?
+    .into_inner()
+    .into_iter()
+    .map(|link| -> AgentPubKey {
+        return link.target.into();
+    })
+    .collect();
 
-            return Ok(InvitationEntryInfo {
-                invitation: invitation_entry,
-                invitation_entry_hash,
-                invitation_header_hash,
-                invitees_who_accepted,
-                invitees_who_rejected,
-            });
-        }
-        _ => {}
-    }
-
-    return Err(WasmError::Guest(
-        "we dont found the invitation info for this hash ".into(),
-    ));
+    return Ok(InvitationEntryInfo {
+        invitation: invitation_entry,
+        invitation_entry_hash,
+        invitation_header_hash,
+        invitees_who_accepted,
+        invitees_who_rejected,
+    });
 }
+
+
+//new
+// fn get_invitations_entry_info(
+//     invitation_entry_hash: EntryHash,
+// ) -> ExternResult<InvitationEntryInfo> {
+//     let invitation_entry_element: Element =
+//         get(invitation_entry_hash.clone(), GetOptions::content())?
+//             .ok_or_else(|| WasmError::Guest("we dont found the given hash Hola ".into()))?;
+
+//     let invitation_header_hash: HeaderHash =
+//         invitation_entry_element.clone().header_address().to_owned();
+
+//     let invitation_entry: Invitation = invitation_entry_element
+//         .clone()
+//         .entry()
+//         .to_app_option()?
+//         .ok_or_else(|| WasmError::Guest("we dont found the given hash".into()))?;
+
+//     //GET LINKS ON THE ENTRY HASH TO KNOWN WICH INVITEES HAVE ALREADY ACCEPTED THIS INVITATION
+
+//     let invitees_who_accepted: Vec<AgentPubKey> = get_links(
+//         invitation_entry_hash.clone(),
+//         Some(LinkTag::new("Accepted")),
+//     )?
+//     .into_inner()
+//     .into_iter()
+//     .map(|link| -> AgentPubKey {
+//         return link.target.into();
+//     })
+//     .collect();
+
+
+    
+
+//     let invitation_entry_details =
+//         get_details::<HeaderHash>(invitation_header_hash.clone(), GetOptions::content())?
+//             .ok_or_else(|| {
+//                 WasmError::Guest("we dont found the details for the  given hash".into())
+//             })?;
+
+//     match invitation_entry_details {
+//         Details::Element(element_details) => {
+//             let invitees_who_rejected: Vec<AgentPubKey> = element_details
+//                 .deletes
+//                 .into_iter()
+//                 .map(
+//                     |delete_signed_header_hashed: SignedHeaderHashed| -> AgentPubKey {
+//                         let header_author: AgentPubKey =
+//                             delete_signed_header_hashed.header().author().to_owned();
+//                         return header_author;
+//                     },
+//                 )
+//                 .collect();
+
+//             return Ok(InvitationEntryInfo {
+//                 invitation: invitation_entry,
+//                 invitation_entry_hash,
+//                 invitation_header_hash,
+//                 invitees_who_accepted,
+//                 invitees_who_rejected,
+//             });
+//         }
+//         _ => {}
+//     }
+
+//     return Err(WasmError::Guest(
+//         "we dont found the invitation info for this hash ".into(),
+//     ));
+// }
+
+
+//old
 
 // fn get_invitation_entry_info<H>(input_hash: H) -> ExternResult<InvitationEntryInfo>
 // where

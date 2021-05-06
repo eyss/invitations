@@ -71,6 +71,11 @@ export function ZomeTest(config, installAgents) {
         await rejectInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
         await delay(1000);
 
+
+        // await acceptInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
+        // await delay(1000);
+
+
         bobby_invitations = await getPendingInvitations(bobby_conductor);
         await delay(100);
 
