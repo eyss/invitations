@@ -7,7 +7,8 @@ use super::{Invitation, InvitationEntryInfo, InviteesList};
 pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
     let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
     let mut invited_agents: Vec<AgentPubKey> = invitees_list.0.clone();
-    invited_agents.append(&mut vec![agent_pub_key.clone()]);
+    
+    invited_agents.push(agent_pub_key.clone());
 
     let invitation = Invitation {
         invitees: invitees_list.0.clone(),
@@ -80,37 +81,67 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 
     //MARK THE INVITATION ENTRY AS DELETED
 
-    let invitation_entry_element: Element =
-        get(invitation_entry_hash.clone(), GetOptions::content())?.ok_or_else(|| {
-            WasmError::Guest("we dont found the invitation entry for the given hash".into())
-        })?;
 
-    delete_entry(invitation_entry_element.header_address().to_owned())?;
+    // match get(invitation_entry_hash.clone(), GetOptions::content())? {
+
+    //     Some(invitation_entry_element)=>{
+    //         delete_entry(invitation_entry_element.header_address().to_owned())?;
+    //     },
+
+    //     None => {}
+    // }
+
+    // let invitation_entry_element: Element =
+    //     get(invitation_entry_hash.clone(), GetOptions::content())?.ok_or_else(|| {
+    //         WasmError::Guest("we dont found the invitation entry for the given hash".into())
+    //     })?;
+
+    // delete_entry(invitation_entry_element.header_address().to_owned())?; // this is creating bugs 
 
     // NOTIFY ALL THE INVITEES
 
-    let invitation_entry_invitees: Vec<AgentPubKey> = invitation_entry_element
-        .entry()
-        .to_app_option::<Invitation>()?
-        .ok_or_else(|| {
-            WasmError::Guest("we dont found the invitation entry for the given element".into())
-        })?
-        .invitees
-        .into_iter()
-        .filter(|invitee| {
-            if invitee.to_owned() != my_pub_key.clone() {
-                return true;
-            }
-            return false;
-        })
-        .collect();
+    // let invitation_entry_invitees: Vec<AgentPubKey> = invitation_entry_element
+    //     .entry()
+    //     .to_app_option::<Invitation>()?
+    //     .ok_or_else(|| {
+    //         WasmError::Guest("we dont found the invitation entry for the given element".into())
+    //     })?
+    //     .invitees
+    //     .into_iter()
+    //     .filter(|invitee| {
+    //         if invitee.to_owned() != my_pub_key.clone() {
+    //             return true;
+    //         }
+    //         return false;
+    //     })
+    //     .collect();
+
+    // NOTIFY ALL THE INVITEES
+    
+    
+    // NOTIFY ALL THE INVITEES (except for those who rejected this invitation before)
+    
+    let invitation_entry_info: InvitationEntryInfo = get_invitations_entry_info(invitation_entry_hash.clone())?;
+
+    let send_signal_to: Vec<AgentPubKey> = 
+        invitation_entry_info.
+        invitation.
+        invitees.clone().
+        into_iter().
+        filter(|invitee|{
+
+            !invitation_entry_info.clone().invitees_who_rejected.contains(&invitee)
+
+        }).
+        collect();
+
 
     let signal: SignalDetails = SignalDetails {
         name: SignalName::INVITATION_REJECTED.to_owned(),
         payload: SignalPayload::InvitationRejected(invitation_entry_hash),
     };
 
-    remote_signal(ExternIO::encode(signal)?, invitation_entry_invitees)?;
+    remote_signal(ExternIO::encode(signal)?, send_signal_to)?;
 
     Ok(true)
 }

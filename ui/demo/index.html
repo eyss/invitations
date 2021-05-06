@@ -42,16 +42,14 @@
       import ConductorApi  from '@holochain/conductor-api';
       import { connectDeps } from '@holochain-open-dev/common';
 
-      const signalCb = (signal) => {
-        // impl...
-        console.log(signal.data.payload.payload);
-      }
 
       (async function () {
         let store = undefined;
         const appWebsocket = await ConductorApi.AppWebsocket.connect(
-          'ws://localhost:8888', 12000, signalCb
+          'ws://localhost:8888', 12000
         );
+
+
         const appInfo = await appWebsocket.appInfo({
           installed_app_id: 'test-app',
         });
@@ -69,6 +67,7 @@
           invitations_service,
           profile_store
         );
+
 
         customElements.define(
           'create-invitation',

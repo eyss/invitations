@@ -104,6 +104,8 @@ export abstract class CreateInvitation
     await this._deps.sendInvitation(invitees_list);
     await this._pedignInvitations();
 
+    this.requestUpdate();
+
     console.log(this.invitees);
   }
 

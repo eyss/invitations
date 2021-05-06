@@ -102,16 +102,21 @@ export abstract class InvitationItem
   }
 
   async _updateItemInfo(){
-    // await this._deps.fectMyPendingInvitations();//this statement its called from the store 
+    await this._deps.fectMyPendingInvitations();//this statement its called from the store 
     this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
+    this.setInvitationStatus();
     this.requestUpdate();
   }
 
 
   async _rejectInvitation(){
     console.log("Rejecting invitation");
-    await this._deps.rejectInvitation(this.invitation_entry_hash);
-    await this._updateItemInfo();
+    let result = await this._deps.rejectInvitation(this.invitation_entry_hash);
+    // await this._updateItemInfo();
+    
+    console.log(result);
+    
+    delete this._deps.invitations[this.invitation_entry_hash]
   }
 
   async _aceptInvitation(){

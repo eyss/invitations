@@ -418,19 +418,19 @@ dependencies = [
 [[package]]
 name = "profiles"
 version = "0.0.1"
+dependencies = [
+ "profiles 0.0.1 (git+https://github.com/holochain-open-dev/profiles?branch=main)",
+]
+
+[[package]]
+name = "profiles"
+version = "0.0.1"
 source = "git+https://github.com/holochain-open-dev/profiles?branch=main#7a48e2171c82ed3b986c1f0f6eb63cc4822b4044"
 dependencies = [
  "derive_more",
  "hdk",
  "holo_hash",
  "serde",
-]
-
-[[package]]
-name = "profiles"
-version = "0.0.1"
-dependencies = [
- "profiles 0.0.1 (git+https://github.com/holochain-open-dev/profiles?branch=main)",
 ]
 
 [[package]]

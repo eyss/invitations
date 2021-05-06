@@ -7,7 +7,7 @@ export class InvitationsService {
     public appWebsocket: AppWebsocket,
     public cellId: CellId,
     public zomeName = 'invitations'
-  ) {}
+  ) { }
 
     async SendInvitation(input: AgentPubKey[]):Promise<void>{
         return this.callZome('send_invitation', input);
