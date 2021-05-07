@@ -6,7 +6,7 @@ const sendInvitation = (guest_pub_key) => (conductor) => conductor.call("invitat
 const getPendingInvitations = (conductor) => conductor.call("invitations", "get_my_pending_invitations",);
 const acceptInvitation = (invitation_entry_hash) =>(conductor) => conductor.call("invitations", "accept_invitation",invitation_entry_hash);
 const rejectInvitation = (invitation_entry_hash) => (conductor) => conductor.call("invitations", "reject_invitation",invitation_entry_hash);
-
+const getDetails = (invitation_entry_hash) => (conductor) => conductor.call("invitations", "my_get_details",invitation_entry_hash);
 export function ZomeTest(config, installAgents) {
 
     let orchestrator = new Orchestrator();
@@ -70,11 +70,8 @@ export function ZomeTest(config, installAgents) {
 
         await rejectInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
         await delay(1000);
-
-
         // await acceptInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
         // await delay(1000);
-
 
         bobby_invitations = await getPendingInvitations(bobby_conductor);
         await delay(100);
@@ -89,6 +86,7 @@ export function ZomeTest(config, installAgents) {
         console.log(alicePubKey);
         console.log(`Alice Invitation list:`);
         console.log(alice_invitations);
+        
 
     });
 

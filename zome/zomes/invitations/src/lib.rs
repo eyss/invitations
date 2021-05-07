@@ -5,11 +5,7 @@ mod signals;
 
 use invitation::handlers;
 
-use invitation::{
-    Invitation,
-    InvitationEntryInfo, 
-    InviteesList,
-};
+use invitation::{Invitation, InvitationEntryInfo, InviteesList};
 
 use signals::SignalDetails;
 
@@ -63,5 +59,3 @@ fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
 fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     return handlers::reject_invitation(invitation_entry_hash);
 }
-
-
