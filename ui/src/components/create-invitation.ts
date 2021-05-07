@@ -172,9 +172,7 @@ export abstract class CreateInvitation
   
       </div>
 
-      <button @click = "${this._printInvitees}">CLick me </button>
-      <button @click = "${this._printMe}">Alice</button>
-      <button @click = "${this._pedignInvitations}">Invitations</button>
+
       
     `;
   }
@@ -192,6 +190,10 @@ export abstract class CreateInvitation
 }
 
 
+// this elements are used for testing purposes
+// <button @click = "${this._printInvitees}">CLick me </button>
+// <button @click = "${this._printMe}">Alice</button>
+// <button @click = "${this._pedignInvitations}">Invitations</button>
 
 
 // InviteesList() {
