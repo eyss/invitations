@@ -73,7 +73,7 @@ export abstract class CreateInvitation
 
   _addInvitee(e: CustomEvent) {
 
-    console.log(e.detail.agent.profile.nickname);  
+    // console.log(e.detail.agent.profile.nickname);  
     
     this.invitees[e.detail.agent.agent_pub_key] = e.detail.agent.profile.nickname;
     this.requestUpdate();
@@ -102,11 +102,14 @@ export abstract class CreateInvitation
     });
 
     await this._deps.sendInvitation(invitees_list);
-    await this._pedignInvitations();
+    // await this._pedignInvitations();
+
+    await this._deps.fectMyPendingInvitations();
+
 
     this.requestUpdate();
 
-    console.log(this.invitees);
+    // console.log(this.invitees);
   }
 
   async _pedignInvitations(){
@@ -171,8 +174,6 @@ export abstract class CreateInvitation
         </div>
   
       </div>
-
-
       
     `;
   }
@@ -190,11 +191,10 @@ export abstract class CreateInvitation
 }
 
 
-// this elements are used for testing purposes
+// THIS BUTTOMS ARE USED FOR TESTING PURPOSES 
 // <button @click = "${this._printInvitees}">CLick me </button>
 // <button @click = "${this._printMe}">Alice</button>
 // <button @click = "${this._pedignInvitations}">Invitations</button>
-
 
 // InviteesList() {
 

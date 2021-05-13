@@ -31,15 +31,9 @@ export abstract class InvitationsList
     }
   `;
 
-  async loadData() {
-    await this._deps.fectMyPendingInvitations();
-    
-  }
+  async firstUpdated() {    
 
-  async firstUpdated() {
-    console.log("Hola");
-    
-    await this.loadData();
+    await this._deps.fectMyPendingInvitations();
   }
 
   render() {
@@ -47,13 +41,6 @@ export abstract class InvitationsList
       <div class="invitations">
         ${
           Object.entries(this._deps.invitations).map(element => {
-            // Object.entries(element[1]).map((element)=>{
-
-              
-              
-            // });
-            console.log(element[1].invitees_who_accepted.length);
-
             return html`<invitation-item .invitation_entry_hash=${element[1].invitation_entry_hash}> </invitation-item>`;
           })
         }

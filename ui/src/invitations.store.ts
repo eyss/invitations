@@ -10,6 +10,7 @@ import { InvitationsService } from './invitations.service';
 import { ProfilesService, ProfilesStore } from '@holochain-open-dev/profiles';
 
 import { AgentPubKey, HeaderHash, Invitation, Dictionary, InvitationEntryInfo } from './types';
+import { table } from 'console';
 
 export class InvitationsStore {
 
@@ -28,16 +29,13 @@ export class InvitationsStore {
     
 
     @action
-    public async fectMyPendingInvitations()  {  //Promise<void>
+    public async fectMyPendingInvitations() {  //Promise<void>
         // Pedir al backend
         const pending_invitations_entries_info: InvitationEntryInfo[] = await this.invitationsService.getMyPendingInvitations();
 
         runInAction(() => {
             // Actualizar los datos dentro del runInAction para hacer trigger del render
-            // for (const invitation_entry_info of pending_invitations_entries_info) {
-            //     this.invitations[invitation_entry_info.invitation_entry_hash] = invitation_entry_info;
-            // }
-            //temporal assignment of the values fo testing purposes 
+
             pending_invitations_entries_info.map((invitation_entry_info) =>{
                 this.invitations[invitation_entry_info.invitation_entry_hash] = invitation_entry_info;
             });
@@ -69,5 +67,19 @@ export class InvitationsStore {
         runInAction(async ()=>{
             await this.fectMyPendingInvitations();
         })
+    }
+
+    @action 
+    async signalHandler(signal:any){
+
+
+
+        runInAction(async ()=>{
+
+            console.log("Hola");
+    
+            await this.fectMyPendingInvitations();
+        })
+
     }
 };

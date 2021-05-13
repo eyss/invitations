@@ -62,6 +62,11 @@ export function ZomeTest(config, installAgents) {
         console.log(bobbyPubKey);
         console.log(`Bobby Invitation list:`);
         console.log(bobby_invitations);
+
+
+
+        console.log(bobby_invitations[0].invitation.timestamp);
+        
         
         console.log(alicePubKey);
         console.log(`Alice Invitation list:`);

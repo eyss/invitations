@@ -1,12 +1,19 @@
 use hdk::prelude::*;
 use std::time::Duration;
 
+use hc_utils::{
+    WrappedHeaderHash,
+    WrappedEntryHash,
+    WrappedAgentPubKey
+};
+
+
 pub mod handlers;
 
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct Invitation {
-    pub inviter: AgentPubKey,
-    pub invitees: Vec<AgentPubKey>,
+    pub inviter: WrappedAgentPubKey,
+    pub invitees: Vec<WrappedAgentPubKey>,
     pub timestamp: Duration,
 }
 
@@ -27,8 +34,8 @@ pub struct InviteesList(pub Vec<AgentPubKey>);
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct InvitationEntryInfo {
     pub invitation: Invitation,
-    pub invitation_entry_hash: EntryHash,
-    pub invitation_header_hash: HeaderHash,
-    pub invitees_who_accepted: Vec<AgentPubKey>,
-    pub invitees_who_rejected: Vec<AgentPubKey>,
+    pub invitation_entry_hash: WrappedEntryHash,
+    pub invitation_header_hash: WrappedHeaderHash,
+    pub invitees_who_accepted: Vec<WrappedAgentPubKey>,
+    pub invitees_who_rejected: Vec<WrappedAgentPubKey>,
 }

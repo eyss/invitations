@@ -15,6 +15,10 @@ import { TabBar } from '@material/mwc-tab-bar';
 import { Tab } from '@material/mwc-tab';
 import { InvitationEntryInfo } from '../types';
 import {  MobxReactionUpdate } from '@adobe/lit-mobx';
+import { AgentPubKey } from '@holochain/conductor-api';
+import { promises } from 'dns';
+import { Dictionary, Profile } from '@holochain-open-dev/profiles';
+import { Profiler } from 'inspector';
 
 export abstract class InvitationItem
   extends MobxReactionUpdate(BaseElement)
@@ -50,6 +54,12 @@ export abstract class InvitationItem
 
   @property({ type: String })
   invitation_entry_hash = '';
+
+  @property({type: Object})
+  profiles: Dictionary<Profile> = {};
+
+  @property({type: Boolean})
+  inviter = false;
 
   static styles = css`
     .invitation_info {
@@ -96,9 +106,37 @@ export abstract class InvitationItem
 
   `;
 
-  firstUpdated() {
+
+  async getAgentProfile(AgentPubKey: string): Promise<Profile> {
+
+    let agentProfile:any = this._deps.profilesStore.profileOf(AgentPubKey);
+
+    if(agentProfile){
+      return agentProfile;
+    }else{
+      await this._deps.profilesStore.fetchAgentProfile(AgentPubKey);
+      return this._deps.profilesStore.profiles[AgentPubKey];
+    }
+  }
+
+
+
+  async firstUpdated() {
     this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
     this.setInvitationStatus();
+
+    const my_profile =  this._deps.profilesStore.myProfile;
+
+    this.profiles[this.invitation_entry_info.invitation.inviter] = await this.getAgentProfile(this.invitation_entry_info.invitation.inviter);
+    this.inviter = (my_profile == this.profiles[this.invitation_entry_info.invitation.inviter])? true: false;
+
+    this.invitation_entry_info.invitation.invitees.map(async (invitee_pub_key)=>{
+
+      this.profiles[invitee_pub_key] = await this.getAgentProfile(invitee_pub_key);
+
+    });
+
+    this.invitation_entry_info.invitation.timestamp = new Date(this.invitation_entry_info.invitation.timestamp.secs*1000);
   }
 
   async _updateItemInfo(){
@@ -112,10 +150,6 @@ export abstract class InvitationItem
   async _rejectInvitation(){
     console.log("Rejecting invitation");
     let result = await this._deps.rejectInvitation(this.invitation_entry_hash);
-    // await this._updateItemInfo();
-    
-    console.log(result);
-    
     delete this._deps.invitations[this.invitation_entry_hash]
   }
 
@@ -191,24 +225,23 @@ export abstract class InvitationItem
             ? html`
                 <div class="data">
                   <div>
-                    Inviter: ${this.invitation_entry_info.invitation.inviter}
+                    Inviter: ${this.profiles[this.invitation_entry_info.invitation.inviter].nickname}
                   </div>
                   <div>
                     Invitees:
                     <ul>
                       ${this.invitation_entry_info.invitation.invitees.map(
-                        invitee => html` <li>${invitee}</li> `
+                        invitee => html` <li>${this.profiles[invitee].nickname}</li> `
                       )}
                     </ul>
                   </div>
 
                   <div>
-                    Timestamp:${this.invitation_entry_info.invitation
-                      .timestamp}
-                  </div>
+                    Timestamp: ${ this.invitation_entry_info.invitation.timestamp }
+                   </div>
 
                   <div class="center">
-                    ${this.status == 'pending'
+        ${this.status == 'pending' && !this.inviter
                       ? html`
                           <mwc-button
                             label="ACCEPT"
@@ -224,22 +257,6 @@ export abstract class InvitationItem
                           ></mwc-button>
                         `
                       : html``}
-                    ${this.status == 'rejected'
-                      ? html`
-                          <mwc-button
-                            label="DELETE"
-                            icon="delete"
-                          ></mwc-button>
-                        `
-                      : html``}
-                    ${this.status == 'accepted'
-                      ? html`
-                          <mwc-button
-                            label="ACCEPTED"
-                            icon="done"
-                          ></mwc-button>
-                        `
-                      : html``}
                   </div>
                 </div>
               `
@@ -251,7 +268,7 @@ export abstract class InvitationItem
                       Accepted_by:
                       <ul>
                         ${this.invitation_entry_info.invitees_who_accepted.map(
-                          invitee => html` <li>${invitee}</li> `
+                          invitee => html` <li>${this.profiles[invitee].nickname}</li> `
                         )}
                       </ul>
                     </div>
@@ -265,17 +282,13 @@ export abstract class InvitationItem
                       Rejected_by:
                       <ul>
                         ${this.invitation_entry_info.invitees_who_rejected.map(
-                          invitee => html` <li>${invitee}</li> `
+                          invitee => html` <li>${this.profiles[invitee].nickname}</li> `
                         )}
                       </ul>
                     </div>
                   </div>
                 `
               : html``}            
-
-
-
-
         </div>`
       : html``}
     `;
@@ -339,3 +352,4 @@ export abstract class InvitationItem
 // </div>
 
       // <mwc-button  style="align-self:center;">Hola</mwc-button>
+

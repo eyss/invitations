@@ -44,11 +44,17 @@
 
 
       (async function () {
-        let store = undefined;
-        const appWebsocket = await ConductorApi.AppWebsocket.connect(
-          'ws://localhost:8888', 12000
-        );
+        let invitations_store = undefined;
 
+        const signalCb = async (signal) => {
+
+          await invitations_store.signalHandler(signal);
+
+        }
+
+        const appWebsocket = await ConductorApi.AppWebsocket.connect(
+          'ws://localhost:8888', 12000, signalCb
+        );
 
         const appInfo = await appWebsocket.appInfo({
           installed_app_id: 'test-app',
@@ -63,11 +69,10 @@
           appWebsocket,
           cellId
         );
-        const invitations_store = new InvitationsStore(
+        invitations_store = new InvitationsStore(
           invitations_service,
           profile_store
         );
-
 
         customElements.define(
           'create-invitation',
@@ -85,9 +90,6 @@
           connectDeps(InvitationsList, invitations_store) 
         );
         
-        // await profile_service.getMyProfile()
-
-
         customElements.define(
           'profile-prompt',
           connectDeps(ProfilePrompt, profile_store)

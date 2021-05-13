@@ -11,5 +11,6 @@ name = "invitations"
 [dependencies]
 serde = "1"
 hdk = "0.0.100"
+hc_utils = "0"
 derive_more = "0"
 
