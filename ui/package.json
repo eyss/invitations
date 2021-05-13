@@ -10,6 +10,7 @@
     "start": "concurrently --kill-others \"npm:start-ui-alice\" \"npm:start-holochain\"",
     "start-ui-alice": "CONDUCTOR_URL=ws://localhost:8888 concurrently -k --names tsc,dev-server \"npm run build-watch\" \"web-dev-server --config demo/web-dev-server.config.mjs\"",
     "start-holochain": "RUST_LOG=warn hc s generate -r=8888 ../zome/workdir/happ/Invitations.happ network -b https://bootstrap-staging.holo.host quic",
+      
     "build": "rimraf dist && tsc",
     "build-watch": "tsc --watch",
     "test": "tsc && web-test-runner --coverage --puppeteer",
