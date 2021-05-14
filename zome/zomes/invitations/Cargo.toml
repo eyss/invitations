@@ -1,7 +1,7 @@
 [package]
 authors = ["manuel.r.puentes.d@gmail.com"]
 edition = "2018"
-name = "invitation"
+name = "invitations"
 version = "0.0.1"
 
 [lib]
@@ -9,8 +9,7 @@ crate-type = ["cdylib", "rlib"]
 name = "invitations"
 
 [dependencies]
-serde = "1"
-hdk = "0.0.100"
-hc_utils = "0"
 derive_more = "0"
-
+hdk = "0.0.100"
+holo_hash = "0.0.2-alpha.1"
+serde = "1"
