@@ -1,32 +1,34 @@
-use hdk::prelude::ElementEntry::Present;
 use hdk::prelude::*;
+use hdk::prelude::ElementEntry::Present;
 
-use holo_hash::{AgentPubKeyB64, EntryHashB64, HeaderHashB64};
+use hc_utils::{
+    WrappedHeaderHash,
+    WrappedEntryHash,
+    WrappedAgentPubKey
+};
+
 
 use crate::signals::{SignalDetails, SignalName, SignalPayload};
 
 use super::{Invitation, InvitationEntryInfo, InviteesList};
 
 pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
-    let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
+    
+    let agent_pub_key: AgentPubKey= agent_info()?.agent_latest_pubkey;
 
-    let invited_agents: Vec<AgentPubKeyB64> = invitees_list
-        .0
-        .clone()
-        .into_iter()
-        .map(|agent_pub_key| -> AgentPubKeyB64 {
-            return AgentPubKeyB64::from(agent_pub_key);
-        })
-        .collect();
+    let invited_agents: Vec<WrappedAgentPubKey> = invitees_list.0.clone().into_iter().map(|agent_pub_key|->WrappedAgentPubKey{
+        return WrappedAgentPubKey(agent_pub_key);
+    })
+    .collect();
 
     let invitation = Invitation {
         invitees: invited_agents,
-        inviter: AgentPubKeyB64::from(agent_pub_key.clone()),
+        inviter: WrappedAgentPubKey(agent_pub_key.clone()),
         timestamp: sys_time()?,
     };
 
     let invitation_entry_hash: EntryHash = hash_entry(invitation.clone())?;
-    let invitation_header_hash: HeaderHash = create_entry(invitation.clone())?;
+    let invitation_header_hash:HeaderHash = create_entry(invitation.clone())?;
 
     create_link(
         agent_pub_key.into(),
@@ -46,8 +48,8 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
         name: SignalName::INVITATION_RECEIVED.to_owned(),
         payload: SignalPayload::InvitationReceived(InvitationEntryInfo {
             invitation,
-            invitation_entry_hash: EntryHashB64::from(invitation_entry_hash),
-            invitation_header_hash: HeaderHashB64::from(invitation_header_hash),
+            invitation_entry_hash: WrappedEntryHash(invitation_entry_hash),
+            invitation_header_hash: WrappedHeaderHash(invitation_header_hash),
             invitees_who_accepted: vec![],
             invitees_who_rejected: vec![],
         }),
@@ -75,6 +77,7 @@ pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
 }
 
 pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+
     let my_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
 
     let my_pending_invitations_links = get_links(
@@ -100,9 +103,8 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 
     // MARK THE INVITATION ENTRY AS DELETED
 
-    let mut invitation_entry_info: InvitationEntryInfo =
-        get_invitations_entry_info(invitation_entry_hash.clone())?;
-    delete_entry(invitation_entry_info.clone().invitation_header_hash.into())?;
+    let mut invitation_entry_info:InvitationEntryInfo = get_invitations_entry_info(invitation_entry_hash.clone())?;
+    delete_entry(invitation_entry_info.clone().invitation_header_hash.0)?;
 
     // NOTIFY ALL THE INVITEES (except for those who rejected this invitation before)
 
@@ -117,18 +119,18 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
                 .invitees_who_rejected
                 .contains(&invitee)
         })
-        .map(|wrapped_agent_pub_key| -> AgentPubKey {
-            return wrapped_agent_pub_key.into();
+        .map(|wrapped_agent_pub_key|->AgentPubKey{
+            return wrapped_agent_pub_key.0;
         })
         .collect();
 
-    send_signal_to.push(invitation_entry_info.clone().invitation.inviter.into());
+    send_signal_to.push(invitation_entry_info.clone().invitation.inviter.0);
 
-    invitation_entry_info.invitees_who_rejected.push(AgentPubKeyB64::from(my_pub_key));
+    invitation_entry_info.invitees_who_rejected.push(WrappedAgentPubKey(my_pub_key));
 
     let signal: SignalDetails = SignalDetails {
         name: SignalName::INVITATION_REJECTED.to_owned(),
-        payload: SignalPayload::InvitationRejected(invitation_entry_info.clone()),
+        payload: SignalPayload::InvitationRejected(invitation_entry_info),
     };
 
     remote_signal(ExternIO::encode(signal)?, send_signal_to)?;
@@ -139,7 +141,7 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     // # WE WILL HANDLE THE INVITATION ACCEPTING PROCESS A BIT DIFERENCE DEPENDING IF THE INVITATION HAVE ONE OR SEVERAL INVITEES
     // #1 WE GET THE INVITATION ENTRY
-    
+
     let my_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
 
     let mut invitation_entry_info: InvitationEntryInfo =
@@ -149,33 +151,33 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
     if invitation_entry_info
         .invitation
         .invitees
-        .contains(&AgentPubKeyB64::from(my_pub_key.clone()))
+        .contains(& WrappedAgentPubKey(my_pub_key.clone()))
     {
         create_link(
             invitation_entry_hash.clone(),
             agent_info()?.agent_latest_pubkey.into(),
             LinkTag::new(String::from("Accepted")),
         )?;
-
-        invitation_entry_info.invitees_who_accepted.push(AgentPubKeyB64::from(my_pub_key));
+        
+        invitation_entry_info.invitees_who_accepted.push(WrappedAgentPubKey(my_pub_key));
 
         let signal: SignalDetails = SignalDetails {
             name: SignalName::INVITATION_ACCEPTED.to_owned(),
             payload: SignalPayload::InvitationAccepted(invitation_entry_info.clone()),
         };
 
-        let mut send_signal_to: Vec<AgentPubKey> = invitation_entry_info
-            .invitation
-            .invitees
-            .into_iter()
-            .map(|wrapped_agent_pub_key| -> AgentPubKey {
-                return wrapped_agent_pub_key.into();
+        let mut send_signal_to: Vec<AgentPubKey>  = 
+            invitation_entry_info.invitation.invitees.clone().into_iter().map(|wrapped_agent_pub_key|->AgentPubKey{
+                return wrapped_agent_pub_key.0;
             })
             .collect();
 
-        send_signal_to.push(invitation_entry_info.invitation.inviter.into());
+        send_signal_to.push(invitation_entry_info.invitation.inviter.0);
 
-        remote_signal(ExternIO::encode(signal)?, send_signal_to)?;
+        remote_signal(
+            ExternIO::encode(signal)?,
+            send_signal_to,
+        )?;
         return Ok(true);
     }
 
@@ -199,9 +201,7 @@ pub fn _clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 }
 
 //HELPERS
-fn get_invitations_entry_info(
-    invitation_entry_hash: EntryHash,
-) -> ExternResult<InvitationEntryInfo> {
+fn get_invitations_entry_info(invitation_entry_hash: EntryHash) -> ExternResult<InvitationEntryInfo> {
     let invitation_entry_details =
         get_details::<EntryHash>(invitation_entry_hash.clone(), GetOptions::content())?
             .ok_or_else(|| {
@@ -210,42 +210,39 @@ fn get_invitations_entry_info(
 
     match invitation_entry_details {
         Details::Entry(invitation_entry_details) => {
-            let element_entry = ElementEntry::from(Present(invitation_entry_details.clone().entry));
+            let element_entry =
+                ElementEntry::from(Present(invitation_entry_details.clone().entry));
 
-            let invitation: Invitation = element_entry.to_app_option()?.ok_or_else(|| {
-                WasmError::Guest("we dont found the invitation entry for the given hash".into())
-            })?;
+            let invitation: Invitation = element_entry
+                .to_app_option()?
+                .ok_or_else(|| WasmError::Guest("we dont found the invitation entry for the given hash".into()))?;
 
-            let invitation_header_hash: HeaderHash = invitation_entry_details.clone().headers[0]
-                .header_address()
-                .to_owned();
+            let invitation_header_hash:HeaderHash = invitation_entry_details.clone().headers[0].header_address().to_owned();    
 
-            let invitees_who_accepted: Vec<AgentPubKeyB64> = get_links(
+            let invitees_who_accepted: Vec<WrappedAgentPubKey> = get_links(
                 invitation_entry_hash.clone(),
                 Some(LinkTag::new("Accepted")),
             )?
             .into_inner()
             .into_iter()
-            .map(|link| -> AgentPubKeyB64 {
-                let agent_pub_key: AgentPubKey = link.target.into();
-                return AgentPubKeyB64::from(agent_pub_key);
+            .map(|link| -> WrappedAgentPubKey {
+                return WrappedAgentPubKey(link.target.into());
             })
             .collect();
 
-            let invitees_who_rejected: Vec<AgentPubKeyB64> = invitation_entry_details
-                .deletes
-                .into_iter()
-                .map(|signed_header_hashed| -> AgentPubKeyB64 {
-                    return AgentPubKeyB64::from(signed_header_hashed.header().author().to_owned());
-                })
-                .collect();
+            let invitees_who_rejected: Vec<WrappedAgentPubKey> = invitation_entry_details.deletes
+            .into_iter()
+            .map(|signed_header_hashed|->WrappedAgentPubKey {
+                return WrappedAgentPubKey(signed_header_hashed.header().author().to_owned());
+            })
+            .collect();
 
-            return Ok(InvitationEntryInfo {
+            return Ok(InvitationEntryInfo{
                 invitation,
-                invitation_entry_hash: EntryHashB64::from(invitation_entry_hash),
-                invitation_header_hash: HeaderHashB64::from(invitation_header_hash),
+                invitation_entry_hash: WrappedEntryHash(invitation_entry_hash),
+                invitation_header_hash: WrappedHeaderHash(invitation_header_hash),
                 invitees_who_accepted,
-                invitees_who_rejected,
+                invitees_who_rejected
             });
         }
 
@@ -256,6 +253,29 @@ fn get_invitations_entry_info(
         "we dont the entry details for the given hash".into(),
     ));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // fn get_invitations_entry_info(
 //     invitation_entry_hash: EntryHash,

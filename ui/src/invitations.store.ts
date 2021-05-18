@@ -35,7 +35,6 @@ export class InvitationsStore {
 
         runInAction(() => {
             // Actualizar los datos dentro del runInAction para hacer trigger del render
-
             pending_invitations_entries_info.map((invitation_entry_info) =>{
                 this.invitations[invitation_entry_info.invitation_entry_hash] = invitation_entry_info;
             });
@@ -70,16 +69,64 @@ export class InvitationsStore {
     }
 
     @action 
-    async signalHandler(signal:any){
+    invitationReceived(signal:any){
 
-
-
+        console.log("Signal: received");
+        const invitation = signal.payload.InvitationReceived;
+        runInAction(async ()=>{
+            this.invitations[invitation.invitation_entry_hash] = invitation;
+        })
+            
+    }
+    @action 
+    invitationAccepted(signal:any){
+        console.log("Signal: accepted");
+        const invitation = signal.payload.InvitationAccepted;
         runInAction(async ()=>{
 
-            console.log("Hola");
+            console.log(this.invitations[invitation.invitation_entry_hash]);
+            this.invitations[invitation.invitation_entry_hash] = invitation;
+        });
+
+    }
     
-            await this.fectMyPendingInvitations();
-        })
+    @action 
+    invitationRejected(signal:any){
+        console.log("Signal: rejected" );
+        const invitation = signal.payload.InvitationRejected;
+
+        runInAction(async ()=>{
+            this.invitations[invitation.invitation_entry_hash] = invitation;
+        });
+    }
+
+
+
+    @action
+    async signalHandler(signal:any){
+
+        switch(signal.data.payload.name){
+
+            case "invitation received":
+                this.invitationReceived(signal.data.payload);
+                break;
+           
+            case "invitation accepted":
+                this.invitationAccepted(signal.data.payload);
+                break;            
+            
+            case "invitation updated":
+                break;
+
+            case "invitation rejected":
+                this.invitationRejected(signal.data.payload);
+                break;
+
+            default:
+                break;
+        }
+
+        console.log(signal.data.payload.payload);
 
     }
 };
