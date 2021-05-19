@@ -16,9 +16,9 @@ import { InvitationItem } from './invitation-item';
 
 import { Button } from 'scoped-material-components/mwc-button';
 
-import { Icon } from 'scoped-material-components/mwc-icon';
+import { Icon } from '@material/mwc-icon';
 import { List } from 'scoped-material-components/mwc-list';
-import { ListItem } from 'scoped-material-components/mwc-list-item';
+import { ListItem } from '@material/mwc-list/mwc-list-item';
 import { Card } from 'scoped-material-components/mwc-card';
 
 import { CircularProgress } from 'scoped-material-components/mwc-circular-progress';
