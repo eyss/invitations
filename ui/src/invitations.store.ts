@@ -9,7 +9,7 @@ import {
 import { InvitationsService } from './invitations.service';
 import { ProfilesService, ProfilesStore } from '@holochain-open-dev/profiles';
 
-import { AgentPubKey, HeaderHash, Invitation, Dictionary, InvitationEntryInfo } from './types';
+import { AgentPubKey, HeaderHash, Invitation, Dictionary, InvitationEntryInfo, EntryHash } from './types';
 import { table } from 'console';
 
 export class InvitationsStore {
@@ -51,27 +51,24 @@ export class InvitationsStore {
         })
     }
 
-    @action async acceptInvitation(invitation_header_hash: HeaderHash){
-        const accept_invitation = await this.invitationsService.acceptInvitation(invitation_header_hash);
-
+    @action async acceptInvitation(invitation_entry_hash: EntryHash){
+        const accept_invitation = await this.invitationsService.acceptInvitation(invitation_entry_hash);
         runInAction(async ()=>{
             await this.fectMyPendingInvitations();
         })
-
     }    
     @action 
-    async rejectInvitation(invitation_header_hash: HeaderHash){
-        const reject_invitation = await this.invitationsService.rejectInvitation(invitation_header_hash);
-
+    async rejectInvitation(invitation_entry_hash: EntryHash){
+        const reject_invitation = await this.invitationsService.rejectInvitation(invitation_entry_hash);
         runInAction(async ()=>{
-            await this.fectMyPendingInvitations();
+            delete this.invitations[invitation_entry_hash];
         })
     }
 
     @action 
     invitationReceived(signal:any){
 
-        console.log("Signal: received");
+        // console.log("Signal: received");
         const invitation = signal.payload.InvitationReceived;
         runInAction(async ()=>{
             this.invitations[invitation.invitation_entry_hash] = invitation;
@@ -80,14 +77,13 @@ export class InvitationsStore {
     }
     @action 
     invitationAccepted(signal:any){
-        console.log("Signal: accepted");
+
+        console.log(signal.payload.InvitationAccepted);
+        
         const invitation = signal.payload.InvitationAccepted;
         runInAction(async ()=>{
-
-            console.log(this.invitations[invitation.invitation_entry_hash]);
             this.invitations[invitation.invitation_entry_hash] = invitation;
         });
-
     }
     
     @action 
@@ -126,7 +122,7 @@ export class InvitationsStore {
                 break;
         }
 
-        console.log(signal.data.payload.payload);
+        // console.log(signal.data.payload.payload);
 
     }
 };

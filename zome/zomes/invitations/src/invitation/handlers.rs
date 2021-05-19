@@ -165,6 +165,7 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
         };
 
         let mut send_signal_to: Vec<AgentPubKey> = invitation_entry_info
+            .clone()
             .invitation
             .invitees
             .into_iter()
@@ -173,7 +174,7 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
             })
             .collect();
 
-        send_signal_to.push(invitation_entry_info.invitation.inviter.into());
+        send_signal_to.push(invitation_entry_info.clone().invitation.inviter.into());
 
         remote_signal(ExternIO::encode(signal)?, send_signal_to)?;
         return Ok(true);

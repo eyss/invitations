@@ -12,55 +12,33 @@ import { ListItem } from '@material/mwc-list/mwc-list-item';
 import { Button } from '@material/mwc-button';
 import { Snackbar } from '@material/mwc-snackbar';
 
-
 import { TabBar } from '@material/mwc-tab-bar';
 import { Tab } from '@material/mwc-tab';
 import { InvitationEntryInfo } from '../types';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { AgentPubKey } from '@holochain/conductor-api';
 import { promises } from 'dns';
-import { Dictionary, Profile, ProfilePrompt } from '@holochain-open-dev/profiles';
+import {
+  Dictionary,
+  Profile,
+  ProfilePrompt,
+} from '@holochain-open-dev/profiles';
 import { Profiler } from 'inspector';
+import { ok } from 'assert';
 
 export abstract class InvitationItem
   extends MobxReactionUpdate(BaseElement)
   implements DepsElement<InvitationsStore> {
-
   abstract get _deps(): InvitationsStore;
 
   @property({ type: Boolean })
   loaded = false;
 
   @property({ type: String })
-  status = 'pending'; //(this status can be pending, accepted or rejected)
-
-  @property({ type: Object })
-  invitation_entry_info: InvitationEntryInfo = {
-    invitation: {
-      inviter: '',
-      invitees: [],
-      timestamp: '',
-    },
-
-    invitation_entry_hash: '',
-    invitation_header_hash: '',
-    invitees_who_accepted: [],
-    invitees_who_rejected: [],
-  };
-
-  @property({ type: String })
   invitation_entry_hash = '';
-
-  @property({ type: Object })
-  profiles: Dictionary<Profile> = {};
-
 
   @property({ type: Boolean })
   clicked = false;
-
-  @query("#snack")
-  snackbar: any;
-
 
   static styles = css`
     .invitation_info {
@@ -100,16 +78,12 @@ export abstract class InvitationItem
     .data .center {
       align-self: center;
     }
-    .secondary-text{
-      color: rgba(0, 0, 0, 0.54)
+    .secondary-text {
+      color: rgba(0, 0, 0, 0.54);
     }
-  
-
   `;
 
-
   async getAgentProfile(AgentPubKey: string): Promise<Profile> {
-
     let agentProfile: any = this._deps.profilesStore.profileOf(AgentPubKey);
 
     if (agentProfile) {
@@ -120,120 +94,149 @@ export abstract class InvitationItem
     }
   }
 
+  get invitationEntryInfo() {
+    return this._deps.invitations[this.invitation_entry_hash];
+  }
+
   async firstUpdated() {
-    this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
-    this.setInvitationStatus();
+    // this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
+    // this.setInvitationStatus();
 
-    this.profiles[this.invitation_entry_info.invitation.inviter] = await this.getAgentProfile(this.invitation_entry_info.invitation.inviter);
+    // this.profiles[this.invitation_entry_info.invitation.inviter] = await this.getAgentProfile(this.invitation_entry_info.invitation.inviter);
 
-    this.invitation_entry_info.invitation.invitees.map(async (invitee_pub_key) => {
+    await this._deps.profilesStore.fetchAgentProfile(this.invitationEntryInfo.invitation.inviter);
 
-      this.profiles[invitee_pub_key] = await this.getAgentProfile(invitee_pub_key);
+    this.invitationEntryInfo.invitation.invitees.map(async invitee_pub_key => {
+      await this._deps.profilesStore.fetchAgentProfile(invitee_pub_key);
     });
 
-    this.invitation_entry_info.invitation.timestamp = new Date(this.invitation_entry_info.invitation.timestamp.secs * 1000);
+    // this.invitation_entry_info.invitation.timestamp = new Date(this.invitation_entry_info.invitation.timestamp.secs * 1000);
     this.loaded = true;
   }
 
-
-
-  async _updateItemInfo() {
-    await this._deps.fectMyPendingInvitations();//this statement its called from the store 
-    this.invitation_entry_info = this._deps.invitations[this.invitation_entry_hash];
-    this.setInvitationStatus();
-    this.requestUpdate();
-  }
-
-
   async _rejectInvitation() {
     let result = await this._deps.rejectInvitation(this.invitation_entry_hash);
-    delete this._deps.invitations[this.invitation_entry_hash]
   }
 
-  async _aceptInvitation() {
-    await this._deps.acceptInvitation(this.invitation_entry_hash);
-    await this._updateItemInfo();
-  }
+  async _acceptInvitation() {
+    //añadir el handler
 
-  setInvitationStatus() {
+    this._deps.acceptInvitation(this.invitation_entry_hash).then(()=>{
 
-    if (this.invitation_entry_info.invitees_who_rejected.length > 0) {
-      this.status = 'rejected';
-      return;
-    }
-    if (
-      this.invitation_entry_info.invitees_who_accepted.length ==
-      this.invitation_entry_info.invitation.invitees.length
-    ) {
-      this.status = 'accepted';
-
-      let myEvent = new CustomEvent('my-event', { 
-        detail: { message: 'my-event happened.' },
-        bubbles: true, 
-        composed: true });
-      this.dispatchEvent(myEvent);
+      console.log("you have clicked on accept here");
       
+      if(this.invitationEntryInfo.invitation.invitees.length ===
+         this.invitationEntryInfo.invitees_who_accepted.length + 1
+      ){
 
-      return;
-    }
-    this.status = 'pending';
+        let invitees = [...this.invitationEntryInfo.invitation.invitees, this.invitationEntryInfo.invitation.inviter
+        ];
 
-    return;
+        invitees = invitees.filter(
+          invitee => this._deps.profilesStore.myAgentPubKey != invitee
+        )
+
+        let myEvent = new CustomEvent('invitation-completed', {
+          detail: { invitees },
+          bubbles: true,
+          composed: true,
+        });
+        this.dispatchEvent(myEvent);
+
+      }
+
+    });
+
   }
 
+  get invitationStatus(): string {
+    if (this.invitationEntryInfo.invitees_who_rejected.length > 0) {
+      return 'rejected';
+    }
+    
+    if (
+      this.invitationEntryInfo.invitees_who_accepted.length ===
+      this.invitationEntryInfo.invitation.invitees.length
+    ) {
+      return 'completed';
+    }
+
+    return 'pending';
+  }
 
   _clickHandler() {
     this.clicked = !this.clicked;
   }
 
-
   _invitationStatusInfo() {
-
-    if (this.status == "rejected") {
+    if (this.invitationStatus == 'rejected') {
       return html`
-        <span slot="secondary"> rejected by : ${this.invitation_entry_info.invitees_who_rejected.length}/${this.invitation_entry_info.invitation.invitees.length} invitees </span>
+        <span slot="secondary">
+          rejected by :
+          ${this.invitationEntryInfo.invitees_who_rejected.length}/${this
+            .invitationEntryInfo.invitation.invitees.length}
+          invitees
+        </span>
         <mwc-icon slot="meta">close</mwc-icon>
-      `
+      `;
     } else {
-
       return html`
-        <span slot="secondary"> accepted by : ${this.invitation_entry_info.invitees_who_accepted.length}/${this.invitation_entry_info.invitation.invitees.length} invitees </span>
-        ${(this.status == "accepted") ?
-          html`<mwc-icon slot="meta">check</mwc-icon>`:
-          html`<mwc-icon slot="meta">pending</mwc-icon>`
-        }
-      `
+        <span slot="secondary">
+          accepted by :
+          ${this.invitationEntryInfo.invitees_who_accepted.length}/${this
+            .invitationEntryInfo.invitation.invitees.length}
+          invitees
+        </span>
+        ${this.invitationStatus == 'completed'
+          ? html`<mwc-icon slot="meta">check</mwc-icon>`
+          : html`<mwc-icon slot="meta">pending</mwc-icon>`}
+      `;
     }
-
   }
 
   _invitationActionButtons() {
     return html`
-    <span slot="secondary"> <mwc-button icon="check" @click="${this._aceptInvitation}" >ACCEPT</mwc-button>  <mwc-button icon="close" @click="${this._rejectInvitation}" > REJECT</mwc-button> </span>
-    `
+      <span slot="secondary">
+        <mwc-button icon="check" @click="${this._acceptInvitation}"
+          >ACCEPT</mwc-button
+        >
+        <mwc-button icon="close" @click="${this._rejectInvitation}">
+          REJECT</mwc-button
+        >
+      </span>
+    `;
   }
 
   _invitationInviterAgent() {
-
     const my_pub_key = this._deps.profilesStore.myAgentPubKey;
 
-    if (this.invitation_entry_info.invitation.inviter === my_pub_key) {
+    if (this.invitationEntryInfo.invitation.inviter === my_pub_key) {
       return html`
-        <span>from: <span class="secondary-text"> you </span> </span>
+        <span>from <span class="secondary-text"> you </span> </span>
       `;
     } else {
+
       return html`
-        <span>from:<span class="secondary-text"> ${this.profiles[this.invitation_entry_info.invitation.inviter].nickname}</span> </span>
+        <span>from
+          <span class="secondary-text">
+            ${this._deps.profilesStore.profileOf(
+              this.invitationEntryInfo.invitation.inviter
+            ).nickname}</span
+          >
+        </span>
       `;
+
     }
   }
 
-
   _haveYouInteracted() {
-
     const my_pub_key = this._deps.profilesStore.myAgentPubKey;
-    const agents_who_already_interacted = this.invitation_entry_info.invitees_who_accepted.concat(this.invitation_entry_info.invitees_who_rejected);
-    let result = agents_who_already_interacted.find(agent_pub_key => agent_pub_key === my_pub_key);
+    const agents_who_already_interacted = this.invitationEntryInfo.invitees_who_accepted.concat(
+      this.invitationEntryInfo.invitees_who_rejected
+    );
+    let result = agents_who_already_interacted.find(
+      agent_pub_key => agent_pub_key === my_pub_key
+    );
 
     if (result != undefined) {
       return true;
@@ -243,24 +246,28 @@ export abstract class InvitationItem
   }
 
   render() {
-
     if (this.loaded) {
-
       return html`
-        <mwc-list-item  id="element"  twoline graphic="avatar" hasMeta  @click="${this._clickHandler}" >
+        <mwc-list-item
+          id="element"
+          twoline
+          graphic="avatar"
+          hasMeta
+          @click="${this._clickHandler}"
+        >
+          <mwc-icon slot="graphic">mail</mwc-icon>
 
-        <mwc-icon slot="graphic">mail</mwc-icon>
-        
           ${this._invitationInviterAgent()}
-
-          ${this.clicked && !(this.invitation_entry_info.invitation.inviter === this._deps.profilesStore.myAgentPubKey) && !this._haveYouInteracted() ?
-          this._invitationActionButtons() :
-          this._invitationStatusInfo()
-        }
-
+          ${this.clicked &&
+          !(
+            this.invitationEntryInfo.invitation.inviter ===
+            this._deps.profilesStore.myAgentPubKey
+          ) &&
+          !this._haveYouInteracted()
+            ? this._invitationActionButtons()
+            : this._invitationStatusInfo()}
         </mwc-list-item>
-
-      `
+      `;
     }
   }
 
@@ -283,7 +290,6 @@ export abstract class InvitationItem
 // <mwc-icon slot="graphic">mail</mwc-icon>
 // <mwc-button slot="meta">Hola</mwc-button>
 
-
 // <div style="display:flex" class="list-item" >
 
 // <mwc-list-item class="no-hover" twoline graphic="avatar" hasMeta>
@@ -298,5 +304,4 @@ export abstract class InvitationItem
 
 // </div>
 
-      // <mwc-button  style="align-self:center;">Hola</mwc-button>
-
+// <mwc-button  style="align-self:center;">Hola</mwc-button>

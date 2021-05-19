@@ -17,7 +17,7 @@ export abstract class InvitationsList
 
   static styles = css`
     .invitations {
-      width: 50%;
+      // width: 50%;
       padding: 1em;
       margin: 1em;
       display: block;
@@ -39,26 +39,16 @@ export abstract class InvitationsList
     this.loaded = true;
   }
 
-  updated(){
 
-    console.log("the store was modified");
-    this.requestUpdate();
-    
-  }
-
-
-  eventListener(){
-    console.log("Event listened");
-  }
 
   render() {
 
     if (this.loaded) {
 
       return html`
-        <div class="invitations" @my-event="${this.eventListener}">
+        <div class="invitations">
           ${Object.entries(this._deps.invitations).map(element => {
-        return html`<invitation-item .invitation_entry_hash=${element[1].invitation_entry_hash} </invitation-item>`;
+        return html`<invitation-item .invitation_entry_hash=${element[1].invitation_entry_hash}> </invitation-item>`;
       })
         }
       </div>
