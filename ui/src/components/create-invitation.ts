@@ -60,12 +60,13 @@ export abstract class CreateInvitation
 
       delete this.invitees[element[0]];
     });
-
-    await this._deps.sendInvitation(invitees_list);
-
-    await this._deps.fetchMyPendingInvitations();
-
-    this.requestUpdate();
+    
+    if(invitees_list.length > 0 ){
+      await this._deps.sendInvitation(invitees_list);
+      await this._deps.fetchMyPendingInvitations();
+      this.requestUpdate();
+    }
+    
   }
 
   async _pedignInvitations() {
