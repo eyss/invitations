@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 
-use crate::invitation::{ InvitationEntryInfo};
+use crate::invitation::InvitationEntryInfo;
 
 // Signal Details is a warpper for all the signals we can send from the happ
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
@@ -13,7 +13,7 @@ pub struct SignalDetails {
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub enum SignalPayload {
     InvitationAccepted(InvitationEntryInfo), //THE INVITATION ARE ACCEPTED IF ALL THE INVITEES HAVE ACCEPTED THE INVITATION
-    InvitationReceived(InvitationEntryInfo), 
+    InvitationReceived(InvitationEntryInfo),
     InvitationStatusUpdated(EntryHash), //THE INVITATION STATUS IS UPDATED EVERYTIME ONE OF THE INVITEES ACCEPTED THE INVITATION,  BUT NOT ALL OF THEM HAVE ACCEPTED YET
     InvitationRejected(InvitationEntryInfo),
 }

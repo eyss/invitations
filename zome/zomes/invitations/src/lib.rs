@@ -59,3 +59,8 @@ fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
 fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     return handlers::reject_invitation(invitation_entry_hash);
 }
+
+#[hdk_extern]
+fn clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    return handlers::clear_invitation(invitation_entry_hash);
+}

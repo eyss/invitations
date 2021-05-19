@@ -14,9 +14,7 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
         .0
         .clone()
         .into_iter()
-        .map(|agent_pub_key| -> AgentPubKeyB64 {
-            return AgentPubKeyB64::from(agent_pub_key);
-        })
+        .map(|agent_pub_key| AgentPubKeyB64::from(agent_pub_key))
         .collect();
 
     let invitation = Invitation {
@@ -104,7 +102,9 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
         get_invitations_entry_info(invitation_entry_hash.clone())?;
     delete_entry(invitation_entry_info.clone().invitation_header_hash.into())?;
 
-    // NOTIFY ALL THE INVITEES (except for those who rejected this invitation before)
+    // NOTIFY ALL THE INVITEES (except for those who rejected this invitation before and myself)
+
+    let my_pub_key = agent_info()?.agent_initial_pubkey;
 
     let mut send_signal_to: Vec<AgentPubKey> = invitation_entry_info
         .invitation
@@ -116,15 +116,16 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
                 .clone()
                 .invitees_who_rejected
                 .contains(&invitee)
+                && !AgentPubKey::from(invitee.clone()).eq(&my_pub_key)
         })
-        .map(|wrapped_agent_pub_key| -> AgentPubKey {
-            return wrapped_agent_pub_key.into();
-        })
+        .map(|wrapped_agent_pub_key| wrapped_agent_pub_key.into())
         .collect();
 
     send_signal_to.push(invitation_entry_info.clone().invitation.inviter.into());
 
-    invitation_entry_info.invitees_who_rejected.push(AgentPubKeyB64::from(my_pub_key));
+    invitation_entry_info
+        .invitees_who_rejected
+        .push(AgentPubKeyB64::from(my_pub_key));
 
     let signal: SignalDetails = SignalDetails {
         name: SignalName::INVITATION_REJECTED.to_owned(),
@@ -139,8 +140,8 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
     // # WE WILL HANDLE THE INVITATION ACCEPTING PROCESS A BIT DIFERENCE DEPENDING IF THE INVITATION HAVE ONE OR SEVERAL INVITEES
     // #1 WE GET THE INVITATION ENTRY
-    
-    let my_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+
+    let my_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
 
     let mut invitation_entry_info: InvitationEntryInfo =
         get_invitations_entry_info(invitation_entry_hash.clone())?;
@@ -157,7 +158,9 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
             LinkTag::new(String::from("Accepted")),
         )?;
 
-        invitation_entry_info.invitees_who_accepted.push(AgentPubKeyB64::from(my_pub_key));
+        invitation_entry_info
+            .invitees_who_accepted
+            .push(AgentPubKeyB64::from(my_pub_key.clone()));
 
         let signal: SignalDetails = SignalDetails {
             name: SignalName::INVITATION_ACCEPTED.to_owned(),
@@ -169,9 +172,8 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
             .invitation
             .invitees
             .into_iter()
-            .map(|wrapped_agent_pub_key| -> AgentPubKey {
-                return wrapped_agent_pub_key.into();
-            })
+            .filter(|invitee| !AgentPubKey::from(invitee.clone()).eq(&my_pub_key))
+            .map(|wrapped_agent_pub_key| wrapped_agent_pub_key.into())
             .collect();
 
         send_signal_to.push(invitation_entry_info.clone().invitation.inviter.into());
@@ -183,18 +185,21 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
     Ok(false)
 }
 
-pub fn _clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
-    let _ = get_links(
+pub fn clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> {
+    let links = get_links(
         agent_info()?.agent_latest_pubkey.into(),
         Some(LinkTag::new("Invitee")),
-    )?
-    .into_inner()
-    .into_iter()
-    .filter(|link| link.target == invitation_entry_hash.clone())
-    .map(|link_to_invitation| -> ExternResult<()> {
-        delete_entry(link_to_invitation.create_link_hash)?;
-        Ok(())
-    });
+    )?;
+
+    links
+        .into_inner()
+        .into_iter()
+        .filter(|link| link.target == invitation_entry_hash.clone())
+        .map(|link_to_invitation| -> ExternResult<()> {
+            delete_link(link_to_invitation.create_link_hash)?;
+            Ok(())
+        })
+        .collect::<ExternResult<Vec<()>>>()?;
 
     return Ok(true);
 }

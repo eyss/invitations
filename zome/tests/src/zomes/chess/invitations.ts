@@ -5,6 +5,7 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const sendInvitation = (guest_pub_key) => (conductor) => conductor.call("invitations", "send_invitation", [guest_pub_key]);
 const getPendingInvitations = (conductor) => conductor.call("invitations", "get_my_pending_invitations",);
 const acceptInvitation = (invitation_entry_hash) =>(conductor) => conductor.call("invitations", "accept_invitation",invitation_entry_hash);
+const clearInvitation = (invitation_entry_hash) =>(conductor) => conductor.call("invitations", "clear_invitation",invitation_entry_hash);
 const rejectInvitation = (invitation_entry_hash) => (conductor) => conductor.call("invitations", "reject_invitation",invitation_entry_hash);
 const getDetails = (invitation_entry_hash) => (conductor) => conductor.call("invitations", "my_get_details",invitation_entry_hash);
 export function ZomeTest(config, installAgents) {
@@ -56,6 +57,7 @@ export function ZomeTest(config, installAgents) {
         let  alice_invitations = await getPendingInvitations(alice_conductor);
         await delay(100);
 
+        t.equal(alice_invitations.length, 1)
 
         console.log("Hello World");
 -
@@ -78,6 +80,13 @@ export function ZomeTest(config, installAgents) {
         await acceptInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
         await delay(1000);
 
+        await clearInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
+        await delay(1000);
+
+        alice_invitations = await getPendingInvitations(alice_conductor);
+        await delay(1000);
+
+        t.equal(alice_invitations.length, 0)
         // bobby_invitations = await getPendingInvitations(bobby_conductor);
         // await delay(100);
 

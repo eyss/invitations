@@ -5,62 +5,79 @@ import {
   DepsElement,
 } from '@holochain-open-dev/common';
 
-import { html, css, property, query} from 'lit-element';
+import { html, css, property, query } from 'lit-element';
 import { InvitationsStore } from '../invitations.store';
 import { InvitationItem } from './invitation-item';
-
+import { Card } from 'scoped-material-components/mwc-card';
+import { CircularProgress } from 'scoped-material-components/mwc-circular-progress';
+import { sharedStyles } from '../shared-styles';
 
 export abstract class InvitationsList
   extends MobxReactionUpdate(BaseElement)
-  implements DepsElement<InvitationsStore> {
+  implements DepsElement<InvitationsStore>
+{
   abstract get _deps(): InvitationsStore;
 
-  static styles = css`
+  static styles = [css`
     .invitations {
-      // width: 50%;
       padding: 1em;
       margin: 1em;
       display: block;
       overflow-y: auto;
     }
-  `;
-
+  `, sharedStyles];
 
   @property({ type: Boolean })
   loaded = false;
 
-  @query("#id")
-  first:any;
-
+  @query('#id')
+  first: any;
 
   async firstUpdated() {
-
-    await this._deps.fectMyPendingInvitations();
+    await this._deps.fetchMyPendingInvitations();
     this.loaded = true;
   }
 
+  renderPendingInvitations() {
+    if (Object.entries(this._deps.invitations).length === 0)
+      return html`<div class="column center-content" style="flex: 1;">
+        <span class="placeholder">There are no pending invitations yet</span>
+      </div>`;
 
+    return html` <div class="flex-scrollable-parent" style="flex: 1;">
+      <div class="flex-scrollable-container">
+        <div class="flex-scrollable-y">
+          ${Object.entries(this._deps.invitations).map(element => {
+            return html`<invitation-item
+              .invitation_entry_hash=${element[1].invitation_entry_hash}
+            >
+            </invitation-item>`;
+          })}
+        </div>
+      </div>
+    </div>`;
+  }
 
   render() {
-
-    if (this.loaded) {
-
-      return html`
-        <div class="invitations">
-          ${Object.entries(this._deps.invitations).map(element => {
-        return html`<invitation-item .invitation_entry_hash=${element[1].invitation_entry_hash}> </invitation-item>`;
-      })
-        }
-      </div>
+    return html`
+      <mwc-card style="flex: 1;">
+        <div class="column" style="margin: 16px; flex: 1;">
+          <span class="title" style="margin-bottom: 8px;">Pending Invitations</span>
+          ${this.loaded
+            ? this.renderPendingInvitations()
+            : html`<div class="column center-content" style="flex: 1;">
+                <mwc-circular-progress indeterminate></mwc-circular-progress>
+              </div>`}
+        </div>
+      </mwc-card>
     `;
-
-    }
   }
 
   getScopedElements() {
     return {
       'invitation-item': connectDeps(InvitationItem, this._deps),
+      'mwc-card': Card,
+      'mwc-circular-progress': CircularProgress,
     };
   }
 }
-
