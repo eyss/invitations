@@ -1,12 +1,12 @@
 [package]
 authors = ["manuel.r.puentes.d@gmail.com"]
 edition = "2018"
-name = "invitations"
+name = "hc_zome_invitations"
 version = "0.0.1"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "invitations"
+name = "hc_zome_invitations"
 
 [dependencies]
 derive_more = "0"
