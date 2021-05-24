@@ -17,7 +17,6 @@ import {
   InvitationEntryInfo,
   EntryHash,
 } from './types';
-import { table } from 'console';
 
 export class InvitationsStore {
   @observable

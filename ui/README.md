@@ -1,24 +1,31 @@
 # UI Developer Setup
 
-UI module for the `calendar-events-zome`.
+UI module for the `invitations` zome.
 
-## Requirements
+All the instructions here assume you are running them inside the nix-shell at the root of the repository. For more info, see the [developer setup](/dev-setup.md).
 
-- Having run through [holochain RSM installation](https://github.com/holochain/holochain-dna-build-tutorial).
-- Having [holochain-run-dna](https://www.npmjs.com/package/@holochain-open-dev/holochain-run-dna) installed.
-
-## Local Demo with `@web/dev-server`
-
-First, [build the holochain dna](/zomes/README.md).
-
-Run this from inside the `nix-shell` in which you have the `holochain` binary install.
+## Setup
 
 ```bash
-npm start
+npm install
 ```
 
-This will serve a local development server that serves the basic demo located in `demo/index.html` at `localhost:8080/demo`.
-Take into account that this will run the holochain conductor in the background and connect the UI to the actual conductor.
+## Running
+
+In one terminal:
+
+```bash
+npm run start-alice
+```
+
+In another terminal: 
+
+```bash
+npm run start-bob
+```
+
+This will serve two agents in local development servers that serve the basic demo located in `demo/index.html`.
+Take into account that this will run two holochain conductors in the background and connect the UI to the actual conductors.
 
 ## Running only the UI
 
@@ -120,6 +127,6 @@ Now, a built version of this module will be at the root of the `ui-build` branch
 
 ```json
   "dependencies": {
-    "@holochain-open-dev/TODO_RENAME_MODULE": "holochain-open-dev/TODO_RENAME_MODULE#ui-build",
+    "@eyss/invitations": "https://github.com/holochain-open-dev/eyss#ui-build",
   }
 ```

@@ -1,46 +1,93 @@
 # Invitations Zome
+## Installation and usage
 
-## nix-shell setup
+### Including the zome in your DNA
 
-At first, run from the root folder of this repository to enter the nix-shell:
+1. Create a new `invitations` folder in the `zomes` of the consuming DNA.
+2. Add a new `Cargo.toml` in that folder. In its content, paste the `Cargo.toml` content from any zome.
+3. Change the `name` properties of the `Cargo.toml` file to `invitations`.
+4. Add this zome as a dependency in the `Cargo.toml` file:
 
-```bash
-nix-shell
+```toml
+[dependencies]
+profiles = {git = "https://github.com/eyss/hc_zome_invitations", package = "hc_zome_invitations"}
 ```
 
-**You need to be inside this nix-shell to run any of the instructions below.**
+5. Create a `src` folder besides the `Cargo.toml` with this content:
 
-## Building the DNA
-
-```bash
-cd zome
-CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown
-hc dna pack workdir/dna
-hc app pack workdir/happ
+```rust
+extern crate hc_zome_invitations;
 ```
 
-## Starting the UI
+6. Add the zome into your `dna.yaml` file with the name `invitations`.
+7. Compile the DNA with the usual `CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown`.
 
-Enter the UI folder:
+### Using the UI module
 
-```bash
-cd ui
+1. Install the module with `npm install "https://github.com/eyss/hc_zome_invitations#ui-build"`.
+
+
+2. Import and create the mobx store for profiles and for this module, and define the custom elements you need in your app:
+
+```js
+import { connectDeps } from "@holochain-open-dev/common";
+import {
+  ProfilePrompt,
+  ProfilesStore,
+  ProfilesService,
+} from "@holochain-open-dev/profiles";
+import { InvitationsStore, InvitationsService, InvitationsList, CreateInvitation } from "@eyss/invitations";
+import { AppWebsocket } from "@holochain/conductor-api";
+
+async function setupProfiles() {
+  const appWebsocket = await ConductorApi.AppWebsocket.connect(
+    process.env.CONDUCTOR_URL,
+    12000
+  );
+  const appInfo = await appWebsocket.appInfo({
+    installed_app_id: "test-app",
+  });
+
+  const cellId = appInfo.cell_data[0].cell_id;
+
+  const profilesService = new ProfilesService(appWebsocket, cellId);
+  const profilesStore = new ProfilesStore(profilesService);
+
+  const invitationsService = new InvitationsService(appWebsocket, cellId);
+  const invitationsStore = new InvitationsStore(invitationsService, profilesStore);
+
+  customElements.define(
+    "profile-prompt",
+    connectDeps(ProfilePrompt, profilesStore)
+  );
+  customElements.define(
+    "invitations-list",
+    connectDeps(InvitationsList, invitationsStore)
+  );
+  customElements.define(
+    "create-invitation",
+    connectDeps(CreateInvitation, invitationsStore)
+  );
+}
 ```
 
-If you haven't yet:
+3. All the elements you have defined are now available to use as normal HTML tags:
 
-```bash
-npm install
+```html
+...
+<body>
+  <profile-prompt style="height: 400px; width: 500px">
+    <create-invitation></create-invitations>
+    <invitations-list></invitations-list>
+  </profile-prompt>
+</body>
 ```
 
-Then, run this inside the nix-shell in one terminal:
+Take into account that at this point the elements already expect a holochain conductor running at `ws://localhost:8888`.
 
-```bash
-npm run start-alice
-```
+You can see a full working example [here](/ui/demo/index.html).
 
-And this in another terminal inside the nix-shell as well:
 
-```bash
-npm run start-bob
-```
+## Developer setup
+
+Visit the [developer setup](/dev-setup.md).
