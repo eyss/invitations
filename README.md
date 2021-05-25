@@ -10,7 +10,7 @@
 
 ```toml
 [dependencies]
-profiles = {git = "https://github.com/eyss/hc_zome_invitations", package = "hc_zome_invitations"}
+hc_zome_invitations = {git = "https://github.com/eyss/hc_zome_invitations", package = "hc_zome_invitations"}
 ```
 
 5. Create a `src` folder besides the `Cargo.toml` with this content:
