@@ -33,8 +33,9 @@
         InvitationsList,
         InvitationsService,
         InvitationsStore,
-        INVITATIONS_STORE_CONTEXT
       } from '../dist';
+
+      import {INVITATIONS_STORE_CONTEXT} from '../dist/types';
 
       import {
         ProfilesService,
@@ -77,7 +78,7 @@
           invitations_service,
           profile_store
         );
-
+        
         customElements.define('context-provider', ContextProviderElement);
 
         const provider = document.getElementById('provider');

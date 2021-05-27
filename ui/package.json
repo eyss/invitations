@@ -9,8 +9,8 @@
   "scripts": {
     "start-alice": "HC_PORT=8888 concurrently -k --names ui,hc \"npm run start-ui\" \"npm run start-holochain\"",
     "start-bob": "HC_PORT=8889 concurrently -k --names ui,hc \"npm run start-ui\" \"npm run start-holochain\"",
-    "start-ui": "concurrently --kill-others --names tsc,web-dev-server \"npm run build-watch\" \"sleep 5 && web-dev-server --config web-dev-server.config.mjs\"",
-    "start-holochain": "RUST_LOG=warn hc s generate -r=$HC_PORT ../dna/workdir/happ/invitations.happ network -b https://bootstrap-staging.holo.host quic",
+    "start-ui": "concurrently --kill-others --names tsc,web-dev-server \"npm run build-watch\" \"sleep 5 && web-dev-server --config demo/web-dev-server.config.mjs\"",
+    "start-holochain": "RUST_LOG=warn hc s generate -r=$HC_PORT ../zome/workdir/happ/invitations.happ network -b https://bootstrap-staging.holo.host quic",
     "build": "rimraf dist && tsc",
     "build-watch": "tsc --watch",
     "test": "tsc && web-test-runner --coverage --puppeteer",
