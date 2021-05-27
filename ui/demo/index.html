@@ -15,13 +15,16 @@
 
 
   <body>
-    <!-- <invitations-list></invitations-list> -->
-    <profile-prompt>
-      <create-invitation></create-invitation>
-    </profile-prompt>
 
+    <context-provider id="provider">
 
-    <invitations-list></invitations-list>
+      <profile-prompt>
+        <create-invitation></create-invitation>
+      </profile-prompt>
+
+      <invitations-list></invitations-list>
+
+    </context-provider>
 
     <script type="module">
       import { html, render } from 'lit-html';
@@ -30,6 +33,7 @@
         InvitationsList,
         InvitationsService,
         InvitationsStore,
+        INVITATIONS_STORE_CONTEXT
       } from '../dist';
 
       import {
@@ -37,19 +41,19 @@
         ProfilesStore,
         ProfilePrompt,
         SearchAgent
+
       } from '@holochain-open-dev/profiles';
 
       import ConductorApi  from '@holochain/conductor-api';
-      import { connectDeps } from '@holochain-open-dev/common';
+      import { ContextProviderElement } from '@holochain-open-dev/context';
 
 
       (async function () {
+
         let invitations_store = undefined;
 
         const signalCb = async (signal) => {
-
           await invitations_store.signalHandler(signal);
-
         }
 
         const appWebsocket = await ConductorApi.AppWebsocket.connect(
@@ -74,27 +78,23 @@
           profile_store
         );
 
+        customElements.define('context-provider', ContextProviderElement);
+
+        const provider = document.getElementById('provider');
+        provider.name = INVITATIONS_STORE_CONTEXT;
+        provider.value = invitations_store;
+
         customElements.define(
-          'create-invitation',
-          connectDeps(CreateInvitation, invitations_store)
+          'create-invitation',CreateInvitation
         );
 
-
         customElements.define(
-          'search-agent',
-          connectDeps(SearchAgent, profile_store)
-        );
-
-        customElements.define(
-          'invitations-list',
-          connectDeps(InvitationsList, invitations_store) 
+          'invitations-list',InvitationsList,
         );
         
         customElements.define(
-          'profile-prompt',
-          connectDeps(ProfilePrompt, profile_store)
+          'profile-prompt',ProfilePrompt  
         );
-
 
       })();
     </script>
