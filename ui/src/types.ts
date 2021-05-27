@@ -17,3 +17,5 @@ export interface InvitationEntryInfo{
 }
 
 export type Dictionary<T> = { [key: string]: T };
+
+export const INVITATIONS_STORE_CONTEXT = 'hc_zome_invitations/store';
