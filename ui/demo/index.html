@@ -16,10 +16,17 @@
 
   <body>
 
-    <context-provider id="provider">
+    <context-provider id="invitations">
+      
+      <context-provider id="profiles">
+        <profile-prompt>
 
-      <create-invitation></create-invitation>
+          <create-invitation></create-invitation>
 
+        <profile-prompt>
+
+      </context-provider>
+  
       <!-- <invitations-list></invitations-list> -->
 
     </context-provider>
@@ -39,8 +46,8 @@
         ProfilesService,
         ProfilesStore,
         ProfilePrompt,
-        SearchAgent
-
+        SearchAgent,
+        PROFILES_STORE_CONTEXT,
       } from '@holochain-open-dev/profiles';
 
       import ConductorApi  from '@holochain/conductor-api';
@@ -77,22 +84,31 @@
           profile_store
         );
         
-        customElements.define('context-provider', ContextProviderElement);
+        
+        const invitations_provider = document.getElementById('invitations');
+        invitations_provider.name = INVITATIONS_STORE_CONTEXT;
+        invitations_provider.value = invitations_store;
 
-        const provider = document.getElementById('provider');
-        provider.name = INVITATIONS_STORE_CONTEXT;
-        provider.value = invitations_store;
 
+        const profiles_provider = document.getElementById('profiles');
+        invitations_provider.name = PROFILES_STORE_CONTEXT;
+        invitations_provider.value = profile_store;
+        
+        
         customElements.define(
-          'create-invitation',CreateInvitation
+          'context-provider', ContextProviderElement
         );
 
         customElements.define(
-          'invitations-list',InvitationsList,
+          'create-invitation', CreateInvitation
+        );
+
+        customElements.define(
+          'invitations-list', InvitationsList,
         );
         
         customElements.define(
-          'profile-prompt',ProfilePrompt  
+          'profile-prompt', ProfilePrompt  
         );
 
       })();

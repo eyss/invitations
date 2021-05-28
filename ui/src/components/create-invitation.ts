@@ -1,10 +1,8 @@
-
 import { html } from 'lit';
-import { requestContext, ContextProviderElement } from '@holochain-open-dev/context';
+import { requestContext } from '@holochain-open-dev/context';
 import { state, query } from 'lit/decorators.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { MobxLitElement } from '@adobe/lit-mobx';
-
 
 /**mwc-elements imports */
 import { Card } from 'scoped-material-components/mwc-card';
@@ -14,42 +12,28 @@ import { Button } from 'scoped-material-components/mwc-button';
 import { ListItem } from '@material/mwc-list/mwc-list-item';
 
 import {
-  CreateProfileForm,
   Dictionary,
   ProfilePrompt,
   SearchAgent,
 } from '@holochain-open-dev/profiles';
 
-
 import { InvitationsStore } from '../invitations.store';
 
-import { PROFILES_STORE_CONTEXT } from '@holochain-open-dev/profiles';
 import { INVITATIONS_STORE_CONTEXT, AgentPubKey } from '../types';
-
 
 /**
  * @element create-invitation-form
  */
 export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
-
   @requestContext(INVITATIONS_STORE_CONTEXT)
   _store!: InvitationsStore;
-
-  @query('#provider')
-  _provider: any;
 
   @state()
   invitees: Dictionary<String> = {};
 
-  firstUpdated() {
-
-    this._provider.name = PROFILES_STORE_CONTEXT;
-    this._provider.value = this._store.profilesStore;
-
-  }
-
   _addInvitee(e: CustomEvent) {
-    this.invitees[e.detail.agent.agent_pub_key] = e.detail.agent.profile.nickname;
+    this.invitees[e.detail.agent.agent_pub_key] =
+      e.detail.agent.profile.nickname;
     this.requestUpdate();
   }
   _removeInvitee(e: Event) {
@@ -79,7 +63,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     return html`
       <mwc-list>
         ${Object.entries(this.invitees).map(element => {
-      return html` <mwc-list-item hasMeta>
+          return html` <mwc-list-item hasMeta>
             <span>${element[1]}</span>
             <mwc-icon
               slot="meta"
@@ -88,72 +72,50 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
               >close</mwc-icon
             >
           </mwc-list-item>`;
-    })}
+        })}
       </mwc-list>
     `;
   }
   render() {
     return html`
+      <mwc-card style="flex: 1;">
+        <div class="column" style="margin: 16px; flex: 1;">
+          <span class="title" style="margin-bottom: 16px;"
+            >Create Invitation</span
+          >
+          <search-agent
+            @agent-selected="${this._addInvitee}"
+            clear-on-select
+            style="margin-bottom: 16px;"
+          ></search-agent>
 
-      <context-provider id="provider">
-
-        <profile-prompt>
-
-          <mwc-card style="flex: 1;">
-            <div class="column" style="margin: 16px; flex: 1;">
-              <span class="title" style="margin-bottom: 16px;"
-                >Create Invitation</span
-              >
-              <search-agent
-                @agent-selected="${this._addInvitee}"
-                clear-on-select
-                style="margin-bottom: 16px;"
-              ></search-agent>
-
-              <div
-                class="flex-scrollable-parent"
-                style="flex: 1; margin-bottom: 16px;"
-              >
-                <div class="flex-scrollable-container">
-                  <div class="flex-scrollable-y">${this.renderInviteesList()}</div>
-                </div>
-              </div>
-
-              <mwc-button label="Send Invitation" @click=${this._sendInvitation}>
-                <mwc-icon slot="icon">send</mwc-icon>
-              </mwc-button>
+          <div
+            class="flex-scrollable-parent"
+            style="flex: 1; margin-bottom: 16px;"
+          >
+            <div class="flex-scrollable-container">
+              <div class="flex-scrollable-y">${this.renderInviteesList()}</div>
             </div>
-          </mwc-card>
+          </div>
 
-        </profile-prompt>
-
-      </context-provider>
+          <mwc-button label="Send Invitation" @click=${this._sendInvitation}>
+            <mwc-icon slot="icon">send</mwc-icon>
+          </mwc-button>
+        </div>
+      </mwc-card>
     `;
   }
 
   static elementDefinitions = {
-
-    'search-agent':SearchAgent,
-    'profile-prompt':ProfilePrompt, 
+    'search-agent': SearchAgent,
+    'profile-prompt': ProfilePrompt,
     'mwc-icon': Icon,
     'mwc-list': List,
     'mwc-card': Card,
     'mwc-list-item': ListItem,
     'mwc-button': Button,
-    'context-provider': ContextProviderElement,
-        
   };
-
 }
-
-
- 
-
-
-
-
-
-
 
 // import { MobxReactionUpdate } from '@adobe/lit-mobx';
 // import {
@@ -171,14 +133,12 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
 // import { InvitationsStore } from '../invitations.store';
 // import { InvitationItem } from './invitation-item';
 
-
 // import { Card } from 'scoped-material-components/mwc-card';
 // import { List } from 'scoped-material-components/mwc-list';
 // import { Icon } from '@material/mwc-icon';
-// import { Button } from 'scoped-material-components/mwc-button';     
+// import { Button } from 'scoped-material-components/mwc-button';
 // import { ListItem } from '@material/mwc-list/mwc-list-item';
 // import { CircularProgress } from 'scoped-material-components/mwc-circular-progress';
-
 
 // import { sharedStyles } from '../shared-styles';
 // import { AgentPubKey } from '../types';
