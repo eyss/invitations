@@ -80,7 +80,7 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
 
   static elementDefinitions = {
     'mwc-card': Card,
-    'invitation-item':InvitationItem,
+    'invitation-item': InvitationItem,
     'mwc-circular-progress': CircularProgress,
   };
 }
