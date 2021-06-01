@@ -32,6 +32,10 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   invitees: Dictionary<String> = {};
 
   _addInvitee(e: CustomEvent) {
+
+    console.log(e.detail.agent.profile.nickname);
+    
+
     this.invitees[e.detail.agent.agent_pub_key] =
       e.detail.agent.profile.nickname;
     this.requestUpdate();
@@ -60,11 +64,17 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     await this._store.fetchMyPendingInvitations();
   }
   renderInviteesList() {
+
+    let invitees = Object.entries(this.invitees);
+
     return html`
       <mwc-list>
-        ${Object.entries(this.invitees).map(element => {
+        ${invitees.map(element => {
+
+          let invitee_nickname = element[1];
+          
           return html` <mwc-list-item hasMeta>
-            <span>${element[1]}</span>
+            <span>${invitee_nickname}</span>
             <mwc-icon
               slot="meta"
               id="${element[0]}"
@@ -86,6 +96,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
           <search-agent
             @agent-selected="${this._addInvitee}"
             clear-on-select
+            include-myself  
             style="margin-bottom: 16px;"
           ></search-agent>
 

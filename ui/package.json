@@ -33,6 +33,7 @@
     "@lit-labs/scoped-registry-mixin": "^1.0.0-rc.1",
     "lit": "^2.0.0-rc.2",
     "mobx": "^6.3.2",
+    "@webcomponents/scoped-custom-element-registry": "0.0.1",
     "@adobe/lit-mobx": "^2.0.0-rc.4"
   },
   "devDependencies": {
