@@ -6,7 +6,7 @@ export interface Invitation{
     inviter: AgentPubKey,
     invitees: AgentPubKey[],
     timestamp: any    
-};
+}
 
 export interface InvitationEntryInfo{
     invitation: Invitation,

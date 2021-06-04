@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { requestContext } from '@holochain-open-dev/context';
-import { state, query } from 'lit/decorators.js';
+import { state } from 'lit/decorators.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { MobxLitElement } from '@adobe/lit-mobx';
 
@@ -29,7 +29,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   _store!: InvitationsStore;
 
   @state()
-  invitees: Dictionary<String> = {};
+  invitees: Dictionary<string> = {};
 
   _addInvitee(e: CustomEvent) {
 
@@ -41,13 +41,13 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     this.requestUpdate();
   }
   _removeInvitee(e: Event) {
-    let node: any = e.target;
+    const node: any = e.target;
     delete this.invitees[node.id];
     this.requestUpdate();
   }
   async _sendInvitation() {
     //this is the input for the create invitation method define in the holochain side
-    let invitees_list: AgentPubKey[] = [];
+    const invitees_list: AgentPubKey[] = [];
 
     Object.entries(this.invitees).map(element => {
       invitees_list.push(element[0]);
@@ -65,13 +65,13 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   }
   renderInviteesList() {
 
-    let invitees = Object.entries(this.invitees);
+    const invitees = Object.entries(this.invitees);
 
     return html`
       <mwc-list>
         ${invitees.map(element => {
 
-          let invitee_nickname = element[1];
+          const invitee_nickname = element[1];
           
           return html` <mwc-list-item hasMeta>
             <span>${invitee_nickname}</span>
