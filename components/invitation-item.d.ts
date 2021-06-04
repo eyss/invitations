@@ -1,38 +1,37 @@
-import { BaseElement, DepsElement } from '@holochain-open-dev/common';
-import { InvitationsStore } from '../invitations.store';
+import { MobxLitElement } from '@adobe/lit-mobx';
+/**mwc-elements imports */
 import { Icon } from '@material/mwc-icon';
 import { List } from 'scoped-material-components/mwc-list';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
 import { Button } from 'scoped-material-components/mwc-button';
-import { Snackbar } from 'scoped-material-components/mwc-snackbar';
-import { TabBar } from 'scoped-material-components/mwc-tab-bar';
-import { Tab } from 'scoped-material-components/mwc-tab';
-declare const InvitationItem_base: typeof BaseElement;
-export declare abstract class InvitationItem extends InvitationItem_base implements DepsElement<InvitationsStore> {
-    abstract get _deps(): InvitationsStore;
+import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { InvitationsStore } from '../invitations.store';
+declare const InvitationItem_base: typeof MobxLitElement;
+/**
+ * @element invitation-item
+ * @fires invitation-completed - after the invitation its accepted by all the invitees
+ */
+export declare class InvitationItem extends InvitationItem_base {
+    _store: InvitationsStore;
     loaded: boolean;
-    invitation_entry_hash: string;
     clicked: boolean;
-    static styles: import("lit-element").CSSResult;
+    invitation_entry_hash: string;
+    static styles: import("lit").CSSResultGroup;
     get invitationEntryInfo(): import("../types").InvitationEntryInfo;
+    get invitationStatus(): string;
     firstUpdated(): Promise<void>;
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
-    get invitationStatus(): string;
     _clickHandler(): void;
-    _invitationStatusInfo(): import("lit-element").TemplateResult;
-    _invitationActionButtons(): import("lit-element").TemplateResult;
-    _invitationInviterAgent(): import("lit-element").TemplateResult;
+    _invitationIcon(): import("lit-html").TemplateResult<1>;
+    _invitationActionButtons(): import("lit-html").TemplateResult<1>;
+    _invitationInviterAgent(): import("lit-html").TemplateResult<1>;
     _haveYouInteracted(): boolean;
-    render(): import("lit-element").TemplateResult | undefined;
-    getScopedElements(): {
+    render(): import("lit-html").TemplateResult<1> | undefined;
+    static elementDefinitions: {
         'mwc-icon': typeof Icon;
         'mwc-list': typeof List;
-        'mwc-list-item': typeof ListItem;
-        'mwc-tab': typeof Tab;
-        'mwc-tab-bar': typeof TabBar;
         'mwc-button': typeof Button;
-        'mwc-snackbar': typeof Snackbar;
+        'mwc-list-item': typeof ListItem;
     };
 }
 export {};
