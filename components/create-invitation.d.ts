@@ -29,5 +29,6 @@ export declare class CreateInvitation extends CreateInvitation_base {
         'mwc-list-item': typeof ListItem;
         'mwc-button': typeof Button;
     };
+    static get styles(): import("lit").CSSResultGroup[];
 }
 export {};

@@ -1,5 +1,5 @@
 import { __decorate } from "tslib";
-import { html } from 'lit';
+import { css, html } from 'lit';
 import { requestContext } from '@holochain-open-dev/context';
 import { state } from 'lit/decorators.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
@@ -12,6 +12,7 @@ import { Button } from 'scoped-material-components/mwc-button';
 import { ListItem } from '@material/mwc-list/mwc-list-item';
 import { ProfilePrompt, SearchAgent, } from '@holochain-open-dev/profiles';
 import { INVITATIONS_STORE_CONTEXT } from '../types';
+import { sharedStyles } from '../shared-styles';
 /**
  * @element create-invitation-form
  */
@@ -94,6 +95,16 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
         </div>
       </mwc-card>
     `;
+    }
+    static get styles() {
+        return [
+            sharedStyles,
+            css `
+        :host {
+          display: flex;
+        }
+      `,
+        ];
     }
 }
 CreateInvitation.elementDefinitions = {
