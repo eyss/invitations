@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { css, html } from 'lit';
 import { requestContext } from '@holochain-open-dev/context';
 import { state, query } from 'lit/decorators.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
@@ -7,9 +7,9 @@ import { MobxLitElement } from '@adobe/lit-mobx';
 /**mwc-elements imports */
 import { Card } from 'scoped-material-components/mwc-card';
 import { List } from 'scoped-material-components/mwc-list';
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
 
 import {
   Dictionary,
@@ -21,6 +21,7 @@ import { InvitationsStore } from '../invitations.store';
 
 import { INVITATIONS_STORE_CONTEXT } from '../types';
 import { AgentPubKeyB64 } from '@holochain-open-dev/core-types';
+import { sharedStyles } from '../shared-styles';
 
 /**
  * @element create-invitation-form
@@ -62,9 +63,9 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   async _pedignInvitations() {
     await this._store.fetchMyPendingInvitations();
   }
+
   renderInviteesList() {
     const invitees = Object.entries(this.invitees);
-
     return html`
       <mwc-list>
         ${invitees.map(element => {
@@ -123,6 +124,17 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     'mwc-list-item': ListItem,
     'mwc-button': Button,
   };
+
+  static get styles() {
+    return [
+      sharedStyles,
+      css`
+        :host {
+          display: flex;
+        }
+      `,
+    ];
+  }
 }
 
 // import { MobxReactionUpdate } from '@adobe/lit-mobx';

@@ -6,10 +6,10 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { requestContext } from '@holochain-open-dev/context';
 
 /**mwc-elements imports */
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { List } from 'scoped-material-components/mwc-list';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
 
 import { toJS } from 'mobx';
 import { InvitationsStore } from '../invitations.store';
@@ -93,6 +93,13 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
 
     return 'pending';
   }
+
+  get fromMe() {
+    const my_pub_key = this._profilesStore.myAgentPubKey;
+
+    return this.invitationEntryInfo.invitation.inviter === my_pub_key;
+  }
+
   async firstUpdated() {
     await this._profilesStore.fetchAgentProfile(
       this.invitationEntryInfo.invitation.inviter
@@ -146,6 +153,7 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
   }
 
   _invitationActionButtons() {
+    if (this._haveYouInteracted() || this.fromMe) return html``;
     return html`
       <span slot="secondary">
         <mwc-button icon="check" @click="${this._acceptInvitation}"
@@ -158,13 +166,9 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
     `;
   }
   _invitationInviterAgent() {
-    const my_pub_key = this._profilesStore.myAgentPubKey;
-
-    const fromMe = this.invitationEntryInfo.invitation.inviter === my_pub_key;
-
     return html`
       <span
-        ><span class="secondary-text">from </span> ${fromMe
+        ><span class="secondary-text">from </span> ${this.fromMe
           ? 'you'
           : this._profilesStore.profileOf(
               this.invitationEntryInfo.invitation.inviter
@@ -199,7 +203,7 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
           @click="${this._clickHandler}"
         >
           ${this._invitationIcon()} ${this._invitationInviterAgent()}
-          ${!this._haveYouInteracted() && this._invitationActionButtons()}
+          ${this._invitationActionButtons()}
         </mwc-list-item>
       `;
     }
