@@ -20,6 +20,7 @@ export declare class InvitationItem extends InvitationItem_base {
     static styles: import("lit").CSSResultGroup;
     get invitationEntryInfo(): import("../types").InvitationEntryInfo;
     get invitationStatus(): string;
+    get fromMe(): boolean;
     firstUpdated(): Promise<void>;
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
