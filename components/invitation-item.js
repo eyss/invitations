@@ -5,10 +5,10 @@ import { MobxLitElement } from '@adobe/lit-mobx';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { requestContext } from '@holochain-open-dev/context';
 /**mwc-elements imports */
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { List } from 'scoped-material-components/mwc-list';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
 import { toJS } from 'mobx';
 import { INVITATIONS_STORE_CONTEXT } from '../types';
 import { PROFILES_STORE_CONTEXT, } from '@holochain-open-dev/profiles';

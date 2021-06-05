@@ -1,9 +1,9 @@
 import { MobxLitElement } from '@adobe/lit-mobx';
 /**mwc-elements imports */
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { List } from 'scoped-material-components/mwc-list';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
 import { InvitationsStore } from '../invitations.store';
 import { ProfilesStore } from '@holochain-open-dev/profiles';
 declare const InvitationItem_base: typeof MobxLitElement;

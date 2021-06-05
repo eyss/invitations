@@ -7,9 +7,9 @@ import { MobxLitElement } from '@adobe/lit-mobx';
 /**mwc-elements imports */
 import { Card } from 'scoped-material-components/mwc-card';
 import { List } from 'scoped-material-components/mwc-list';
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
 import { ProfilePrompt, SearchAgent, } from '@holochain-open-dev/profiles';
 import { INVITATIONS_STORE_CONTEXT } from '../types';
 import { sharedStyles } from '../shared-styles';
