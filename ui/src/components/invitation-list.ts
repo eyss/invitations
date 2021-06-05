@@ -14,24 +14,24 @@ import { INVITATIONS_STORE_CONTEXT, Dictionary, AgentPubKey } from '../types';
 import { Card } from 'scoped-material-components/mwc-card';
 import { CircularProgress } from 'scoped-material-components/mwc-circular-progress';
 
-
 /**
  * @element invitation-list
  */
-
 export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
-
   @requestContext(INVITATIONS_STORE_CONTEXT)
   _store!: InvitationsStore;
 
-  static styles = [css`
-    .invitations {
-      padding: 1em;
-      margin: 1em;
-      display: block;
-      overflow-y: auto;
-    }
-  `, sharedStyles];
+  static styles = [
+    css`
+      .invitations {
+        padding: 1em;
+        margin: 1em;
+        display: block;
+        overflow-y: auto;
+      }
+    `,
+    sharedStyles,
+  ];
 
   @state()
   loaded = false;
@@ -42,7 +42,6 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
   }
 
   renderPendingInvitations() {
-    console.log("Hola");
     if (Object.entries(this._store.invitations).length === 0)
       return html`<div class="column center-content" style="flex: 1;">
         <span class="placeholder">There are no pending invitations yet</span>
@@ -52,22 +51,23 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
       <div class="flex-scrollable-container">
         <div class="flex-scrollable-y">
           ${Object.entries(this._store.invitations).map(element => {
-      return html`<invitation-item
+            return html`<invitation-item
               .invitation_entry_hash=${element[1].invitation_entry_hash}
             >
             </invitation-item>`;
-    })}
+          })}
         </div>
       </div>
     </div>`;
   }
 
   render() {
-    
     return html`
       <mwc-card style="flex: 1;">
         <div class="column" style="margin: 16px; flex: 1;">
-          <span class="title" style="margin-bottom: 8px;">Pending Invitations</span>
+          <span class="title" style="margin-bottom: 8px;"
+            >Pending Invitations</span
+          >
           ${this.loaded
             ? this.renderPendingInvitations()
             : html`<div class="column center-content" style="flex: 1;">
@@ -84,8 +84,6 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
     'mwc-circular-progress': CircularProgress,
   };
 }
-
-
 
 // import { MobxReactionUpdate } from '@adobe/lit-mobx';
 // import {

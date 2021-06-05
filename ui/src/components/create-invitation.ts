@@ -32,19 +32,17 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   invitees: Dictionary<String> = {};
 
   _addInvitee(e: CustomEvent) {
-
-    console.log(e.detail.agent.profile.nickname);
-    
-
     this.invitees[e.detail.agent.agent_pub_key] =
       e.detail.agent.profile.nickname;
     this.requestUpdate();
   }
+
   _removeInvitee(e: Event) {
     let node: any = e.target;
     delete this.invitees[node.id];
     this.requestUpdate();
   }
+  
   async _sendInvitation() {
     //this is the input for the create invitation method define in the holochain side
     let invitees_list: AgentPubKey[] = [];
@@ -64,15 +62,13 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     await this._store.fetchMyPendingInvitations();
   }
   renderInviteesList() {
-
     let invitees = Object.entries(this.invitees);
 
     return html`
       <mwc-list>
         ${invitees.map(element => {
-
           let invitee_nickname = element[1];
-          
+
           return html` <mwc-list-item hasMeta>
             <span>${invitee_nickname}</span>
             <mwc-icon
@@ -96,7 +92,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
           <search-agent
             @agent-selected="${this._addInvitee}"
             clear-on-select
-            include-myself  
+            include-myself
             style="margin-bottom: 16px;"
           ></search-agent>
 

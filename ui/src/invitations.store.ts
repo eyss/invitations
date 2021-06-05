@@ -1,3 +1,4 @@
+import { serializeHash } from '@holochain-open-dev/core-types';
 import {
   observable,
   makeObservable,
@@ -7,7 +8,6 @@ import {
 } from 'mobx';
 
 import { InvitationsService } from './invitations.service';
-import { ProfilesService, ProfilesStore } from '@holochain-open-dev/profiles';
 
 import {
   AgentPubKey,
@@ -24,7 +24,6 @@ export class InvitationsStore {
 
   constructor(
     protected invitationsService: InvitationsService,
-    public profilesStore: ProfilesStore,
     protected clearOnInvitationComplete: boolean = false
   ) {
     makeObservable(this);
@@ -37,6 +36,10 @@ export class InvitationsStore {
       invitation.invitation.invitees.length ===
       invitation.invitees_who_accepted.length
     );
+  }
+
+  get myAgentPubKey() {
+    return serializeHash(this.invitationsService.cellId[1]);
   }
 
   @action
@@ -71,14 +74,13 @@ export class InvitationsStore {
 
     runInAction(() => {
       this.invitations[invitation_entry_hash].invitees_who_accepted.push(
-        this.profilesStore.myAgentPubKey
+        this.myAgentPubKey
       );
 
       if (
         this.clearOnInvitationComplete &&
         this.isInvitationCompleted(invitation_entry_hash)
-        ) {
-        console.log(this.invitations[invitation_entry_hash], 'cleared');
+      ) {
         this.clearInvitation(invitation_entry_hash);
       }
     });
