@@ -23,7 +23,6 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
         this.loaded = true;
     }
     renderPendingInvitations() {
-        console.log("Hola");
         if (Object.entries(this._store.invitations).length === 0)
             return html `<div class="column center-content" style="flex: 1;">
         <span class="placeholder">There are no pending invitations yet</span>
@@ -45,7 +44,9 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
         return html `
       <mwc-card style="flex: 1;">
         <div class="column" style="margin: 16px; flex: 1;">
-          <span class="title" style="margin-bottom: 8px;">Pending Invitations</span>
+          <span class="title" style="margin-bottom: 8px;"
+            >Pending Invitations</span
+          >
           ${this.loaded
             ? this.renderPendingInvitations()
             : html `<div class="column center-content" style="flex: 1;">
@@ -56,14 +57,17 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
     `;
     }
 }
-InvitationsList.styles = [css `
-    .invitations {
-      padding: 1em;
-      margin: 1em;
-      display: block;
-      overflow-y: auto;
-    }
-  `, sharedStyles];
+InvitationsList.styles = [
+    css `
+      .invitations {
+        padding: 1em;
+        margin: 1em;
+        display: block;
+        overflow-y: auto;
+      }
+    `,
+    sharedStyles,
+];
 InvitationsList.elementDefinitions = {
     'mwc-card': Card,
     'invitation-item': InvitationItem,

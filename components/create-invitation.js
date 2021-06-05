@@ -21,7 +21,6 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
         this.invitees = {};
     }
     _addInvitee(e) {
-        console.log(e.detail.agent.profile.nickname);
         this.invitees[e.detail.agent.agent_pub_key] =
             e.detail.agent.profile.nickname;
         this.requestUpdate();
@@ -76,7 +75,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
           <search-agent
             @agent-selected="${this._addInvitee}"
             clear-on-select
-            include-myself  
+            include-myself
             style="margin-bottom: 16px;"
           ></search-agent>
 

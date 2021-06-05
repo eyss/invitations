@@ -5,6 +5,7 @@ import { List } from 'scoped-material-components/mwc-list';
 import { Button } from 'scoped-material-components/mwc-button';
 import { ListItem } from '@material/mwc-list/mwc-list-item';
 import { InvitationsStore } from '../invitations.store';
+import { ProfilesStore } from '@holochain-open-dev/profiles';
 declare const InvitationItem_base: typeof MobxLitElement;
 /**
  * @element invitation-item
@@ -12,6 +13,7 @@ declare const InvitationItem_base: typeof MobxLitElement;
  */
 export declare class InvitationItem extends InvitationItem_base {
     _store: InvitationsStore;
+    _profilesStore: ProfilesStore;
     loaded: boolean;
     clicked: boolean;
     invitation_entry_hash: string;

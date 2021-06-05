@@ -1,17 +1,15 @@
-export declare type AgentPubKey = string;
-export declare type HeaderHash = string;
-export declare type EntryHash = string;
+import { AgentPubKeyB64, EntryHashB64, HeaderHashB64 } from '@holochain-open-dev/core-types';
 export interface Invitation {
-    inviter: AgentPubKey;
-    invitees: AgentPubKey[];
+    inviter: AgentPubKeyB64;
+    invitees: AgentPubKeyB64[];
     timestamp: any;
 }
 export interface InvitationEntryInfo {
     invitation: Invitation;
-    invitation_entry_hash: EntryHash;
-    invitation_header_hash: HeaderHash;
-    invitees_who_accepted: AgentPubKey[];
-    invitees_who_rejected: AgentPubKey[];
+    invitation_entry_hash: EntryHashB64;
+    invitation_header_hash: HeaderHashB64;
+    invitees_who_accepted: AgentPubKeyB64[];
+    invitees_who_rejected: AgentPubKeyB64[];
 }
 export declare type Dictionary<T> = {
     [key: string]: T;
