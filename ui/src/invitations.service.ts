@@ -1,5 +1,6 @@
+import { AgentPubKeyB64, HeaderHashB64 } from '@holochain-open-dev/core-types';
 import { AppWebsocket, CellId } from '@holochain/conductor-api';
-import { AgentPubKey, HeaderHash, InvitationEntryInfo } from './types';
+import { InvitationEntryInfo } from './types';
 
 export class InvitationsService {
   constructor(
@@ -8,7 +9,7 @@ export class InvitationsService {
     public zomeName = 'invitations'
   ) {}
 
-  async sendInvitation(input: AgentPubKey[]): Promise<void> {
+  async sendInvitation(input: AgentPubKeyB64[]): Promise<void> {
     return this.callZome('send_invitation', input);
   }
 
@@ -16,15 +17,21 @@ export class InvitationsService {
     return this.callZome('get_my_pending_invitations', null);
   }
 
-  async acceptInvitation(invitation_header_hash: HeaderHash): Promise<boolean> {
+  async acceptInvitation(
+    invitation_header_hash: HeaderHashB64
+  ): Promise<boolean> {
     return this.callZome('accept_invitation', invitation_header_hash);
   }
 
-  async rejectInvitation(invitation_header_hash: HeaderHash): Promise<boolean> {
+  async rejectInvitation(
+    invitation_header_hash: HeaderHashB64
+  ): Promise<boolean> {
     return this.callZome('reject_invitation', invitation_header_hash);
   }
 
-  async clearInvitation(invitation_header_hash: HeaderHash): Promise<boolean> {
+  async clearInvitation(
+    invitation_header_hash: HeaderHashB64
+  ): Promise<boolean> {
     return this.callZome('clear_invitation', invitation_header_hash);
   }
 

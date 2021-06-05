@@ -1,4 +1,9 @@
-import { serializeHash } from '@holochain-open-dev/core-types';
+import {
+  AgentPubKeyB64,
+  EntryHashB64,
+  serializeHash,
+} from '@holochain-open-dev/core-types';
+import { AppWebsocket } from '@holochain/conductor-api';
 import {
   observable,
   makeObservable,
@@ -9,14 +14,7 @@ import {
 
 import { InvitationsService } from './invitations.service';
 
-import {
-  AgentPubKey,
-  HeaderHash,
-  Invitation,
-  Dictionary,
-  InvitationEntryInfo,
-  EntryHash,
-} from './types';
+import { Dictionary, InvitationEntryInfo } from './types';
 
 export class InvitationsStore {
   @observable
@@ -27,6 +25,11 @@ export class InvitationsStore {
     protected clearOnInvitationComplete: boolean = false
   ) {
     makeObservable(this);
+
+    const url = this.invitationsService.appWebsocket.client.socket.url;
+    AppWebsocket.connect(url, 300000, signal => {
+      this.signalHandler(signal);
+    });
   }
 
   isInvitationCompleted(invitationHash: string) {
@@ -58,7 +61,7 @@ export class InvitationsStore {
   }
 
   @action
-  public async sendInvitation(inviteesList: AgentPubKey[]) {
+  public async sendInvitation(inviteesList: AgentPubKeyB64[]) {
     const create_invitation = await this.invitationsService.sendInvitation(
       inviteesList
     );
@@ -67,7 +70,7 @@ export class InvitationsStore {
   }
 
   @action
-  async acceptInvitation(invitation_entry_hash: EntryHash) {
+  async acceptInvitation(invitation_entry_hash: EntryHashB64) {
     const accept_invitation = await this.invitationsService.acceptInvitation(
       invitation_entry_hash
     );
@@ -87,7 +90,7 @@ export class InvitationsStore {
   }
 
   @action
-  async rejectInvitation(invitation_entry_hash: EntryHash) {
+  async rejectInvitation(invitation_entry_hash: EntryHashB64) {
     const reject_invitation = await this.invitationsService.rejectInvitation(
       invitation_entry_hash
     );
@@ -95,7 +98,7 @@ export class InvitationsStore {
   }
 
   @action
-  async clearInvitation(invitation_entry_hash: EntryHash) {
+  async clearInvitation(invitation_entry_hash: EntryHashB64) {
     await this.invitationsService.clearInvitation(invitation_entry_hash);
     delete this.invitations[invitation_entry_hash];
   }

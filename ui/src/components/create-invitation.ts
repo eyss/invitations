@@ -19,7 +19,8 @@ import {
 
 import { InvitationsStore } from '../invitations.store';
 
-import { INVITATIONS_STORE_CONTEXT, AgentPubKey } from '../types';
+import { INVITATIONS_STORE_CONTEXT } from '../types';
+import { AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 /**
  * @element create-invitation-form
@@ -29,7 +30,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   _store!: InvitationsStore;
 
   @state()
-  invitees: Dictionary<String> = {};
+  invitees: Dictionary<string> = {};
 
   _addInvitee(e: CustomEvent) {
     this.invitees[e.detail.agent.agent_pub_key] =
@@ -38,14 +39,14 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   }
 
   _removeInvitee(e: Event) {
-    let node: any = e.target;
+    const node: any = e.target;
     delete this.invitees[node.id];
     this.requestUpdate();
   }
-  
+
   async _sendInvitation() {
     //this is the input for the create invitation method define in the holochain side
-    let invitees_list: AgentPubKey[] = [];
+    const invitees_list: AgentPubKeyB64[] = [];
 
     Object.entries(this.invitees).map(element => {
       invitees_list.push(element[0]);
@@ -62,12 +63,12 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     await this._store.fetchMyPendingInvitations();
   }
   renderInviteesList() {
-    let invitees = Object.entries(this.invitees);
+    const invitees = Object.entries(this.invitees);
 
     return html`
       <mwc-list>
         ${invitees.map(element => {
-          let invitee_nickname = element[1];
+          const invitee_nickname = element[1];
 
           return html` <mwc-list-item hasMeta>
             <span>${invitee_nickname}</span>

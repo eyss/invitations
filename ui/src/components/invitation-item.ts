@@ -105,7 +105,9 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
     this.loaded = true;
   }
   async _rejectInvitation() {
-    let result = await this._store.rejectInvitation(this.invitation_entry_hash);
+    const result = await this._store.rejectInvitation(
+      this.invitation_entry_hash
+    );
   }
   async _acceptInvitation() {
     const invitation = toJS(
@@ -176,7 +178,7 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
       this.invitationEntryInfo.invitees_who_accepted.concat(
         this.invitationEntryInfo.invitees_who_rejected
       );
-    let result = agents_who_already_interacted.find(
+    const result = agents_who_already_interacted.find(
       agent_pub_key => agent_pub_key === my_pub_key
     );
 

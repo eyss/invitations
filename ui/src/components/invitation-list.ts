@@ -8,7 +8,7 @@ import { requestContext } from '@holochain-open-dev/context';
 import { sharedStyles } from '../shared-styles';
 import { InvitationItem } from './invitation-item';
 import { InvitationsStore } from '../invitations.store';
-import { INVITATIONS_STORE_CONTEXT, Dictionary, AgentPubKey } from '../types';
+import { INVITATIONS_STORE_CONTEXT } from '../types';
 
 /**mwc-elements imports */
 import { Card } from 'scoped-material-components/mwc-card';
