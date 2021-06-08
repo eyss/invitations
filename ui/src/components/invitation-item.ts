@@ -58,6 +58,17 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
       transition-property: all;
     }
 
+    .invitation {
+      width:100%;
+      display:grid;
+      grid-template-columns: 0.3fr 0.7fr;
+      padding: 1em;
+      overflow-x:hidden;
+    }
+
+
+
+
     .data {
       padding: 1em;
       margin: 1em;
@@ -151,15 +162,9 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
   }
 
   _invitationActionButtons() {
-    return html`
-      <span slot="secondary">
-        <mwc-button icon="check" @click="${this._acceptInvitation}"
-          >ACCEPT</mwc-button
-        >
-        <mwc-button icon="close" @click="${this._rejectInvitation}">
-          REJECT</mwc-button
-        >
-      </span>
+    return html`      
+        <mwc-button icon="check" @click="${this._acceptInvitation}">ACCEPT</mwc-button>
+        <mwc-button icon="close" @click="${this._rejectInvitation}">REJECT</mwc-button>
     `;
   }
   _invitationInviterAgent() {
@@ -193,23 +198,59 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
 
     return false;
   }
+
+  _invitationStatusInfo() {
+
+    if (this.invitationEntryInfo.invitees_who_rejected.length > 0) {
+
+      return html`
+      <span class="sencodary-text">
+        rejected by :
+        ${this.invitationEntryInfo.invitees_who_rejected.length}/${this
+          .invitationEntryInfo.invitation.invitees.length}
+        invitees
+      </span>
+      `;
+
+    } else {
+      return html`
+        <span class="sencodary-text">
+          accepted by :
+          ${this.invitationEntryInfo.invitees_who_accepted.length}/${this
+            .invitationEntryInfo.invitation.invitees.length}
+          invitees
+        </span>
+        `;
+    }
+  }
+
+
+
   render() {
     if (this.loaded && this.invitationEntryInfo) {
       return html`
         <mwc-list-item
           id="element"
-          twoline
           graphic="avatar"
           hasMeta
+          class="invitation"
           @click="${this._clickHandler}"
         >
 
         ${this._invitationIcon()}
-        ${this._invitationInviterAgent()}
 
-        ${ !this._haveYouInteracted() &&
-          this._invitationActionButtons()
-        }
+        <div> 
+         ${this._invitationInviterAgent()}
+        </div>
+        
+        <div class="secondary-text">
+          ${this._invitationStatusInfo()}
+        </div>
+
+        <div>
+          ${!this._haveYouInteracted() &&
+        this._invitationActionButtons()}
+        </div>
 
         </mwc-list-item>
       `;
