@@ -42,15 +42,14 @@ export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
   }
 
   renderPendingInvitations() {
-    console.log("Hola");
     if (Object.entries(this._store.invitations).length === 0)
       return html`<div class="column center-content" style="flex: 1;">
         <span class="placeholder">There are no pending invitations yet</span>
       </div>`;
 
-    return html` <div class="flex-scrollable-parent" style="flex: 1;">
-      <div class="flex-scrollable-container">
-        <div class="flex-scrollable-y">
+    return html` <div class="flex-scrollable-parent" style="flex: 1; overflow-x:hidden;">
+      <div class="flex-scrollable-container"  >
+        <div class="flex-scrollable-y" style="flex: 1; overflow-x:hidden;" >
           ${Object.entries(this._store.invitations).map(element => {
       return html`<invitation-item
               .invitation_entry_hash=${element[1].invitation_entry_hash}

@@ -8,10 +8,10 @@ import { requestContext } from '@holochain-open-dev/context';
 
 
 /**mwc-elements imports */
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { List } from 'scoped-material-components/mwc-list';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
 
 
 import { toJS } from 'mobx';
@@ -39,25 +39,6 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
   invitation_entry_hash = '';
 
   static styles = css`
-    .invitation_info {
-
-      font-family: 'Roboto';
-
-      padding: 0.3em;
-      margin: 0.3em;
-      border: 1px solid gray;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      color: rgba(0, 0, 0, 0.54);
-      font-size: 14px;
-      overflow: auto;
-      width: auto;
-      transition-property: all;
-    }
-
     .invitation {
       width:100%;
       display:grid;
@@ -66,23 +47,6 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
       overflow-x:hidden;
     }
 
-
-
-
-    .data {
-      padding: 1em;
-      margin: 1em;
-      display: flex;
-      align-items: flex-start;
-
-      color: rgba(0, 0, 0, 0.54);
-      flex-direction: column;
-      overflow-x: hidden;
-    }
-
-    .data .center {
-      align-self: center;
-    }
     .secondary-text {
       color: rgba(0, 0, 0, 0.54);
     }
@@ -162,10 +126,16 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
   }
 
   _invitationActionButtons() {
-    return html`      
+
+    if(!this._haveYouInteracted()){
+      return html`      
         <mwc-button icon="check" @click="${this._acceptInvitation}">ACCEPT</mwc-button>
         <mwc-button icon="close" @click="${this._rejectInvitation}">REJECT</mwc-button>
-    `;
+      `;
+    }else{
+      return html``;
+    }
+
   }
   _invitationInviterAgent() {
     const my_pub_key = this._store.profilesStore.myAgentPubKey;
@@ -195,7 +165,6 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
     if (result != undefined) {
       return true;
     }
-
     return false;
   }
 
@@ -217,14 +186,12 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
         <span class="sencodary-text">
           accepted by :
           ${this.invitationEntryInfo.invitees_who_accepted.length}/${this
-            .invitationEntryInfo.invitation.invitees.length}
+          .invitationEntryInfo.invitation.invitees.length}
           invitees
         </span>
         `;
     }
   }
-
-
 
   render() {
     if (this.loaded && this.invitationEntryInfo) {
@@ -247,10 +214,10 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
           ${this._invitationStatusInfo()}
         </div>
 
-        <div>
-          ${!this._haveYouInteracted() &&
-        this._invitationActionButtons()}
-        </div>
+        ${
+          this._invitationActionButtons()
+        }
+       
 
         </mwc-list-item>
       `;

@@ -1,15 +1,16 @@
-import { html } from 'lit';
+import { html, css } from 'lit';
 import { requestContext } from '@holochain-open-dev/context';
-import { state } from 'lit/decorators.js';
+import { state, property, query } from 'lit/decorators.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { MobxLitElement } from '@adobe/lit-mobx';
 
 /**mwc-elements imports */
 import { Card } from 'scoped-material-components/mwc-card';
 import { List } from 'scoped-material-components/mwc-list';
-import { Icon } from '@material/mwc-icon';
+import { Icon } from 'scoped-material-components/mwc-icon';
 import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from '@material/mwc-list/mwc-list-item';
+import { ListItem } from 'scoped-material-components/mwc-list-item';
+import { Snackbar } from 'scoped-material-components/mwc-snackbar';
 
 import {
   Dictionary,
@@ -31,14 +32,30 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   @state()
   invitees: Dictionary<string> = {};
 
+  @property({ type: Number })
+  max_invitees: Number = 1;
+
+  @query('#snackbar')
+  snackbar: any;
+
+  static styles = [css`
+    .secondary-text {
+      color: rgba(0, 0, 0, 0.54);
+    }
+  `];
+
   _addInvitee(e: CustomEvent) {
 
-    console.log(e.detail.agent.profile.nickname);
-    
+    if (Object.values(this.invitees).length < this.max_invitees) {
 
-    this.invitees[e.detail.agent.agent_pub_key] =
-      e.detail.agent.profile.nickname;
-    this.requestUpdate();
+      console.log(e.detail.agent.profile.nickname);
+      this.invitees[e.detail.agent.agent_pub_key] =
+        e.detail.agent.profile.nickname;
+      this.requestUpdate();
+    } else {
+      this.snackbar.show();
+    }
+
   }
   _removeInvitee(e: Event) {
     const node: any = e.target;
@@ -71,9 +88,9 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
       <mwc-list>
         ${invitees.map(element => {
 
-          const invitee_nickname = element[1];
-          
-          return html` <mwc-list-item hasMeta>
+      const invitee_nickname = element[1];
+
+      return html` <mwc-list-item hasMeta>
             <span>${invitee_nickname}</span>
             <mwc-icon
               slot="meta"
@@ -82,7 +99,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
               >close</mwc-icon
             >
           </mwc-list-item>`;
-        })}
+    })}
       </mwc-list>
     `;
   }
@@ -90,9 +107,13 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     return html`
       <mwc-card style="flex: 1;">
         <div class="column" style="margin: 16px; flex: 1;">
-          <span class="title" style="margin-bottom: 16px;"
-            >Create Invitation</span
-          >
+          
+        <div style ="display: flex; justify-content:center;"> 
+          <span class="title" style="margin-bottom: 16px;">
+            Create Invitation
+          </span>
+        </div>
+
           <search-agent
             @agent-selected="${this._addInvitee}"
             clear-on-select
@@ -109,10 +130,27 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
             </div>
           </div>
 
-          <mwc-button label="Send Invitation" @click=${this._sendInvitation}>
-            <mwc-icon slot="icon">send</mwc-icon>
-          </mwc-button>
+          <div style ="display: flex; justify-content:center;"> 
+          
+            <span class="secondary-text">${Object.values(this.invitees).length}/${this.max_invitees}</span>
+          
+          </div>
+
+          <div style ="display: flex; justify-content:center;"> 
+            <mwc-button label="Send Invitation" @click=${this._sendInvitation}>
+              <mwc-icon slot="icon">send</mwc-icon>
+            </mwc-button>
+          </div>
+
+
         </div>
+
+        <mwc-snackbar id="snackbar"
+          labelText="Can't add more invitees.">
+        </mwc-snackbar>
+
+
+
       </mwc-card>
     `;
   }
@@ -125,6 +163,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
     'mwc-card': Card,
     'mwc-list-item': ListItem,
     'mwc-button': Button,
+    'mwc-snackbar': Snackbar,
   };
 }
 
