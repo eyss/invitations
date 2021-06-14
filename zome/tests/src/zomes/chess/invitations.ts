@@ -14,13 +14,10 @@ export function ZomeTest(config, installAgents) {
 
     orchestrator.registerScenario("zome tests", async (s: ScenarioApi, t) => {
 
-        const [alice, bobby]: Player[] = await s.players([config, config]);
+        const [player]: Player[] = await s.players([config]);
 
-        const [[alice_happ]] = await alice.installAgentsHapps(installAgents);
-        const [[bobby_happ]] = await bobby.installAgentsHapps(installAgents);
-
-        await s.shareAllNodes([alice,bobby]);
-        
+        const [[alice_happ], [bobby_happ]] = await player.installAgentsHapps(installAgents);
+     
         const alicePubKey = alice_happ.agent;
         const bobbyPubKey = bobby_happ.agent;
 
@@ -28,12 +25,8 @@ export function ZomeTest(config, installAgents) {
         const bobby_conductor = bobby_happ.cells[0];
 
 
-        bobby.setSignalHandler((signal) => {
-            console.log("Bobby has received Signal:",signal.data.payload.payload);
-        })
-
-        alice.setSignalHandler((signal) => {
-            console.log("Alice has received Signal:",signal);
+        player.setSignalHandler((signal) => {
+            console.log("Player has received Signal:",signal.data.payload.payload);
         })
 
         let result = await sendInvitation(bobbyPubKey)(alice_conductor);
@@ -81,7 +74,7 @@ export function ZomeTest(config, installAgents) {
         await delay(1000);
 
         await clearInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
-        await delay(1000);
+        await delay(2000);
 
         alice_invitations = await getPendingInvitations(alice_conductor);
         await delay(1000);

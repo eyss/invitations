@@ -13,7 +13,7 @@ entry_defs![Invitation::entry_def()];
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    let mut fuctions = HashSet::new();
+    let mut functions = BTreeSet::new();
 
     let tag: String = "recv_remote_signal_cap_grant".into();
     let access: CapAccess = CapAccess::Unrestricted;
@@ -21,12 +21,12 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     let zome_name: ZomeName = zome_info()?.zome_name;
     let function_name: FunctionName = FunctionName("recv_remote_signal".into());
 
-    fuctions.insert((zome_name, function_name));
+    functions.insert((zome_name, function_name));
 
     let cap_grant_entry: CapGrantEntry = CapGrantEntry::new(
         tag,    // A string by which to later query for saved grants.
         access, // Unrestricted access means any external agent can call the extern
-        fuctions,
+        functions,
     );
 
     create_cap_grant(cap_grant_entry)?;
