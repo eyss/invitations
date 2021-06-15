@@ -5,7 +5,6 @@ import { List } from 'scoped-material-components/mwc-list';
 import { Button } from 'scoped-material-components/mwc-button';
 import { ListItem } from 'scoped-material-components/mwc-list-item';
 import { InvitationsStore } from '../invitations.store';
-import { ProfilesStore } from '@holochain-open-dev/profiles';
 declare const InvitationItem_base: typeof MobxLitElement;
 /**
  * @element invitation-item
@@ -13,14 +12,12 @@ declare const InvitationItem_base: typeof MobxLitElement;
  */
 export declare class InvitationItem extends InvitationItem_base {
     _store: InvitationsStore;
-    _profilesStore: ProfilesStore;
     loaded: boolean;
     clicked: boolean;
     invitation_entry_hash: string;
     static styles: import("lit").CSSResultGroup;
     get invitationEntryInfo(): import("../types").InvitationEntryInfo;
     get invitationStatus(): string;
-    get fromMe(): boolean;
     firstUpdated(): Promise<void>;
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
@@ -29,6 +26,7 @@ export declare class InvitationItem extends InvitationItem_base {
     _invitationActionButtons(): import("lit-html").TemplateResult<1>;
     _invitationInviterAgent(): import("lit-html").TemplateResult<1>;
     _haveYouInteracted(): boolean;
+    _invitationStatusInfo(): import("lit-html").TemplateResult<1>;
     render(): import("lit-html").TemplateResult<1> | undefined;
     static elementDefinitions: {
         'mwc-icon': typeof Icon;

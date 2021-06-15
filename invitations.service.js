@@ -1,7 +1,6 @@
 export class InvitationsService {
-    constructor(appWebsocket, cellId, zomeName = 'invitations') {
-        this.appWebsocket = appWebsocket;
-        this.cellId = cellId;
+    constructor(cellClient, zomeName = 'invitations') {
+        this.cellClient = cellClient;
         this.zomeName = zomeName;
     }
     async sendInvitation(input) {
@@ -20,14 +19,7 @@ export class InvitationsService {
         return this.callZome('clear_invitation', invitation_header_hash);
     }
     callZome(fn_name, payload) {
-        return this.appWebsocket.callZome({
-            cap: null,
-            cell_id: this.cellId,
-            zome_name: this.zomeName,
-            fn_name: fn_name,
-            payload: payload,
-            provenance: this.cellId[1],
-        });
+        return this.cellClient.callZome(this.zomeName, fn_name, payload);
     }
 }
 //# sourceMappingURL=invitations.service.js.map

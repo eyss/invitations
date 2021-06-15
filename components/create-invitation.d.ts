@@ -5,6 +5,7 @@ import { List } from 'scoped-material-components/mwc-list';
 import { Icon } from 'scoped-material-components/mwc-icon';
 import { Button } from 'scoped-material-components/mwc-button';
 import { ListItem } from 'scoped-material-components/mwc-list-item';
+import { Snackbar } from 'scoped-material-components/mwc-snackbar';
 import { Dictionary, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 import { InvitationsStore } from '../invitations.store';
 declare const CreateInvitation_base: typeof MobxLitElement;
@@ -14,6 +15,9 @@ declare const CreateInvitation_base: typeof MobxLitElement;
 export declare class CreateInvitation extends CreateInvitation_base {
     _store: InvitationsStore;
     invitees: Dictionary<string>;
+    max_invitees: number;
+    snackbar: any;
+    static styles: import("lit").CSSResultGroup[];
     _addInvitee(e: CustomEvent): void;
     _removeInvitee(e: Event): void;
     _sendInvitation(): Promise<void>;
@@ -28,7 +32,7 @@ export declare class CreateInvitation extends CreateInvitation_base {
         'mwc-card': typeof Card;
         'mwc-list-item': typeof ListItem;
         'mwc-button': typeof Button;
+        'mwc-snackbar': typeof Snackbar;
     };
-    static get styles(): import("lit").CSSResultGroup[];
 }
 export {};
