@@ -1,12 +1,10 @@
-import { AppWebsocket, CellId } from '@holochain/conductor-api';
+// import { AppWebsocket, CellId } from '@holochain/conductor-api';
+import { CellClient } from '@holochain-open-dev/cell-client';
 import { AgentPubKey, HeaderHash, InvitationEntryInfo } from './types';
 
 export class InvitationsService {
-  constructor(
-    public appWebsocket: AppWebsocket,
-    public cellId: CellId,
-    public zomeName = 'invitations'
-  ) {}
+
+  constructor(public cellClient: CellClient, public zomeName = 'invitations') {}
 
   async sendInvitation(input: AgentPubKey[]): Promise<void> {
     return this.callZome('send_invitation', input);
@@ -29,13 +27,6 @@ export class InvitationsService {
   }
 
   private callZome(fn_name: string, payload: any) {
-    return this.appWebsocket.callZome({
-      cap: null as any,
-      cell_id: this.cellId,
-      zome_name: this.zomeName,
-      fn_name: fn_name,
-      payload: payload,
-      provenance: this.cellId[1],
-    });
+    return this.cellClient.callZome(this.zomeName, fn_name, payload);
   }
 }
