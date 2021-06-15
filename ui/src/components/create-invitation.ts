@@ -35,7 +35,7 @@ export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
   invitees: Dictionary<string> = {};
 
   @property({ type: Number })
-  max_invitees: Number = 1;
+  max_invitees = 1;
 
   @query('#snackbar')
   snackbar: any;
