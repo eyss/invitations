@@ -1,7 +1,7 @@
 import { css, html } from 'lit';
 import { requestContext } from '@holochain-open-dev/context';
 import { state, query } from 'lit/decorators.js';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { MobxLitElement } from '@adobe/lit-mobx';
 
 /**mwc-elements imports */
@@ -26,7 +26,7 @@ import { sharedStyles } from '../shared-styles';
 /**
  * @element create-invitation-form
  */
-export class CreateInvitation extends ScopedRegistryHost(MobxLitElement) {
+export class CreateInvitation extends ScopedElementsMixin(MobxLitElement) {
   @requestContext(INVITATIONS_STORE_CONTEXT)
   _store!: InvitationsStore;
 

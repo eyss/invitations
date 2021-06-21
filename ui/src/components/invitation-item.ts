@@ -2,7 +2,7 @@ import { html, css } from 'lit';
 import { state } from 'lit/decorators.js';
 
 import { MobxLitElement } from '@adobe/lit-mobx';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { requestContext } from '@holochain-open-dev/context';
 
 /**mwc-elements imports */
@@ -25,7 +25,7 @@ import {
  * @fires invitation-completed - after the invitation its accepted by all the invitees
  */
 
-export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
+export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
   @requestContext(INVITATIONS_STORE_CONTEXT)
   _store!: InvitationsStore;
   @requestContext(PROFILES_STORE_CONTEXT)

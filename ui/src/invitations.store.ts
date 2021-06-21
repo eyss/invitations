@@ -26,10 +26,7 @@ export class InvitationsStore {
   ) {
     makeObservable(this);
 
-    const url = this.invitationsService.appWebsocket.client.socket.url;
-    AppWebsocket.connect(url, 300000, signal => {
-      this.signalHandler(signal);
-    });
+    this.invitationsService.cellClient.addSignalHandler(signal => this.signalHandler(signal))
   }
 
   isInvitationCompleted(invitationHash: string) {
@@ -42,7 +39,7 @@ export class InvitationsStore {
   }
 
   get myAgentPubKey() {
-    return serializeHash(this.invitationsService.cellId[1]);
+    return serializeHash(this.invitationsService.cellClient.cellId[1]);
   }
 
   @action

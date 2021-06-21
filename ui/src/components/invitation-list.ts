@@ -2,7 +2,7 @@ import { html, css } from 'lit';
 import { state, query } from 'lit/decorators.js';
 
 import { MobxLitElement } from '@adobe/lit-mobx';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { requestContext } from '@holochain-open-dev/context';
 
 import { sharedStyles } from '../shared-styles';
@@ -17,7 +17,7 @@ import { CircularProgress } from 'scoped-material-components/mwc-circular-progre
 /**
  * @element invitation-list
  */
-export class InvitationsList extends ScopedRegistryHost(MobxLitElement) {
+export class InvitationsList extends ScopedElementsMixin(MobxLitElement) {
   @requestContext(INVITATIONS_STORE_CONTEXT)
   _store!: InvitationsStore;
 
