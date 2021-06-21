@@ -1,17 +1,21 @@
 import { __decorate } from "tslib";
+import { serializeHash, } from '@holochain-open-dev/core-types';
 import { observable, makeObservable, action, runInAction, } from 'mobx';
 export class InvitationsStore {
-    constructor(invitationsService, profilesStore, clearOnInvitationComplete = false) {
+    constructor(invitationsService, clearOnInvitationComplete = false) {
         this.invitationsService = invitationsService;
-        this.profilesStore = profilesStore;
         this.clearOnInvitationComplete = clearOnInvitationComplete;
         this.invitations = {};
         makeObservable(this);
+        this.invitationsService.cellClient.addSignalHandler(signal => this.signalHandler(signal));
     }
     isInvitationCompleted(invitationHash) {
         const invitation = this.invitations[invitationHash];
         return (invitation.invitation.invitees.length ===
             invitation.invitees_who_accepted.length);
+    }
+    get myAgentPubKey() {
+        return serializeHash(this.invitationsService.cellClient.cellId[1]);
     }
     async fetchMyPendingInvitations() {
         // Pedir al backend
@@ -31,10 +35,9 @@ export class InvitationsStore {
     async acceptInvitation(invitation_entry_hash) {
         const accept_invitation = await this.invitationsService.acceptInvitation(invitation_entry_hash);
         runInAction(() => {
-            this.invitations[invitation_entry_hash].invitees_who_accepted.push(this.profilesStore.myAgentPubKey);
+            this.invitations[invitation_entry_hash].invitees_who_accepted.push(this.myAgentPubKey);
             if (this.clearOnInvitationComplete &&
                 this.isInvitationCompleted(invitation_entry_hash)) {
-                console.log(this.invitations[invitation_entry_hash], 'cleared');
                 this.clearInvitation(invitation_entry_hash);
             }
         });

@@ -4,7 +4,7 @@ import { InvitationsStore } from '../invitations.store';
 /**mwc-elements imports */
 import { Card } from 'scoped-material-components/mwc-card';
 import { CircularProgress } from 'scoped-material-components/mwc-circular-progress';
-declare const InvitationsList_base: typeof MobxLitElement;
+declare const InvitationsList_base: typeof MobxLitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
 /**
  * @element invitation-list
  */

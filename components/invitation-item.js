@@ -2,7 +2,7 @@ import { __decorate } from "tslib";
 import { html, css } from 'lit';
 import { state } from 'lit/decorators.js';
 import { MobxLitElement } from '@adobe/lit-mobx';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { requestContext } from '@holochain-open-dev/context';
 /**mwc-elements imports */
 import { Icon } from 'scoped-material-components/mwc-icon';
@@ -11,11 +11,12 @@ import { Button } from 'scoped-material-components/mwc-button';
 import { ListItem } from 'scoped-material-components/mwc-list-item';
 import { toJS } from 'mobx';
 import { INVITATIONS_STORE_CONTEXT } from '../types';
+import { PROFILES_STORE_CONTEXT, } from '@holochain-open-dev/profiles';
 /**
  * @element invitation-item
  * @fires invitation-completed - after the invitation its accepted by all the invitees
  */
-export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
+export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
     constructor() {
         super(...arguments);
         this.loaded = false;
@@ -35,15 +36,19 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
         }
         return 'pending';
     }
+    get fromMe() {
+        const my_pub_key = this._profilesStore.myAgentPubKey;
+        return this.invitationEntryInfo.invitation.inviter === my_pub_key;
+    }
     async firstUpdated() {
-        await this._store.profilesStore.fetchAgentProfile(this.invitationEntryInfo.invitation.inviter);
+        await this._profilesStore.fetchAgentProfile(this.invitationEntryInfo.invitation.inviter);
         this.invitationEntryInfo.invitation.invitees.map(async (invitee_pub_key) => {
-            await this._store.profilesStore.fetchAgentProfile(invitee_pub_key);
+            await this._profilesStore.fetchAgentProfile(invitee_pub_key);
         });
         this.loaded = true;
     }
     async _rejectInvitation() {
-        await this._store.rejectInvitation(this.invitation_entry_hash);
+        const result = await this._store.rejectInvitation(this.invitation_entry_hash);
     }
     async _acceptInvitation() {
         const invitation = toJS(this._store.invitations[this.invitation_entry_hash].invitation);
@@ -62,9 +67,7 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
     }
     _invitationIcon() {
         if (this.invitationStatus == 'rejected') {
-            return html `
-       <mwc-icon slot="graphic">close</mwc-icon>
-      `;
+            return html ` <mwc-icon slot="graphic">close</mwc-icon> `;
         }
         else {
             return html `
@@ -75,29 +78,30 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
         }
     }
     _invitationActionButtons() {
-        if (!this._haveYouInteracted()) {
-            return html `      
-        <mwc-button icon="check" @click="${this._acceptInvitation}">ACCEPT</mwc-button>
-        <mwc-button icon="close" @click="${this._rejectInvitation}">REJECT</mwc-button>
-      `;
-        }
-        else {
+        if (this._haveYouInteracted() || this.fromMe)
             return html ``;
-        }
+        return html `
+      <span slot="secondary">
+        <mwc-button icon="check" @click="${this._acceptInvitation}"
+          >ACCEPT</mwc-button
+        >
+        <mwc-button icon="close" @click="${this._rejectInvitation}">
+          REJECT</mwc-button
+        >
+      </span>
+    `;
     }
     _invitationInviterAgent() {
-        const my_pub_key = this._store.profilesStore.myAgentPubKey;
-        const fromMe = this.invitationEntryInfo.invitation.inviter === my_pub_key;
         return html `
       <span
-        ><span class="secondary-text">from </span> ${fromMe
+        ><span class="secondary-text">from </span> ${this.fromMe
             ? 'you'
-            : this._store.profilesStore.profileOf(this.invitationEntryInfo.invitation.inviter).nickname}
+            : this._profilesStore.profileOf(this.invitationEntryInfo.invitation.inviter).nickname}
       </span>
     `;
     }
     _haveYouInteracted() {
-        const my_pub_key = this._store.profilesStore.myAgentPubKey;
+        const my_pub_key = this._profilesStore.myAgentPubKey;
         const agents_who_already_interacted = this.invitationEntryInfo.invitees_who_accepted.concat(this.invitationEntryInfo.invitees_who_rejected);
         const result = agents_who_already_interacted.find(agent_pub_key => agent_pub_key === my_pub_key);
         if (result != undefined) {
@@ -105,71 +109,60 @@ export class InvitationItem extends ScopedRegistryHost(MobxLitElement) {
         }
         return false;
     }
-    _invitationStatusInfo() {
-        if (this.invitationEntryInfo.invitees_who_rejected.length > 0) {
-            return html `
-      <span class="sencodary-text">
-        rejected by :
-        ${this.invitationEntryInfo.invitees_who_rejected.length}/${this
-                .invitationEntryInfo.invitation.invitees.length}
-        invitees
-      </span>
-      `;
-        }
-        else {
-            return html `
-        <span class="sencodary-text">
-          accepted by :
-          ${this.invitationEntryInfo.invitees_who_accepted.length}/${this
-                .invitationEntryInfo.invitation.invitees.length}
-          invitees
-        </span>
-        `;
-        }
-    }
     render() {
         if (this.loaded && this.invitationEntryInfo) {
             return html `
         <mwc-list-item
           id="element"
+          twoline
           graphic="avatar"
           hasMeta
-          class="invitation"
           @click="${this._clickHandler}"
         >
-
-        ${this._invitationIcon()}
-
-        <div> 
-         ${this._invitationInviterAgent()}
-        </div>
-        
-        <div class="secondary-text">
-          ${this._invitationStatusInfo()}
-        </div>
-
-        ${this._invitationActionButtons()}
-       
-
+          ${this._invitationIcon()} ${this._invitationInviterAgent()}
+          ${this._invitationActionButtons()}
         </mwc-list-item>
       `;
         }
     }
 }
 InvitationItem.styles = css `
-    .invitation {
-      width:100%;
-      display:grid;
-      grid-template-columns: 0.3fr 0.7fr;
-      padding: 1em;
-      overflow-x:hidden;
+    .invitation_info {
+      font-family: 'Roboto';
+
+      padding: 0.3em;
+      margin: 0.3em;
+      border: 1px solid gray;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: rgba(0, 0, 0, 0.54);
+      font-size: 14px;
+      overflow: auto;
+      width: auto;
+      transition-property: all;
     }
 
+    .data {
+      padding: 1em;
+      margin: 1em;
+      display: flex;
+      align-items: flex-start;
+
+      color: rgba(0, 0, 0, 0.54);
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .data .center {
+      align-self: center;
+    }
     .secondary-text {
       color: rgba(0, 0, 0, 0.54);
     }
-
-`;
+  `;
 InvitationItem.elementDefinitions = {
     'mwc-icon': Icon,
     'mwc-list': List,
@@ -179,6 +172,9 @@ InvitationItem.elementDefinitions = {
 __decorate([
     requestContext(INVITATIONS_STORE_CONTEXT)
 ], InvitationItem.prototype, "_store", void 0);
+__decorate([
+    requestContext(PROFILES_STORE_CONTEXT)
+], InvitationItem.prototype, "_profilesStore", void 0);
 __decorate([
     state()
 ], InvitationItem.prototype, "loaded", void 0);
