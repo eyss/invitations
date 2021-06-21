@@ -56,6 +56,13 @@ export class InvitationsList extends ScopedElementsMixin(MobxLitElement) {
       </mwc-card>
     `;
     }
+    static get scopedElements() {
+        return {
+            'mwc-card': Card,
+            'invitation-item': InvitationItem,
+            'mwc-circular-progress': CircularProgress,
+        };
+    }
 }
 InvitationsList.styles = [
     css `
@@ -68,11 +75,6 @@ InvitationsList.styles = [
     `,
     sharedStyles,
 ];
-InvitationsList.elementDefinitions = {
-    'mwc-card': Card,
-    'invitation-item': InvitationItem,
-    'mwc-circular-progress': CircularProgress,
-};
 __decorate([
     requestContext(INVITATIONS_STORE_CONTEXT)
 ], InvitationsList.prototype, "_store", void 0);

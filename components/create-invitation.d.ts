@@ -20,7 +20,7 @@ export declare class CreateInvitation extends CreateInvitation_base {
     _pedignInvitations(): Promise<void>;
     renderInviteesList(): import("lit-html").TemplateResult<1>;
     render(): import("lit-html").TemplateResult<1>;
-    static elementDefinitions: {
+    static get scopedElements(): {
         'search-agent': typeof SearchAgent;
         'profile-prompt': typeof ProfilePrompt;
         'mwc-icon': typeof Icon;

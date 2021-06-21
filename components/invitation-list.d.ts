@@ -15,7 +15,7 @@ export declare class InvitationsList extends InvitationsList_base {
     firstUpdated(): Promise<void>;
     renderPendingInvitations(): import("lit-html").TemplateResult<1>;
     render(): import("lit-html").TemplateResult<1>;
-    static elementDefinitions: {
+    static get scopedElements(): {
         'mwc-card': typeof Card;
         'invitation-item': typeof InvitationItem;
         'mwc-circular-progress': typeof CircularProgress;

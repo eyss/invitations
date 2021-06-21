@@ -125,6 +125,14 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
       `;
         }
     }
+    static get scopedElements() {
+        return {
+            'mwc-icon': Icon,
+            'mwc-list': List,
+            'mwc-button': Button,
+            'mwc-list-item': ListItem,
+        };
+    }
 }
 InvitationItem.styles = css `
     .invitation_info {
@@ -163,12 +171,6 @@ InvitationItem.styles = css `
       color: rgba(0, 0, 0, 0.54);
     }
   `;
-InvitationItem.elementDefinitions = {
-    'mwc-icon': Icon,
-    'mwc-list': List,
-    'mwc-button': Button,
-    'mwc-list-item': ListItem,
-};
 __decorate([
     requestContext(INVITATIONS_STORE_CONTEXT)
 ], InvitationItem.prototype, "_store", void 0);

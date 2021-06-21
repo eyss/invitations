@@ -96,6 +96,17 @@ export class CreateInvitation extends ScopedElementsMixin(MobxLitElement) {
       </mwc-card>
     `;
     }
+    static get scopedElements() {
+        return {
+            'search-agent': SearchAgent,
+            'profile-prompt': ProfilePrompt,
+            'mwc-icon': Icon,
+            'mwc-list': List,
+            'mwc-card': Card,
+            'mwc-list-item': ListItem,
+            'mwc-button': Button,
+        };
+    }
     static get styles() {
         return [
             sharedStyles,
@@ -107,15 +118,6 @@ export class CreateInvitation extends ScopedElementsMixin(MobxLitElement) {
         ];
     }
 }
-CreateInvitation.elementDefinitions = {
-    'search-agent': SearchAgent,
-    'profile-prompt': ProfilePrompt,
-    'mwc-icon': Icon,
-    'mwc-list': List,
-    'mwc-card': Card,
-    'mwc-list-item': ListItem,
-    'mwc-button': Button,
-};
 __decorate([
     requestContext(INVITATIONS_STORE_CONTEXT)
 ], CreateInvitation.prototype, "_store", void 0);

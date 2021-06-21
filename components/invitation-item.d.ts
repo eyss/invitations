@@ -30,7 +30,7 @@ export declare class InvitationItem extends InvitationItem_base {
     _invitationInviterAgent(): import("lit-html").TemplateResult<1>;
     _haveYouInteracted(): boolean;
     render(): import("lit-html").TemplateResult<1> | undefined;
-    static elementDefinitions: {
+    static get scopedElements(): {
         'mwc-icon': typeof Icon;
         'mwc-list': typeof List;
         'mwc-button': typeof Button;
