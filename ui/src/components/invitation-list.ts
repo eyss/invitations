@@ -78,11 +78,13 @@ export class InvitationsList extends ScopedElementsMixin(MobxLitElement) {
     `;
   }
 
-  static elementDefinitions = {
-    'mwc-card': Card,
-    'invitation-item': InvitationItem,
-    'mwc-circular-progress': CircularProgress,
-  };
+  static get scopedElements() {
+    return {
+      'mwc-card': Card,
+      'invitation-item': InvitationItem,
+      'mwc-circular-progress': CircularProgress,
+    };
+  }
 }
 
 // import { MobxReactionUpdate } from '@adobe/lit-mobx';

@@ -208,10 +208,13 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
       `;
     }
   }
-  static elementDefinitions = {
-    'mwc-icon': Icon,
-    'mwc-list': List,
-    'mwc-button': Button,
-    'mwc-list-item': ListItem,
-  };
+  
+  static get scopedElements() {
+    return {
+      'mwc-icon': Icon,
+      'mwc-list': List,
+      'mwc-button': Button,
+      'mwc-list-item': ListItem,
+    };
+  }
 }

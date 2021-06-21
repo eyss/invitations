@@ -115,15 +115,17 @@ export class CreateInvitation extends ScopedElementsMixin(MobxLitElement) {
     `;
   }
 
-  static elementDefinitions = {
-    'search-agent': SearchAgent,
-    'profile-prompt': ProfilePrompt,
-    'mwc-icon': Icon,
-    'mwc-list': List,
-    'mwc-card': Card,
-    'mwc-list-item': ListItem,
-    'mwc-button': Button,
-  };
+  static get scopedElements() {
+    return {
+      'search-agent': SearchAgent,
+      'profile-prompt': ProfilePrompt,
+      'mwc-icon': Icon,
+      'mwc-list': List,
+      'mwc-card': Card,
+      'mwc-list-item': ListItem,
+      'mwc-button': Button,
+    };
+  }
 
   static get styles() {
     return [
