@@ -18,7 +18,7 @@ import { Dictionary, InvitationEntryInfo } from './types';
 
 export class InvitationsStore {
   @observable
-  public invitations: Dictionary<InvitationEntryInfo> = {};
+  private invitations: Dictionary<InvitationEntryInfo> = {};
 
   constructor(
     protected invitationsService: InvitationsService,
@@ -26,7 +26,9 @@ export class InvitationsStore {
   ) {
     makeObservable(this);
 
-    this.invitationsService.cellClient.addSignalHandler(signal => this.signalHandler(signal))
+    this.invitationsService.cellClient.addSignalHandler(signal =>
+      this.signalHandler(signal)
+    );
   }
 
   isInvitationCompleted(invitationHash: string) {
@@ -40,6 +42,22 @@ export class InvitationsStore {
 
   get myAgentPubKey() {
     return serializeHash(this.invitationsService.cellClient.cellId[1]);
+  }
+
+  get pendingInvitations(): Dictionary<InvitationEntryInfo> {
+    const pending: Dictionary<InvitationEntryInfo> = {};
+
+    for (const [hash, info] of Object.entries(this.invitations)) {
+      if (!this.isInvitationCompleted(hash)) {
+        pending[hash] = info;
+      }
+    }
+
+    return pending;
+  }
+
+  invitationInfo(invitationEntryHash: EntryHashB64): InvitationEntryInfo {
+    return this.invitations[invitationEntryHash];
   }
 
   @action
@@ -72,17 +90,21 @@ export class InvitationsStore {
       invitation_entry_hash
     );
 
-    runInAction(() => {
-      this.invitations[invitation_entry_hash].invitees_who_accepted.push(
-        this.myAgentPubKey
-      );
+    return new Promise(resolve => {
+      runInAction(() => {
+        this.invitations[invitation_entry_hash].invitees_who_accepted.push(
+          this.myAgentPubKey
+        );
 
-      if (
-        this.clearOnInvitationComplete &&
-        this.isInvitationCompleted(invitation_entry_hash)
-      ) {
-        this.clearInvitation(invitation_entry_hash);
-      }
+        if (
+          this.clearOnInvitationComplete &&
+          this.isInvitationCompleted(invitation_entry_hash)
+        ) {
+          this.clearInvitation(invitation_entry_hash).then(() => resolve(null));
+        } else {
+          resolve(null);
+        }
+      });
     });
   }
 
@@ -97,7 +119,6 @@ export class InvitationsStore {
   @action
   async clearInvitation(invitation_entry_hash: EntryHashB64) {
     await this.invitationsService.clearInvitation(invitation_entry_hash);
-    delete this.invitations[invitation_entry_hash];
   }
 
   @action
@@ -108,7 +129,7 @@ export class InvitationsStore {
   }
 
   @action
-  invitationAccepted(signal: any) {
+  async invitationAccepted(signal: any) {
     const invitation = signal.payload.InvitationAccepted;
     this.invitations[invitation.invitation_entry_hash] = invitation;
 
@@ -116,7 +137,7 @@ export class InvitationsStore {
       this.clearOnInvitationComplete &&
       this.isInvitationCompleted(invitation.invitation_entry_hash)
     ) {
-      this.clearInvitation(invitation.invitation_entry_hash);
+      await this.clearInvitation(invitation.invitation_entry_hash);
     }
   }
 

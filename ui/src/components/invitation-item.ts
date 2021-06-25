@@ -24,7 +24,6 @@ import {
  * @element invitation-item
  * @fires invitation-completed - after the invitation its accepted by all the invitees
  */
-
 export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
   @requestContext(INVITATIONS_STORE_CONTEXT)
   _store!: InvitationsStore;
@@ -77,7 +76,7 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
   `;
 
   get invitationEntryInfo() {
-    return this._store.invitations[this.invitation_entry_hash];
+    return this._store.invitationInfo(this.invitation_entry_hash);
   }
   get invitationStatus(): string {
     if (this.invitationEntryInfo.invitees_who_rejected.length > 0) {
@@ -118,15 +117,12 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
   }
   async _acceptInvitation() {
     const invitation = toJS(
-      this._store.invitations[this.invitation_entry_hash].invitation
+      this._store.invitationInfo(this.invitation_entry_hash).invitation
     );
 
     await this._store.acceptInvitation(this.invitation_entry_hash);
 
-    if (
-      !this._store.invitations[this.invitation_entry_hash] ||
-      this._store.isInvitationCompleted(this.invitation_entry_hash)
-    ) {
+    if (this._store.isInvitationCompleted(this.invitation_entry_hash)) {
       this.dispatchEvent(
         new CustomEvent('invitation-completed', {
           detail: { invitation },
@@ -208,7 +204,7 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
       `;
     }
   }
-  
+
   static get scopedElements() {
     return {
       'mwc-icon': Icon,
