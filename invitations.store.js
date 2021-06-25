@@ -34,12 +34,17 @@ export class InvitationsStore {
     }
     async acceptInvitation(invitation_entry_hash) {
         const accept_invitation = await this.invitationsService.acceptInvitation(invitation_entry_hash);
-        runInAction(() => {
-            this.invitations[invitation_entry_hash].invitees_who_accepted.push(this.myAgentPubKey);
-            if (this.clearOnInvitationComplete &&
-                this.isInvitationCompleted(invitation_entry_hash)) {
-                this.clearInvitation(invitation_entry_hash);
-            }
+        return new Promise(resolve => {
+            runInAction(() => {
+                this.invitations[invitation_entry_hash].invitees_who_accepted.push(this.myAgentPubKey);
+                if (this.clearOnInvitationComplete &&
+                    this.isInvitationCompleted(invitation_entry_hash)) {
+                    this.clearInvitation(invitation_entry_hash).then(() => resolve(null));
+                }
+                else {
+                    resolve(null);
+                }
+            });
         });
     }
     async rejectInvitation(invitation_entry_hash) {
