@@ -17,6 +17,18 @@ export class InvitationsStore {
     get myAgentPubKey() {
         return serializeHash(this.invitationsService.cellClient.cellId[1]);
     }
+    get pendingInvitations() {
+        const pending = {};
+        for (const [hash, info] of Object.entries(this.invitations)) {
+            if (this.isInvitationCompleted(hash)) {
+                pending[hash] = info;
+            }
+        }
+        return pending;
+    }
+    invitationInfo(invitationEntryHash) {
+        return this.invitations[invitationEntryHash];
+    }
     async fetchMyPendingInvitations() {
         // Pedir al backend
         const pending_invitations_entries_info = await this.invitationsService.getMyPendingInvitations();
@@ -53,7 +65,6 @@ export class InvitationsStore {
     }
     async clearInvitation(invitation_entry_hash) {
         await this.invitationsService.clearInvitation(invitation_entry_hash);
-        delete this.invitations[invitation_entry_hash];
     }
     invitationReceived(signal) {
         const invitation = signal.payload.InvitationReceived;

@@ -24,7 +24,7 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
         this.invitation_entry_hash = '';
     }
     get invitationEntryInfo() {
-        return this._store.invitations[this.invitation_entry_hash];
+        return this._store.invitationInfo(this.invitation_entry_hash);
     }
     get invitationStatus() {
         if (this.invitationEntryInfo.invitees_who_rejected.length > 0) {
@@ -51,10 +51,9 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
         const result = await this._store.rejectInvitation(this.invitation_entry_hash);
     }
     async _acceptInvitation() {
-        const invitation = toJS(this._store.invitations[this.invitation_entry_hash].invitation);
+        const invitation = toJS(this._store.invitationInfo(this.invitation_entry_hash).invitation);
         await this._store.acceptInvitation(this.invitation_entry_hash);
-        if (!this._store.invitations[this.invitation_entry_hash] ||
-            this._store.isInvitationCompleted(this.invitation_entry_hash)) {
+        if (this._store.isInvitationCompleted(this.invitation_entry_hash)) {
             this.dispatchEvent(new CustomEvent('invitation-completed', {
                 detail: { invitation },
                 bubbles: true,
