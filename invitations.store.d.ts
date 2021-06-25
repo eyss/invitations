@@ -16,7 +16,7 @@ export declare class InvitationsStore {
     rejectInvitation(invitation_entry_hash: EntryHashB64): Promise<void>;
     clearInvitation(invitation_entry_hash: EntryHashB64): Promise<void>;
     invitationReceived(signal: any): void;
-    invitationAccepted(signal: any): void;
+    invitationAccepted(signal: any): Promise<void>;
     invitationRejected(signal: any): void;
     signalHandler(signal: any): Promise<void>;
 }

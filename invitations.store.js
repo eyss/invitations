@@ -20,7 +20,7 @@ export class InvitationsStore {
     get pendingInvitations() {
         const pending = {};
         for (const [hash, info] of Object.entries(this.invitations)) {
-            if (this.isInvitationCompleted(hash)) {
+            if (!this.isInvitationCompleted(hash)) {
                 pending[hash] = info;
             }
         }
@@ -70,12 +70,12 @@ export class InvitationsStore {
         const invitation = signal.payload.InvitationReceived;
         this.invitations[invitation.invitation_entry_hash] = invitation;
     }
-    invitationAccepted(signal) {
+    async invitationAccepted(signal) {
         const invitation = signal.payload.InvitationAccepted;
         this.invitations[invitation.invitation_entry_hash] = invitation;
         if (this.clearOnInvitationComplete &&
             this.isInvitationCompleted(invitation.invitation_entry_hash)) {
-            this.clearInvitation(invitation.invitation_entry_hash);
+            await this.clearInvitation(invitation.invitation_entry_hash);
         }
     }
     invitationRejected(signal) {
