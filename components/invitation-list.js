@@ -33,6 +33,11 @@ export class InvitationsList extends ScopedElementsMixin(MobxLitElement) {
           ${Object.entries(this._store.pendingInvitations).map(element => {
             return html `<invitation-item
               .invitation_entry_hash=${element[1].invitation_entry_hash}
+              @invitation-completed=${(e) => this.dispatchEvent(new CustomEvent('invitation-completed', {
+                detail: e.detail,
+                bubbles: true,
+                composed: true,
+            }))}
             >
             </invitation-item>`;
         })}
