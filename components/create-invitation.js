@@ -76,7 +76,6 @@ export class CreateInvitation extends ScopedElementsMixin(MobxLitElement) {
           <search-agent
             @agent-selected="${this._addInvitee}"
             clear-on-select
-            include-myself
             style="margin-bottom: 16px;"
           ></search-agent>
 
