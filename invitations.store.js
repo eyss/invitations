@@ -1,12 +1,12 @@
 import { __decorate } from "tslib";
 import { serializeHash, } from '@holochain-open-dev/core-types';
-import { observable, makeObservable, action, runInAction, } from 'mobx';
+import { observable, makeAutoObservable, action, runInAction, } from 'mobx';
 export class InvitationsStore {
     constructor(invitationsService, clearOnInvitationComplete = false) {
         this.invitationsService = invitationsService;
         this.clearOnInvitationComplete = clearOnInvitationComplete;
         this.invitations = {};
-        makeObservable(this);
+        makeAutoObservable(this);
         this.invitationsService.cellClient.addSignalHandler(signal => this.signalHandler(signal));
     }
     isInvitationCompleted(invitationHash) {
