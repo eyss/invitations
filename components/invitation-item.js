@@ -91,13 +91,20 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
     `;
     }
     _invitationInviterAgent() {
-        return html `
-      <span
-        ><span class="secondary-text">from </span> ${this.fromMe
-            ? 'you'
-            : this._profilesStore.profileOf(this.invitationEntryInfo.invitation.inviter).nickname}
-      </span>
-    `;
+        if (this.fromMe)
+            return html `
+        <span
+          ><span class="secondary-text">to </span>
+          ${this._profilesStore.profileOf(this.invitationEntryInfo.invitation.invitees[0]).nickname}
+        </span>
+      `;
+        else
+            return html `
+        <span
+          ><span class="secondary-text">from </span>
+          ${this._profilesStore.profileOf(this.invitationEntryInfo.invitation.inviter).nickname}
+        </span>
+      `;
     }
     _haveYouInteracted() {
         const my_pub_key = this._profilesStore.myAgentPubKey;
