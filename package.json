@@ -30,7 +30,7 @@
     "@holochain-open-dev/cell-client": "git+https://github.com/holochain-open-dev/cell-client.git#build",
     "@holochain-open-dev/context": "git+https://github.com/holochain-open-dev/context.git#ui-build",
     "@holochain-open-dev/core-types": "git+https://github.com/holochain-open-dev/core-types.git#build",
-    "@holochain-open-dev/profiles": "git+https://github.com/holochain-open-dev/profiles.git#ui-build",
+    "@holochain-open-dev/profiles": "github:holochain-open-dev/profiles#ui-build",
     "@holochain/conductor-api": "0.0.4",
     "@open-wc/scoped-elements": "^2.0.0-next.4",
     "lit": "^2.0.0-rc.2",

@@ -13,8 +13,8 @@ export declare class InvitationsList extends InvitationsList_base {
     static styles: import("lit").CSSResultGroup[];
     loaded: boolean;
     firstUpdated(): Promise<void>;
-    renderPendingInvitations(): import("lit-html").TemplateResult<1>;
-    render(): import("lit-html").TemplateResult<1>;
+    renderPendingInvitations(): import("lit").TemplateResult<1>;
+    render(): import("lit").TemplateResult<1>;
     static get scopedElements(): {
         'mwc-card': typeof Card;
         'invitation-item': typeof InvitationItem;
