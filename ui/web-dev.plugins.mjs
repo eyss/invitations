@@ -23,7 +23,7 @@ export default [
       'node_modules/fast-json-stable-stringify/**/*',
       'node_modules/zen-observable/**/*',
       'node_modules/graphql-tag/**/*',
-      'node_modules/isomorphic-ws/**/*',
+      'node_modules/@holo-host/**/*',
       'node_modules/@msgpack/**/*',
       'node_modules/@holochain/conductor-api/**/*',
     ],
