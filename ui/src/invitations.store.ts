@@ -3,10 +3,9 @@ import {
   EntryHashB64,
   serializeHash,
 } from '@holochain-open-dev/core-types';
-import { AppWebsocket } from '@holochain/conductor-api';
 import {
   observable,
-  makeObservable,
+  makeAutoObservable,
   action,
   runInAction,
   computed,
@@ -24,7 +23,7 @@ export class InvitationsStore {
     protected invitationsService: InvitationsService,
     protected clearOnInvitationComplete: boolean = false
   ) {
-    makeObservable(this);
+    makeAutoObservable(this);
 
     this.invitationsService.cellClient.addSignalHandler(signal =>
       this.signalHandler(signal)

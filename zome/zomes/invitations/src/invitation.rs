@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 use std::time::Duration;
-use holo_hash::{EntryHashB64, AgentPubKeyB64, HeaderHashB64};
+use hdk::prelude::holo_hash::{EntryHashB64, AgentPubKeyB64, HeaderHashB64};
 
 
 pub mod handlers;

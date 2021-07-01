@@ -53,7 +53,7 @@ export function ZomeTest(config, installAgents) {
         t.equal(alice_invitations.length, 1)
 
         console.log("Hello World");
--
+
         console.log(bobbyPubKey);
         console.log(`Bobby Invitation list:`);
         console.log(bobby_invitations);
@@ -74,10 +74,9 @@ export function ZomeTest(config, installAgents) {
         await delay(1000);
 
         await clearInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
-        await delay(2000);
+        await delay(3000);
 
         alice_invitations = await getPendingInvitations(alice_conductor);
-        await delay(1000);
 
         t.equal(alice_invitations.length, 0)
         // bobby_invitations = await getPendingInvitations(bobby_conductor);

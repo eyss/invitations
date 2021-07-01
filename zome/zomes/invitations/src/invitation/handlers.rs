@@ -1,7 +1,7 @@
 use hdk::prelude::ElementEntry::Present;
 use hdk::prelude::*;
 
-use holo_hash::{AgentPubKeyB64, EntryHashB64, HeaderHashB64};
+use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64, HeaderHashB64};
 
 use crate::signals::{SignalDetails, SignalName, SignalPayload};
 
