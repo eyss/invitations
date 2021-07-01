@@ -10,5 +10,5 @@ name = "hc_zome_invitations"
 
 [dependencies]
 derive_more = "0"
-hdk = "0.0.101-alpha.0"
+hdk = "0.0.101"
 serde = "1"
