@@ -1,15 +1,16 @@
-import { AgentPubKeyB64, EntryHashB64 } from '@holochain-open-dev/core-types';
-import { InvitationsService } from './invitations.service';
-import { Dictionary, InvitationEntryInfo } from './types';
+import { CellClient } from '@holochain-open-dev/cell-client';
+import { AgentPubKeyB64, EntryHashB64, Dictionary } from '@holochain-open-dev/core-types';
+import { InvitationsService } from '../invitations-service';
+import { InvitationEntryInfo } from '../types';
 export declare class InvitationsStore {
-    protected invitationsService: InvitationsService;
+    protected cellClient: CellClient;
     protected clearOnInvitationComplete: boolean;
     private invitations;
-    constructor(invitationsService: InvitationsService, clearOnInvitationComplete?: boolean);
-    isInvitationCompleted(invitationHash: string): boolean;
+    pendingInvitations: import("svelte/store").Readable<Dictionary<InvitationEntryInfo>>;
+    invitationsService: InvitationsService;
+    constructor(cellClient: CellClient, clearOnInvitationComplete?: boolean);
+    invitationInfo(invitationHash: EntryHashB64): import("svelte/store").Readable<InvitationEntryInfo>;
     get myAgentPubKey(): string;
-    get pendingInvitations(): Dictionary<InvitationEntryInfo>;
-    invitationInfo(invitationEntryHash: EntryHashB64): InvitationEntryInfo;
     fetchMyPendingInvitations(): Promise<void>;
     sendInvitation(inviteesList: AgentPubKeyB64[]): Promise<void>;
     acceptInvitation(invitation_entry_hash: EntryHashB64): Promise<unknown>;

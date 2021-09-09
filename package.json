@@ -7,12 +7,9 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "start-alice": "HC_PORT=8888 concurrently -k --names ui,hc \"npm run start-ui\" \"npm run start-holochain\"",
-    "start-bob": "HC_PORT=8889 concurrently -k --names ui,hc \"npm run start-ui\" \"npm run start-holochain\"",
-    "start-ui": "concurrently --kill-others --names tsc,web-dev-server \"npm run build-watch\" \"sleep 5 && web-dev-server --config demo/web-dev-server.config.mjs\"",
-    "start-holochain": "RUST_LOG=warn hc s generate -r=$HC_PORT ../zome/workdir/happ/invitations.happ network -b https://bootstrap-staging.holo.host quic",
+    "start": "npm run build && concurrently --kill-others --names tsc,web-dev-server \"npm run build-watch\" \"web-dev-server --config demo/web-dev-server.config.mjs\"",
     "build": "rimraf dist && tsc",
-    "build-watch": "tsc --watch",
+    "build-watch": "tsc -w",
     "test": "tsc && web-test-runner --coverage --puppeteer",
     "test-debug": "tsc && DEBUG=true web-test-runner --coverage --puppeteer",
     "test-watch": "web-test-runner --watch --puppeteer",
@@ -26,15 +23,14 @@
     "publish-to-branch": "npm run lint && npm run build && cp package.json dist && gh-pages -d dist -b ui-build"
   },
   "dependencies": {
-    "@adobe/lit-mobx": "^2.0.0-rc.4",
-    "@holochain-open-dev/cell-client": "git+https://github.com/holochain-open-dev/cell-client.git#build",
-    "@holochain-open-dev/context": "git+https://github.com/holochain-open-dev/context.git#ui-build",
-    "@holochain-open-dev/core-types": "git+https://github.com/holochain-open-dev/core-types.git#build",
+    "@holochain-open-dev/cell-client": "^0.0.4",
+    "@holochain-open-dev/core-types": "^0.1.1",
     "@holochain-open-dev/profiles": "github:holochain-open-dev/profiles#ui-build",
-    "@holochain/conductor-api": "0.0.4",
-    "@open-wc/scoped-elements": "^2.0.0-next.4",
-    "lit": "^2.0.0-rc.2",
-    "mobx": "^6.3.2"
+    "@holochain/conductor-api": "^0.2.0",
+    "@lit-labs/context": "github:holochain-open-dev/context#build",
+    "@open-wc/scoped-elements": "^2.0.0-next.5",
+    "@scoped-elements/material-web": "^0.0.4",
+    "lit": "^2.0.0-rc.4"
   },
   "devDependencies": {
     "@open-wc/demoing-storybook": "^2.0.0",
@@ -58,8 +54,8 @@
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
     "gh-pages": "^3.1.0",
-    "holochain-ui-test-utils": "github:guillemcordoba/holochain-ui-test-utils",
     "husky": "^1.0.0",
+    "json-parse-better-errors": "^1.0.2",
     "lint-staged": "^10.0.0",
     "prettier": "^2.0.4",
     "rimraf": "^3.0.2",

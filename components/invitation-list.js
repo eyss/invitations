@@ -1,21 +1,21 @@
 import { __decorate } from "tslib";
-import { html, css } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { state } from 'lit/decorators.js';
-import { MobxLitElement } from '@adobe/lit-mobx';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { requestContext } from '@holochain-open-dev/context';
+import { contextProvided } from '@lit-labs/context';
+import { DynamicStore } from 'lit-svelte-stores';
+/**mwc-elements imports */
+import { Card, CircularProgress } from '@scoped-elements/material-web';
 import { sharedStyles } from '../shared-styles';
 import { InvitationItem } from './invitation-item';
-import { INVITATIONS_STORE_CONTEXT } from '../types';
-/**mwc-elements imports */
-import { Card } from 'scoped-material-components/mwc-card';
-import { CircularProgress } from 'scoped-material-components/mwc-circular-progress';
+import { invitationsStoreContext } from '../context';
 /**
  * @element invitation-list
  */
-export class InvitationsList extends ScopedElementsMixin(MobxLitElement) {
+export class InvitationsList extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
+        this._pendingInvitations = new DynamicStore(this, () => this._store.pendingInvitations);
         this.loaded = false;
     }
     async firstUpdated() {
@@ -23,14 +23,14 @@ export class InvitationsList extends ScopedElementsMixin(MobxLitElement) {
         this.loaded = true;
     }
     renderPendingInvitations() {
-        if (Object.entries(this._store.pendingInvitations).length === 0)
+        if (Object.entries(this._pendingInvitations.value).length === 0)
             return html `<div class="column center-content" style="flex: 1;">
         <span class="placeholder">There are no pending invitations yet</span>
       </div>`;
         return html ` <div class="flex-scrollable-parent" style="flex: 1;">
       <div class="flex-scrollable-container">
         <div class="flex-scrollable-y">
-          ${Object.entries(this._store.pendingInvitations).map(element => {
+          ${Object.entries(this._pendingInvitations.value).map(element => {
             return html `<invitation-item
               .invitation_entry_hash=${element[1].invitation_entry_hash}
               @invitation-completed=${(e) => this.dispatchEvent(new CustomEvent('invitation-completed', {
@@ -81,7 +81,7 @@ InvitationsList.styles = [
     sharedStyles,
 ];
 __decorate([
-    requestContext(INVITATIONS_STORE_CONTEXT)
+    contextProvided({ context: invitationsStoreContext })
 ], InvitationsList.prototype, "_store", void 0);
 __decorate([
     state()

@@ -1,12 +1,11 @@
-import { MobxLitElement } from '@adobe/lit-mobx';
+import { LitElement } from 'lit';
+import { DynamicStore } from 'lit-svelte-stores';
 /**mwc-elements imports */
-import { Icon } from 'scoped-material-components/mwc-icon';
-import { List } from 'scoped-material-components/mwc-list';
-import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from 'scoped-material-components/mwc-list-item';
-import { InvitationsStore } from '../invitations.store';
+import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';
+import { InvitationsStore } from '../state/invitations-store';
 import { ProfilesStore } from '@holochain-open-dev/profiles';
-declare const InvitationItem_base: typeof MobxLitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
+import { InvitationStatus } from '../types';
+declare const InvitationItem_base: typeof LitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
 /**
  * @element invitation-item
  * @fires invitation-completed - after the invitation its accepted by all the invitees
@@ -16,10 +15,10 @@ export declare class InvitationItem extends InvitationItem_base {
     _profilesStore: ProfilesStore;
     loaded: boolean;
     clicked: boolean;
-    invitation_entry_hash: string;
-    static styles: import("lit").CSSResultGroup;
-    get invitationEntryInfo(): import("../types").InvitationEntryInfo;
-    get invitationStatus(): string;
+    invitationEntryHash: string;
+    _invitation: DynamicStore<import("../types").InvitationEntryInfo, this>;
+    _knownProfiles: DynamicStore<import("@holochain-open-dev/core-types").Dictionary<import("@holochain-open-dev/profiles").Profile>, this>;
+    get invitationStatus(): InvitationStatus;
     get fromMe(): boolean;
     firstUpdated(): Promise<void>;
     _rejectInvitation(): Promise<void>;
@@ -36,5 +35,6 @@ export declare class InvitationItem extends InvitationItem_base {
         'mwc-button': typeof Button;
         'mwc-list-item': typeof ListItem;
     };
+    static styles: import("lit").CSSResult;
 }
 export {};

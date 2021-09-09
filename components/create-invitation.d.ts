@@ -1,22 +1,19 @@
-import { MobxLitElement } from '@adobe/lit-mobx';
+import { LitElement } from 'lit';
 /**mwc-elements imports */
-import { Card } from 'scoped-material-components/mwc-card';
-import { List } from 'scoped-material-components/mwc-list';
-import { Icon } from 'scoped-material-components/mwc-icon';
-import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from 'scoped-material-components/mwc-list-item';
-import { Dictionary, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
-import { InvitationsStore } from '../invitations.store';
-declare const CreateInvitation_base: typeof MobxLitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
+import { Card, List, Icon, Button, ListItem } from '@scoped-elements/material-web';
+import { ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
+import { InvitationsStore } from '../state/invitations-store';
+import { Dictionary } from '@holochain-open-dev/core-types';
+declare const CreateInvitation_base: typeof LitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
 /**
  * @element create-invitation-form
  */
 export declare class CreateInvitation extends CreateInvitation_base {
     _store: InvitationsStore;
     invitees: Dictionary<string>;
-    _addInvitee(e: CustomEvent): void;
-    _removeInvitee(e: Event): void;
-    _sendInvitation(): Promise<void>;
+    addInvitee(e: CustomEvent): void;
+    removeInvitee(e: Event): void;
+    sendInvitation(): Promise<void>;
     _pedignInvitations(): Promise<void>;
     renderInviteesList(): import("lit").TemplateResult<1>;
     render(): import("lit").TemplateResult<1>;
@@ -29,6 +26,6 @@ export declare class CreateInvitation extends CreateInvitation_base {
         'mwc-list-item': typeof ListItem;
         'mwc-button': typeof Button;
     };
-    static get styles(): import("lit").CSSResultGroup[];
+    static get styles(): import("lit").CSSResult[];
 }
 export {};

@@ -11,7 +11,8 @@ export interface InvitationEntryInfo {
     invitees_who_accepted: AgentPubKeyB64[];
     invitees_who_rejected: AgentPubKeyB64[];
 }
-export declare type Dictionary<T> = {
-    [key: string]: T;
-};
-export declare const INVITATIONS_STORE_CONTEXT = "hc_zome_invitations/store";
+export declare enum InvitationStatus {
+    Pending = 0,
+    Completed = 1,
+    Rejected = 2
+}

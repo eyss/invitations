@@ -22,4 +22,4 @@ export class InvitationsService {
         return this.cellClient.callZome(this.zomeName, fn_name, payload);
     }
 }
-//# sourceMappingURL=invitations.service.js.map
+//# sourceMappingURL=invitations-service.js.map

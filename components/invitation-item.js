@@ -1,61 +1,50 @@
 import { __decorate } from "tslib";
-import { html, css } from 'lit';
+import { html, css, LitElement } from 'lit';
 import { state } from 'lit/decorators.js';
-import { MobxLitElement } from '@adobe/lit-mobx';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { requestContext } from '@holochain-open-dev/context';
+import { contextProvided } from '@lit-labs/context';
+import { DynamicStore } from 'lit-svelte-stores';
 /**mwc-elements imports */
-import { Icon } from 'scoped-material-components/mwc-icon';
-import { List } from 'scoped-material-components/mwc-list';
-import { Button } from 'scoped-material-components/mwc-button';
-import { ListItem } from 'scoped-material-components/mwc-list-item';
-import { toJS } from 'mobx';
-import { INVITATIONS_STORE_CONTEXT } from '../types';
-import { PROFILES_STORE_CONTEXT, } from '@holochain-open-dev/profiles';
+import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';
+import { invitationsStoreContext } from '../context';
+import { profilesStoreContext, } from '@holochain-open-dev/profiles';
+import { getInvitationStatus, isInvitationCompleted } from '../state/selectors';
+import { InvitationStatus } from '../types';
 /**
  * @element invitation-item
  * @fires invitation-completed - after the invitation its accepted by all the invitees
  */
-export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
+export class InvitationItem extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
         this.loaded = false;
         this.clicked = false;
-        this.invitation_entry_hash = '';
-    }
-    get invitationEntryInfo() {
-        return this._store.invitationInfo(this.invitation_entry_hash);
+        this.invitationEntryHash = '';
+        this._invitation = new DynamicStore(this, () => this._store.invitationInfo(this.invitationEntryHash));
+        this._knownProfiles = new DynamicStore(this, () => this._profilesStore.knownProfiles);
     }
     get invitationStatus() {
-        if (this.invitationEntryInfo.invitees_who_rejected.length > 0) {
-            return 'rejected';
-        }
-        if (this.invitationEntryInfo.invitees_who_accepted.length ===
-            this.invitationEntryInfo.invitation.invitees.length) {
-            return 'completed';
-        }
-        return 'pending';
+        return getInvitationStatus(this._invitation.value);
     }
     get fromMe() {
         const my_pub_key = this._profilesStore.myAgentPubKey;
-        return this.invitationEntryInfo.invitation.inviter === my_pub_key;
+        return this._invitation.value.invitation.inviter === my_pub_key;
     }
     async firstUpdated() {
-        await this._profilesStore.fetchAgentProfile(this.invitationEntryInfo.invitation.inviter);
-        this.invitationEntryInfo.invitation.invitees.map(async (invitee_pub_key) => {
+        await this._profilesStore.fetchAgentProfile(this._invitation.value.invitation.inviter);
+        this._invitation.value.invitation.invitees.map(async (invitee_pub_key) => {
             await this._profilesStore.fetchAgentProfile(invitee_pub_key);
         });
         this.loaded = true;
     }
     async _rejectInvitation() {
-        const result = await this._store.rejectInvitation(this.invitation_entry_hash);
+        const result = await this._store.rejectInvitation(this.invitationEntryHash);
     }
     async _acceptInvitation() {
-        const invitation = toJS(this._store.invitationInfo(this.invitation_entry_hash).invitation);
-        await this._store.acceptInvitation(this.invitation_entry_hash);
-        if (this._store.isInvitationCompleted(this.invitation_entry_hash)) {
+        await this._store.acceptInvitation(this.invitationEntryHash);
+        if (isInvitationCompleted(this._invitation.value)) {
             this.dispatchEvent(new CustomEvent('invitation-completed', {
-                detail: { invitation },
+                detail: { invitation: this._invitation.value },
                 bubbles: true,
                 composed: true,
             }));
@@ -65,12 +54,12 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
         this.clicked = !this.clicked;
     }
     _invitationIcon() {
-        if (this.invitationStatus == 'rejected') {
+        if (this.invitationStatus === InvitationStatus.Rejected) {
             return html ` <mwc-icon slot="graphic">close</mwc-icon> `;
         }
         else {
             return html `
-        ${this.invitationStatus == 'completed'
+        ${this.invitationStatus === InvitationStatus.Completed
                 ? html `<mwc-icon slot="graphic">check</mwc-icon>`
                 : html `<mwc-icon slot="graphic">pending</mwc-icon>`}
       `;
@@ -95,20 +84,21 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
             return html `
         <span
           ><span class="secondary-text">to </span>
-          ${this._profilesStore.profileOf(this.invitationEntryInfo.invitation.invitees[0]).nickname}
+          ${this._knownProfiles.value[this._invitation.value.invitation.invitees[0]].nickname}
         </span>
       `;
         else
             return html `
         <span
           ><span class="secondary-text">from </span>
-          ${this._profilesStore.profileOf(this.invitationEntryInfo.invitation.inviter).nickname}
+          ${this._knownProfiles.value[this._invitation.value.invitation.inviter]
+                .nickname}
         </span>
       `;
     }
     _haveYouInteracted() {
         const my_pub_key = this._profilesStore.myAgentPubKey;
-        const agents_who_already_interacted = this.invitationEntryInfo.invitees_who_accepted.concat(this.invitationEntryInfo.invitees_who_rejected);
+        const agents_who_already_interacted = this._invitation.value.invitees_who_accepted.concat(this._invitation.value.invitees_who_rejected);
         const result = agents_who_already_interacted.find(agent_pub_key => agent_pub_key === my_pub_key);
         if (result != undefined) {
             return true;
@@ -116,7 +106,7 @@ export class InvitationItem extends ScopedElementsMixin(MobxLitElement) {
         return false;
     }
     render() {
-        if (this.loaded && this.invitationEntryInfo) {
+        if (this.loaded && this._invitation.value) {
             return html `
         <mwc-list-item
           id="element"
@@ -178,10 +168,10 @@ InvitationItem.styles = css `
     }
   `;
 __decorate([
-    requestContext(INVITATIONS_STORE_CONTEXT)
+    contextProvided({ context: invitationsStoreContext })
 ], InvitationItem.prototype, "_store", void 0);
 __decorate([
-    requestContext(PROFILES_STORE_CONTEXT)
+    contextProvided({ context: profilesStoreContext })
 ], InvitationItem.prototype, "_profilesStore", void 0);
 __decorate([
     state()
@@ -191,5 +181,5 @@ __decorate([
 ], InvitationItem.prototype, "clicked", void 0);
 __decorate([
     state()
-], InvitationItem.prototype, "invitation_entry_hash", void 0);
+], InvitationItem.prototype, "invitationEntryHash", void 0);
 //# sourceMappingURL=invitation-item.js.map
