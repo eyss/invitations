@@ -32,7 +32,7 @@ export class InvitationsList extends ScopedElementsMixin(LitElement) {
         <div class="flex-scrollable-y">
           ${Object.entries(this._pendingInvitations.value).map(element => {
             return html `<invitation-item
-              .invitation_entry_hash=${element[1].invitation_entry_hash}
+              .invitationEntryHash=${element[1].invitation_entry_hash}
               @invitation-completed=${(e) => this.dispatchEvent(new CustomEvent('invitation-completed', {
                 detail: e.detail,
                 bubbles: true,
