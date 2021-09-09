@@ -10,7 +10,7 @@
 
 ```toml
 [dependencies]
-hc_zome_invitations = {git = "https://github.com/eyss/hc_zome_invitations", package = "hc_zome_invitations"}
+hc_zome_invitations = {git = "https://github.com/eyss/invitations", package = "hc_zome_invitations"}
 ```
 
 5. Create a `src` folder besides the `Cargo.toml` with this content:
@@ -24,7 +24,7 @@ extern crate hc_zome_invitations;
 
 ### Using the UI module
 
-1. Install the module with `npm install "https://github.com/eyss/hc_zome_invitations#ui-build"`.
+1. Install the module with `npm install "https://github.com/eyss/invitations#ui-build"`.
 
 
 2. Import and create the mobx store for profiles and for this module, and define the custom elements you need in your app:

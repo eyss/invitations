@@ -16,22 +16,15 @@
   <link rel="stylesheet" href="styles.css" />
 
   <body>
-    <context-provider id="invitations">
-      <context-provider id="profiles">
-        <profile-prompt>
-          <invitations-list></invitations-list>
-          <create-invitation></create-invitation>
-        </profile-prompt>
-      </context-provider>
-    </context-provider>
+    <invitations-test-app></invitations-test-app>
 
     <script type="module">
       import {
         ProfilesService,
-        ProfilesStore,
+        createProfilesStore,
         ProfilePrompt,
         SearchAgent,
-        PROFILES_STORE_CONTEXT,
+        profilesStoreContext,
       } from '@holochain-open-dev/profiles';
 
       import {
@@ -39,60 +32,69 @@
         InvitationsList,
         InvitationsService,
         InvitationsStore,
+        invitationsStoreContext,
       } from '../dist';
 
-      import { INVITATIONS_STORE_CONTEXT } from '../dist/types';
-
-      import ConductorApi from '@holochain/conductor-api';
-      import { ContextProviderElement } from '@holochain-open-dev/context';
+      import { ContextProvider } from '@lit-labs/context';
+      import { AppWebsocket } from '@holochain/conductor-api';
       import { HolochainClient } from '@holochain-open-dev/cell-client';
+      import { ScopedElementsMixin } from '@open-wc/scoped-elements';
+      import { LitElement, html } from 'lit';
 
-      (async function () {
-        let invitations_store = undefined;
+      class InvitaionsTestApp extends ScopedElementsMixin(LitElement) {
+        static get properties() {
+          return {
+            loaded: {
+              type: Boolean,
+            },
+          };
+        }
 
-        const signalCb = async signal => {
-          await invitations_store.signalHandler(signal);
-        };
+        async firstUpdated() {
+          const appWebsocket = await AppWebsocket.connect(
+            'ws://localhost:8888'
+          );
+          const appInfo = await appWebsocket.appInfo({
+            installed_app_id: 'test-app',
+          });
 
-        const appWebsocket = await ConductorApi.AppWebsocket.connect(
-          'ws://localhost:8888',
-          12000,
-          signalCb
-        );
-        const appInfo = await appWebsocket.appInfo({
-          installed_app_id: 'test-app',
-        });
+          const cellData = appInfo.cell_data[0];
+          const cellClient = new HolochainClient(appWebsocket, cellData);
 
-        const cellData = appInfo.cell_data[0];
-        const cellClient = new HolochainClient(appWebsocket, cellData);
+          new ContextProvider(
+            this,
+            profilesStoreContext,
+            createProfilesStore(cellClient)
+          );
 
-        const profiles_service = new ProfilesService(cellClient);
-        const profiles_store = new ProfilesStore(profiles_service);
-        await profiles_service.getMyProfile();
+          new ContextProvider(
+            this,
+            invitationsStoreContext,
+            new InvitationsStore(cellClient)
+          );
+          this.loaded = true;
+        }
 
-        const invitations_service = new InvitationsService(cellClient);
-        invitations_store = new InvitationsStore(
-          invitations_service,
-          profiles_store
-        );
+        render() {
+          if (!this.loaded) return html`<span>Loading...</span>`;
+          return html`
+            <profile-prompt>
+              <create-invitation></create-invitation>
+              <invitation-list></invitation-list>
+            </profile-prompt>
+          `;
+        }
 
-        /** this line should be declared before we initialized the provider, otherwise will ignore the features of the provider and the state information wont be stored*/
-        customElements.define('context-provider', ContextProviderElement);
+        static get scopedElements() {
+          return {
+            'profile-prompt': ProfilePrompt,
+            'create-invitation': CreateInvitation,
+            'invitations-list': InvitationsList,
+          };
+        }
+      }
 
-        const profiles_provider = document.getElementById('profiles');
-        profiles_provider.name = PROFILES_STORE_CONTEXT;
-        profiles_provider.value = profiles_store;
-
-        const invitations_provider = document.getElementById('invitations');
-        invitations_provider.name = INVITATIONS_STORE_CONTEXT;
-        invitations_provider.value = invitations_store;
-
-        customElements.define('profile-prompt', ProfilePrompt);
-
-        customElements.define('create-invitation', CreateInvitation);
-
-        customElements.define('invitations-list', InvitationsList);
-      })();
+      customElements.define('invitations-test-app', InvitaionsTestApp);
     </script>
   </body>
 </html>

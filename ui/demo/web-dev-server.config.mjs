@@ -8,6 +8,7 @@ export default {
     preferBuiltins: false
   },
   appIndex: 'demo/index.html',
+  rootDir: '../',
   open: true,
   plugins,
 };

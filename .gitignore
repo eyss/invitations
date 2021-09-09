@@ -8,3 +8,5 @@ dist/
 prueba/
 *.zip
 bob_ui/
+Cargo.lock
+.hc*
