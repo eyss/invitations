@@ -13,6 +13,7 @@ module.exports = {
     'plugin:import/warnings',
   ],
   rules: {
+    "no-undef": "off",
     // disable the rule for all files
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
