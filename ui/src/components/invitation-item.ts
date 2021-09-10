@@ -58,9 +58,10 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
       this._invitation.value.invitation.inviter
     );
 
-    this._invitation.value.invitation.invitees.map(async invitee_pub_key => {
-      await this._profilesStore.fetchAgentProfile(invitee_pub_key);
-    });
+    const promises = this._invitation.value.invitation.invitees.map(
+      invitee_pub_key => this._profilesStore.fetchAgentProfile(invitee_pub_key)
+    );
+    await Promise.all(promises);
 
     this.loaded = true;
   }
@@ -113,16 +114,16 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     `;
   }
   _invitationInviterAgent() {
-    if (this.fromMe)
+    if (this.fromMe) {
       return html`
-        <span
-          ><span class="secondary-text">to </span>
+        <span>
+          <span class="secondary-text">to </span>
           ${this._knownProfiles.value[
             this._invitation.value.invitation.invitees[0]
           ].nickname}
         </span>
       `;
-    else
+    } else
       return html`
         <span
           ><span class="secondary-text">from </span>

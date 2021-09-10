@@ -34,7 +34,7 @@ export class InvitationsStore {
     protected clearOnInvitationComplete: boolean = false
   ) {
     this.invitationsService = new InvitationsService(cellClient);
-    this.invitationsService.cellClient.addSignalHandler(this.signalHandler);
+    this.invitationsService.cellClient.addSignalHandler(s => this.signalHandler(s));
   }
 
   invitationInfo(invitationHash: EntryHashB64) {

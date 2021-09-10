@@ -9,13 +9,13 @@ const builtins = fromRollup(rollupBuiltins);
 const globals = fromRollup(rollupGlobals);
 const commonjs = fromRollup(rollupCommonjs);
 
-export default [
+const HC_PORT = process.env.HC_PORT || 8888;
+
+export const plugins = [
   replace({
     global: 'window',
     'process.env.NODE_ENV': '"production"',
-    'process.env.CONDUCTOR_URL': process.env.CONDUCTOR_URL
-      ? `"${process.env.CONDUCTOR_URL}"`
-      : 'undefined',
+    'process.env.HC_PORT': JSON.stringify(HC_PORT),
   }),
   builtins(),
   commonjs({}),

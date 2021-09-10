@@ -52,7 +52,7 @@
 
         async firstUpdated() {
           const appWebsocket = await AppWebsocket.connect(
-            'ws://localhost:8888'
+            `ws://localhost:${process.env.HC_PORT}`
           );
           const appInfo = await appWebsocket.appInfo({
             installed_app_id: 'test-app',
@@ -80,7 +80,7 @@
           return html`
             <profile-prompt>
               <create-invitation></create-invitation>
-              <invitation-list></invitation-list>
+              <invitations-list></invitations-list>
             </profile-prompt>
           `;
         }

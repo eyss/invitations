@@ -1,11 +1,10 @@
-import plugins from '../web-dev.plugins.mjs';
+import { plugins } from '../web-dev.plugins.mjs';
 
 export default {
-  port: 8080,
   watch: true,
   nodeResolve: {
     browser: true,
-    preferBuiltins: false
+    preferBuiltins: false,
   },
   appIndex: 'demo/index.html',
   rootDir: '../',
