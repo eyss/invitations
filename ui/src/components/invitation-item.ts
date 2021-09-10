@@ -76,7 +76,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     if (isInvitationCompleted(this._invitation.value)) {
       this.dispatchEvent(
         new CustomEvent('invitation-completed', {
-          detail: { invitation: this._invitation.value },
+          detail: this._invitation.value,
           bubbles: true,
           composed: true,
         })
