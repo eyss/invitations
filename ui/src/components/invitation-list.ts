@@ -1,9 +1,9 @@
-import {LitElement, html, css } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { state, query } from 'lit/decorators.js';
 
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { contextProvided } from '@lit-labs/context';
-import {DynamicStore} from 'lit-svelte-stores'
+import { StoreSubscriber } from 'lit-svelte-stores';
 
 /**mwc-elements imports */
 import { Card, CircularProgress } from '@scoped-elements/material-web';
@@ -17,10 +17,13 @@ import { invitationsStoreContext } from '../context';
  * @element invitation-list
  */
 export class InvitationsList extends ScopedElementsMixin(LitElement) {
-  @contextProvided({context: invitationsStoreContext})
+  @contextProvided({ context: invitationsStoreContext })
   _store!: InvitationsStore;
 
-  _pendingInvitations = new DynamicStore(this, ()=> this._store.pendingInvitations);
+  _pendingInvitations = new StoreSubscriber(
+    this,
+    () => this._store.pendingInvitations
+  );
 
   static styles = [
     css`

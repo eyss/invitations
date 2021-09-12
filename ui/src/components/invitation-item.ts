@@ -3,7 +3,7 @@ import { state } from 'lit/decorators.js';
 
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { contextProvided } from '@lit-labs/context';
-import { DynamicStore } from 'lit-svelte-stores';
+import { StoreSubscriber } from 'lit-svelte-stores';
 
 /**mwc-elements imports */
 import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';
@@ -35,10 +35,10 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
   @state()
   invitationEntryHash = '';
 
-  _invitation = new DynamicStore(this, () =>
+  _invitation = new StoreSubscriber(this, () =>
     this._store.invitationInfo(this.invitationEntryHash)
   );
-  _knownProfiles = new DynamicStore(
+  _knownProfiles = new StoreSubscriber(
     this,
     () => this._profilesStore.knownProfiles
   );
