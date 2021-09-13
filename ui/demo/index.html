@@ -21,7 +21,7 @@
     <script type="module">
       import {
         ProfilesService,
-        createProfilesStore,
+        ProfilesStore,
         ProfilePrompt,
         SearchAgent,
         profilesStoreContext,
@@ -64,7 +64,7 @@
           new ContextProvider(
             this,
             profilesStoreContext,
-            createProfilesStore(cellClient)
+            new ProfilesStore(cellClient)
           );
 
           new ContextProvider(
