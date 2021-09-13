@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import { DynamicStore } from 'lit-svelte-stores';
+import { StoreSubscriber } from 'lit-svelte-stores';
 /**mwc-elements imports */
 import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';
 import { InvitationsStore } from '../state/invitations-store';
@@ -16,8 +16,8 @@ export declare class InvitationItem extends InvitationItem_base {
     loaded: boolean;
     clicked: boolean;
     invitationEntryHash: string;
-    _invitation: DynamicStore<import("../types").InvitationEntryInfo, this>;
-    _knownProfiles: DynamicStore<import("@holochain-open-dev/core-types").Dictionary<import("@holochain-open-dev/profiles").Profile>, this>;
+    _invitation: StoreSubscriber<import("../types").InvitationEntryInfo>;
+    _knownProfiles: StoreSubscriber<import("@holochain-open-dev/core-types").Dictionary<import("@holochain-open-dev/profiles").Profile>>;
     get invitationStatus(): InvitationStatus;
     get fromMe(): boolean;
     firstUpdated(): Promise<void>;

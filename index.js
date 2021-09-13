@@ -2,7 +2,7 @@ import { css, LitElement, html } from 'lit';
 import { state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { createContext, contextProvided } from '@lit-labs/context';
-import { DynamicStore } from 'lit-svelte-stores';
+import { StoreSubscriber } from 'lit-svelte-stores';
 import { Icon, List, Button, ListItem, Card, CircularProgress } from '@scoped-elements/material-web';
 import { profilesStoreContext, SearchAgent, ProfilePrompt } from '@holochain-open-dev/profiles';
 import { serializeHash } from '@holochain-open-dev/core-types';
@@ -129,8 +129,8 @@ class InvitationItem extends ScopedElementsMixin(LitElement) {
         this.loaded = false;
         this.clicked = false;
         this.invitationEntryHash = '';
-        this._invitation = new DynamicStore(this, () => this._store.invitationInfo(this.invitationEntryHash));
-        this._knownProfiles = new DynamicStore(this, () => this._profilesStore.knownProfiles);
+        this._invitation = new StoreSubscriber(this, () => this._store.invitationInfo(this.invitationEntryHash));
+        this._knownProfiles = new StoreSubscriber(this, () => this._profilesStore.knownProfiles);
     }
     get invitationStatus() {
         return getInvitationStatus(this._invitation.value);
@@ -304,7 +304,7 @@ __decorate([
 class InvitationsList extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
-        this._pendingInvitations = new DynamicStore(this, () => this._store.pendingInvitations);
+        this._pendingInvitations = new StoreSubscriber(this, () => this._store.pendingInvitations);
         this.loaded = false;
     }
     firstUpdated() {

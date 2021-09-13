@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import { DynamicStore } from 'lit-svelte-stores';
+import { StoreSubscriber } from 'lit-svelte-stores';
 /**mwc-elements imports */
 import { Card, CircularProgress } from '@scoped-elements/material-web';
 import { InvitationItem } from './invitation-item';
@@ -10,7 +10,7 @@ declare const InvitationsList_base: typeof LitElement & import("@open-wc/dedupe-
  */
 export declare class InvitationsList extends InvitationsList_base {
     _store: InvitationsStore;
-    _pendingInvitations: DynamicStore<import("@holochain-open-dev/core-types").Dictionary<import("..").InvitationEntryInfo>, this>;
+    _pendingInvitations: StoreSubscriber<import("@holochain-open-dev/core-types").Dictionary<import("..").InvitationEntryInfo>>;
     static styles: import("lit").CSSResult[];
     loaded: boolean;
     firstUpdated(): Promise<void>;
