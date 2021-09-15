@@ -1,6 +1,8 @@
 use hdk::prelude::*;
-use std::time::Duration;
 use hdk::prelude::holo_hash::{EntryHashB64, AgentPubKeyB64, HeaderHashB64};
+
+use chrono::serde::ts_milliseconds;
+use chrono::{DateTime, Utc};
 
 
 pub mod handlers;
@@ -9,7 +11,8 @@ pub mod handlers;
 pub struct Invitation {
     pub inviter: AgentPubKeyB64,
     pub invitees: Vec<AgentPubKeyB64>,
-    pub timestamp: Duration,
+    #[serde(with = "ts_milliseconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 entry_def!(Invitation

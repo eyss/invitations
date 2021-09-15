@@ -1,3 +1,4 @@
+use chrono::{DateTime, NaiveDateTime, Utc};
 use hdk::prelude::ElementEntry::Present;
 use hdk::prelude::*;
 
@@ -17,10 +18,14 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
         .map(|agent_pub_key| AgentPubKeyB64::from(agent_pub_key))
         .collect();
 
+    let now = sys_time()?;
+
+    let date_time = DateTime::from_utc(NaiveDateTime::from_timestamp(now.0, now.1), Utc);
+
     let invitation = Invitation {
         invitees: invited_agents,
         inviter: AgentPubKeyB64::from(agent_pub_key.clone()),
-        timestamp: sys_time()?,
+        timestamp: date_time,
     };
 
     let invitation_entry_hash: EntryHash = hash_entry(invitation.clone())?;
