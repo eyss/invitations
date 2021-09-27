@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Material+Icons&display=block"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+  </head>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <body>
+    <invitations-test-app></invitations-test-app>
+
+    <script type="module">
+      import {
+        ProfilesService,
+        ProfilesStore,
+        ProfilePrompt,
+        SearchAgent,
+        profilesStoreContext,
+      } from '@holochain-open-dev/profiles';
+
+      import {
+        CreateInvitation,
+        InvitationsList,
+        InvitationsService,
+        InvitationsStore,
+        invitationsStoreContext,
+      } from '../dist';
+
+      import { ContextProvider } from '@lit-labs/context';
+      import { AppWebsocket } from '@holochain/conductor-api';
+      import { HolochainClient } from '@holochain-open-dev/cell-client';
+      import { ScopedElementsMixin } from '@open-wc/scoped-elements';
+      import { LitElement, html } from 'lit';
+
+      class InvitaionsTestApp extends ScopedElementsMixin(LitElement) {
+        static get properties() {
+          return {
+            loaded: {
+              type: Boolean,
+            },
+          };
+        }
+
+        async firstUpdated() {
+          const appWebsocket = await AppWebsocket.connect(
+            `ws://localhost:${process.env.HC_PORT}`
+          );
+          const appInfo = await appWebsocket.appInfo({
+            installed_app_id: 'test-app',
+          });
+
+          const cellData = appInfo.cell_data[0];
+          const cellClient = new HolochainClient(appWebsocket, cellData);
+
+          new ContextProvider(
+            this,
+            profilesStoreContext,
+            new ProfilesStore(cellClient)
+          );
+
+          new ContextProvider(
+            this,
+            invitationsStoreContext,
+            new InvitationsStore(cellClient)
+          );
+          this.loaded = true;
+        }
+
+        render() {
+          if (!this.loaded) return html`<span>Loading...</span>`;
+          return html`
+            <profile-prompt>
+              <create-invitation></create-invitation>
+              <invitations-list></invitations-list>
+            </profile-prompt>
+          `;
+        }
+
+        static get scopedElements() {
+          return {
+            'profile-prompt': ProfilePrompt,
+            'create-invitation': CreateInvitation,
+            'invitations-list': InvitationsList,
+          };
+        }
+      }
+
+      customElements.define('invitations-test-app', InvitaionsTestApp);
+    </script>
+  </body>
+</html>
