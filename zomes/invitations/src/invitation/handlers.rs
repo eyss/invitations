@@ -18,7 +18,7 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
         .map(|agent_pub_key| AgentPubKeyB64::from(agent_pub_key))
         .collect();
 
-    let now = sys_time()?;
+    let now = sys_time()?.as_seconds_and_nanos();
 
     let date_time = DateTime::from_utc(NaiveDateTime::from_timestamp(now.0, now.1), Utc);
 

@@ -23,10 +23,10 @@
     "publish-to-branch": "npm run lint && npm run build && cp package.json dist && gh-pages -d dist -b ui-build"
   },
   "dependencies": {
-    "@holochain-open-dev/cell-client": "^0.0.4",
+    "@holochain-open-dev/cell-client": "^0.0.5",
     "@holochain-open-dev/core-types": "^0.1.1",
     "@holochain-open-dev/profiles": "github:holochain-open-dev/profiles#ui-build",
-    "@holochain/conductor-api": "^0.2.0",
+    "@holochain/conductor-api": "^0.2.1",
     "@lit-labs/context": "github:holochain-open-dev/context#build",
     "@open-wc/scoped-elements": "^2.0.0-next.5",
     "@scoped-elements/material-web": "^0.0.4",

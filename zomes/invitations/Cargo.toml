@@ -10,6 +10,8 @@ name = "hc_zome_invitations"
 
 [dependencies]
 derive_more = "0"
-hdk = "0.0.104"
 serde = "1"
 chrono = {version = "0.4.19", features = ["serde"]}
+
+hdk = "0.0.107"
+holo_hash = {version = "0.0.7", features = ["encoding"]}

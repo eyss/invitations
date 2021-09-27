@@ -76,6 +76,7 @@ export function ZomeTest(config, installAgents) {
         await clearInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
         await delay(3000);
 
+        await clearInvitation(bobby_invitations[0].invitation_entry_hash)(alice_conductor);
         alice_invitations = await getPendingInvitations(alice_conductor);
 
         t.equal(alice_invitations.length, 0)
