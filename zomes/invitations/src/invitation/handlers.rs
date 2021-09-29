@@ -70,8 +70,17 @@ pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
     )?
     .into_inner();
 
-    for link in pending_invitations_links.into_iter() {
-        pending_invitations.push(get_invitations_entry_info(link.target)?);
+    let get_input = pending_invitations_links
+        .into_iter()
+        .map(|link| GetInput::new(link.target.into(), GetOptions::default()))
+        .collect();
+
+    let get_output = HDK.with(|h| h.borrow().get_details(get_input))?;
+
+    for details in get_output.into_iter().filter_map(|details| details) {
+        if let Ok(invitation_info) = get_invitations_entry_info_from_details(details) {
+            pending_invitations.push(invitation_info);
+        }
     }
 
     return Ok(pending_invitations);
@@ -219,6 +228,13 @@ fn get_invitations_entry_info(
                 WasmError::Guest("we dont found the details for the  given hash".into())
             })?;
 
+    return get_invitations_entry_info_from_details(invitation_entry_details);
+}
+
+//HELPERS
+fn get_invitations_entry_info_from_details(
+    invitation_entry_details: Details,
+) -> ExternResult<InvitationEntryInfo> {
     match invitation_entry_details {
         Details::Entry(invitation_entry_details) => {
             let element_entry = ElementEntry::from(Present(invitation_entry_details.clone().entry));
@@ -227,10 +243,14 @@ fn get_invitations_entry_info(
                 WasmError::Guest("we dont found the invitation entry for the given hash".into())
             })?;
 
-            let invitation_header_hash: HeaderHash = invitation_entry_details.clone().headers[0]
-                .header_address()
-                .to_owned();
+            let header = invitation_entry_details.clone().headers[0].clone();
 
+            let invitation_header_hash: HeaderHash = header.header_address().to_owned();
+
+            let invitation_entry_hash = header
+                .header()
+                .entry_hash()
+                .ok_or(WasmError::Guest(String::from("Invalid header")))?;
             let invitees_who_accepted: Vec<AgentPubKeyB64> = get_links(
                 invitation_entry_hash.clone(),
                 Some(LinkTag::new("Accepted")),
@@ -253,7 +273,7 @@ fn get_invitations_entry_info(
 
             return Ok(InvitationEntryInfo {
                 invitation,
-                invitation_entry_hash: EntryHashB64::from(invitation_entry_hash),
+                invitation_entry_hash: EntryHashB64::from(invitation_entry_hash.clone()),
                 invitation_header_hash: HeaderHashB64::from(invitation_header_hash),
                 invitees_who_accepted,
                 invitees_who_rejected,
