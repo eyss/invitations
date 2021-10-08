@@ -30,7 +30,7 @@ export function ZomeTest(config, installAgents) {
         })
 
         let result = await sendInvitation(bobbyPubKey)(alice_conductor);
-        await delay(1000);
+        await delay(4000);
 
         // {
         //     invitation: {
@@ -46,9 +46,9 @@ export function ZomeTest(config, installAgents) {
     
 
         let bobby_invitations = await getPendingInvitations(bobby_conductor);
-        await delay(100);
+        await delay(2000);
         let  alice_invitations = await getPendingInvitations(alice_conductor);
-        await delay(100);
+        await delay(2000);
 
         t.equal(alice_invitations.length, 1)
 
