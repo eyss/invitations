@@ -24,11 +24,11 @@ export declare class InvitationItem extends InvitationItem_base {
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
     _clickHandler(): void;
-    _invitationIcon(): import("lit").TemplateResult<1>;
-    _invitationActionButtons(): import("lit").TemplateResult<1>;
-    _invitationInviterAgent(): import("lit").TemplateResult<1>;
+    _invitationIcon(): import("lit-html").TemplateResult<1>;
+    _invitationActionButtons(): import("lit-html").TemplateResult<1>;
+    _invitationInviterAgent(): import("lit-html").TemplateResult<1>;
     _haveYouInteracted(): boolean;
-    render(): import("lit").TemplateResult<1> | undefined;
+    render(): import("lit-html").TemplateResult<1> | undefined;
     static get scopedElements(): {
         'mwc-icon': typeof Icon;
         'mwc-list': typeof List;

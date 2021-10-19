@@ -650,9 +650,11 @@ class InvitationsService {
 }
 
 class InvitationsStore {
-    constructor(cellClient, clearOnInvitationComplete = false) {
+    constructor(cellClient, config = {
+        clearOnInvitationComplete: false
+    }) {
         this.cellClient = cellClient;
-        this.clearOnInvitationComplete = clearOnInvitationComplete;
+        this.config = config;
         this.invitations = writable({});
         this.pendingInvitations = derived(this.invitations, invitations => {
             const pending = {};
@@ -698,7 +700,7 @@ class InvitationsStore {
                 this.invitations.update(invitations => {
                     const invitationInfo = invitations[invitation_entry_hash];
                     invitationInfo.invitees_who_accepted.push(this.myAgentPubKey);
-                    if (this.clearOnInvitationComplete &&
+                    if (this.config.clearOnInvitationComplete &&
                         isInvitationCompleted(invitationInfo)) {
                         this.clearInvitation(invitation_entry_hash).then(() => resolve(null));
                     }
@@ -738,7 +740,7 @@ class InvitationsStore {
                 invitations[invitation.invitation_entry_hash] = invitation;
                 return invitations;
             });
-            if (this.clearOnInvitationComplete && isInvitationCompleted(invitation)) {
+            if (this.config.clearOnInvitationComplete && isInvitationCompleted(invitation)) {
                 yield this.clearInvitation(invitation.invitation_entry_hash);
             }
         });

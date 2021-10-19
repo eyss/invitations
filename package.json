@@ -29,9 +29,9 @@
     "@holochain/conductor-api": "^0.2.1",
     "@lit-labs/context": "github:holochain-open-dev/context#build",
     "@open-wc/scoped-elements": "^2.0.0-next.5",
-    "@scoped-elements/material-web": "^0.0.4",
+    "@scoped-elements/material-web": "^0.0.14",
     "cqfill": "^0.6.0",
-    "lit": "^2.0.0-rc.4",
+    "lit": "^2.0.2",
     "lit-svelte-stores": "^0.1.3"
   },
   "devDependencies": {

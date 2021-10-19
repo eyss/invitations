@@ -15,8 +15,8 @@ export declare class CreateInvitation extends CreateInvitation_base {
     removeInvitee(e: Event): void;
     sendInvitation(): Promise<void>;
     _pedignInvitations(): Promise<void>;
-    renderInviteesList(): import("lit").TemplateResult<1>;
-    render(): import("lit").TemplateResult<1>;
+    renderInviteesList(): import("lit-html").TemplateResult<1>;
+    render(): import("lit-html").TemplateResult<1>;
     static get scopedElements(): {
         'search-agent': typeof SearchAgent;
         'profile-prompt': typeof ProfilePrompt;
