@@ -1,4 +1,5 @@
 # Invitations Zome
+
 ## Installation and usage
 
 ### Including the zome in your DNA
@@ -26,52 +27,82 @@ extern crate hc_zome_invitations;
 
 1. Install the module with `npm install "https://github.com/eyss/invitations#ui-build"`.
 
-
 2. Import and create the mobx store for profiles and for this module, and define the custom elements you need in your app:
 
 ```js
-import { connectDeps } from "@holochain-open-dev/common";
 import {
   ProfilePrompt,
+  SearchAgent,
   ProfilesStore,
-  ProfilesService,
+  profilesStoreContext,
+  ListProfiles,
 } from "@holochain-open-dev/profiles";
-import { InvitationsStore, InvitationsService, InvitationsList, CreateInvitation } from "@eyss/invitations";
+import {
+  InvitationsList,
+  CreateInvitations,
+  InvitationsStore,
+} from "@eyss/invitations";
 import { AppWebsocket } from "@holochain/conductor-api";
+import { HolochainClient } from "@holochain-open-dev/cell-client";
+import { LitElement, html } from "lit";
+import { ScopedElementsMixin } from "@open-wc/scoped-elements";
+import { ContextProvider } from "@lit-labs/context";
 
-async function setupProfiles() {
-  const appWebsocket = await ConductorApi.AppWebsocket.connect(
-    process.env.CONDUCTOR_URL,
-    12000
-  );
-  const appInfo = await appWebsocket.appInfo({
-    installed_app_id: "test-app",
-  });
+class InvitationsTest extends ScopedElementsMixin(LitElement) {
+  static get properties() {
+    return {
+      loaded: {
+        type: Boolean,
+      },
+    };
+  }
 
-  const cellId = appInfo.cell_data[0].cell_id;
+  async firstUpdated() {
+    const appWebsocket = await AppWebsocket.connect("ws://localhost:8888");
+    const appInfo = await appWebsocket.appInfo({
+      installed_app_id: "test-app",
+    });
 
-  const profilesService = new ProfilesService(appWebsocket, cellId);
-  const profilesStore = new ProfilesStore(profilesService);
+    const cellData = appInfo.cell_data[0];
+    const cellClient = new HolochainClient(appWebsocket, cellData);
 
-  const invitationsService = new InvitationsService(appWebsocket, cellId);
-  const invitationsStore = new InvitationsStore(invitationsService, profilesStore);
+    new ContextProvider(
+      this,
+      profilesStoreContext,
+      new ProfilesStore(cellClient, {
+        avatarMode: "avatar",
+      })
+    );
+    const invitationsStore = new InvitationsStore(cellClient, {
+      clearOnInvitationComplete: false,
+    });
 
-  customElements.define(
-    "profile-prompt",
-    connectDeps(ProfilePrompt, profilesStore)
-  );
-  customElements.define(
-    "invitations-list",
-    connectDeps(InvitationsList, invitationsStore)
-  );
-  customElements.define(
-    "create-invitation",
-    connectDeps(CreateInvitation, invitationsStore)
-  );
+    new ContextProvider(this, invitationsStoreContext, invitationsStore);
+
+    this.loaded = true;
+  }
+
+  render() {
+    if (!this.loaded) return html`<span>Loading...</span>`;
+    return html`
+      <profile-prompt>
+        <create-invitation></create-invitation>
+        <invitations-list include-myself></invitations-list>
+      </profile-prompt>
+    `;
+  }
+
+  static get scopedElements() {
+    return {
+      "create-invitation": ProfilePrompt,
+      "invitations-list": SearchAgent,
+      "list-profiles": ListProfiles,
+    };
+  }
 }
-```
 
-3. All the elements you have defined are now available to use as normal HTML tags:
+customElements.define("invitations-test", InvitationsTest);
+```
 
 ```html
 ...
@@ -86,7 +117,6 @@ async function setupProfiles() {
 Take into account that at this point the elements already expect a holochain conductor running at `ws://localhost:8888`.
 
 You can see a full working example [here](/ui/demo/index.html).
-
 
 ## Developer setup
 

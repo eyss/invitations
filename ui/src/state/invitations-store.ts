@@ -12,6 +12,10 @@ import { InvitationsService } from '../invitations-service';
 import { InvitationEntryInfo } from '../types';
 import { isInvitationCompleted } from './selectors';
 
+export interface InvitationsConfig {
+  clearOnInvitationComplete: boolean;
+}
+
 export class InvitationsStore {
   private invitations: Writable<Dictionary<InvitationEntryInfo>> = writable({});
 
@@ -31,7 +35,9 @@ export class InvitationsStore {
 
   constructor(
     protected cellClient: CellClient,
-    protected clearOnInvitationComplete: boolean = false
+    protected config: InvitationsConfig = {
+      clearOnInvitationComplete: false
+    }
   ) {
     this.invitationsService = new InvitationsService(cellClient);
     this.invitationsService.cellClient.addSignalHandler(s => this.signalHandler(s));
@@ -81,7 +87,7 @@ export class InvitationsStore {
         invitationInfo.invitees_who_accepted.push(this.myAgentPubKey);
 
         if (
-          this.clearOnInvitationComplete &&
+          this.config.clearOnInvitationComplete &&
           isInvitationCompleted(invitationInfo)
         ) {
           this.clearInvitation(invitation_entry_hash).then(() => resolve(null));
@@ -123,7 +129,7 @@ export class InvitationsStore {
       return invitations;
     });
 
-    if (this.clearOnInvitationComplete && isInvitationCompleted(invitation)) {
+    if (this.config.clearOnInvitationComplete && isInvitationCompleted(invitation)) {
       await this.clearInvitation(invitation.invitation_entry_hash);
     }
   }

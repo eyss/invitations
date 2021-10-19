@@ -27,24 +27,25 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
+      - name: cachix
+        run: |
+          nix-env -iA cachix -f https://cachix.org/api/v1/install
+          cachix use holochain-ci
+
       - name: build-holochain
         run: |
           cd $GITHUB_WORKSPACE
-          nix-shell . --run "cd zome && CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown"
-          nix-shell . --run "cd zome && hc dna pack workdir/dna"
-          nix-shell . --run "cd zome && hc app pack workdir/happ"
-          
+          nix-shell . --run "npm install"
+          nix-shell . --run "npm run build-happ"
+
       - name: test-holochain
         run: |
           cd $GITHUB_WORKSPACE
-          nix-shell . --run "cd zome/tests && npm install"
-          nix-shell . --run "cd zome/tests && npm test"      
+          nix-shell . --run "npm test"
           
           
       - name: build-ui
         run: |
           cd $GITHUB_WORKSPACE
-          nix-shell . --run "cd ui && npm install"
-          nix-shell . --run "cd ui && npm run lint"
-          nix-shell . --run "cd ui && npm run build"
+          nix-shell . --run "npm run build -w @eyss/invitations"
           

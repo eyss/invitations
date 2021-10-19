@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "hc_zome_profiles"
 version = "0.0.1"
-source = "git+https://github.com/holochain-open-dev/profiles?rev=df5d71b42e35759fca6c77240ba3de6f0101f7c2#df5d71b42e35759fca6c77240ba3de6f0101f7c2"
+source = "git+https://github.com/holochain-open-dev/profiles?rev=499ba7a06028c9df9ed3ca6295aed77f68675a14#499ba7a06028c9df9ed3ca6295aed77f68675a14"
 dependencies = [
  "derive_more",
  "hdk",
