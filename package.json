@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "start": "concurrently --kill-others --names rollup,web-dev-server \"npm run build-watch\" \"web-dev-server --config demo/web-dev-server.config.mjs\"",
+    "start": "npm run build && concurrently -k --names tsc,dev-server \"npm run build:watch\" \"web-dev-server --config web-dev-server.config.mjs\"",
     "build": "rimraf dist && rollup -c rollup.config.js",
     "build-watch": "rollup -w -c rollup.config.js",
     "test": "rollup && web-test-runner --coverage --puppeteer",
@@ -23,7 +23,7 @@
     "publish-to-branch": "npm run lint && npm run build && gh-pages -d ./ -b ui-build"
   },
   "dependencies": {
-    "@holochain-open-dev/cell-client": "^0.0.5",
+    "@holochain-open-dev/cell-client": "^0.0.7",
     "@holochain-open-dev/core-types": "^0.1.1",
     "@holochain-open-dev/profiles": "github:holochain-open-dev/profiles#ui-build",
     "@holochain/conductor-api": "^0.2.1",
