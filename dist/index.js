@@ -470,7 +470,11 @@ class CreateInvitation extends ScopedElementsMixin(LitElement) {
             </div>
           </div>
 
-          <mwc-button label="Send Invitation" @click=${this.sendInvitation}>
+          <mwc-button
+            label="Send Invitation"
+            @click=${this.sendInvitation}
+            .disabled=${Object.keys(this.invitees).length === 0}
+          >
             <mwc-icon slot="icon">send</mwc-icon>
           </mwc-button>
         </div>
