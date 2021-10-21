@@ -1,6 +1,6 @@
 import { LitElement } from 'lit';
 /**mwc-elements imports */
-import { Card, List, Icon, Button, ListItem } from '@scoped-elements/material-web';
+import { Card, List, Icon, Button, ListItem, Snackbar } from '@scoped-elements/material-web';
 import { ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 import { InvitationsStore } from '../state/invitations-store';
 import { Dictionary } from '@holochain-open-dev/core-types';
@@ -16,6 +16,7 @@ export declare class CreateInvitation extends CreateInvitation_base {
     sendInvitation(): Promise<void>;
     _pedignInvitations(): Promise<void>;
     renderInviteesList(): import("lit-html").TemplateResult<1>;
+    renderInvitationError(): import("lit-html").TemplateResult<1>;
     render(): import("lit-html").TemplateResult<1>;
     static get scopedElements(): {
         'search-agent': typeof SearchAgent;
@@ -24,6 +25,7 @@ export declare class CreateInvitation extends CreateInvitation_base {
         'mwc-list': typeof List;
         'mwc-card': typeof Card;
         'mwc-list-item': typeof ListItem;
+        'mwc-snackbar': typeof Snackbar;
         'mwc-button': typeof Button;
     };
     static get styles(): import("lit").CSSResult[];

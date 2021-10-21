@@ -3,7 +3,7 @@ import { state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { createContext, contextProvided } from '@lit-labs/context';
 import { StoreSubscriber } from 'lit-svelte-stores';
-import { Icon, List, Button, ListItem, Card, CircularProgress } from '@scoped-elements/material-web';
+import { Icon, List, Button, ListItem, Card, CircularProgress, Snackbar } from '@scoped-elements/material-web';
 import { profilesStoreContext, SearchAgent, ProfilePrompt } from '@holochain-open-dev/profiles';
 import { serializeHash } from '@holochain-open-dev/core-types';
 
@@ -397,6 +397,7 @@ class CreateInvitation extends ScopedElementsMixin(LitElement) {
         this.requestUpdate();
     }
     sendInvitation() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             //this is the input for the create invitation method define in the holochain side
             const invitees_list = [];
@@ -405,7 +406,12 @@ class CreateInvitation extends ScopedElementsMixin(LitElement) {
                 delete this.invitees[element[0]];
             });
             if (invitees_list.length > 0) {
-                yield this._store.sendInvitation(invitees_list);
+                try {
+                    yield this._store.sendInvitation(invitees_list);
+                }
+                catch (e) {
+                    ((_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('error-message')).show();
+                }
                 yield this._store.fetchMyPendingInvitations();
                 this.requestUpdate();
             }
@@ -435,8 +441,15 @@ class CreateInvitation extends ScopedElementsMixin(LitElement) {
       </mwc-list>
     `;
     }
+    renderInvitationError() {
+        return html `<mwc-snackbar
+      id="error-message"
+      labelText="Can't send invitation. Please try again later."
+    ></mwc-snackbar>`;
+    }
     render() {
         return html `
+      ${this.renderInvitationError()}
       <mwc-card style="flex: 1;">
         <div class="column" style="margin: 16px; flex: 1;">
           <span class="title" style="margin-bottom: 16px;"
@@ -472,6 +485,7 @@ class CreateInvitation extends ScopedElementsMixin(LitElement) {
             'mwc-list': List,
             'mwc-card': Card,
             'mwc-list-item': ListItem,
+            'mwc-snackbar': Snackbar,
             'mwc-button': Button,
         };
     }

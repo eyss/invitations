@@ -4,16 +4,16 @@ import { state, query } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 /**mwc-elements imports */
-import { Card, List,
+import {
+  Card,
+  List,
   Icon,
   Button,
-  ListItem } from '@scoped-elements/material-web';
-  
-import {
-  
-  ProfilePrompt,
-  SearchAgent,
-} from '@holochain-open-dev/profiles';
+  ListItem,
+  Snackbar,
+} from '@scoped-elements/material-web';
+
+import { ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 
 import { InvitationsStore } from '../state/invitations-store';
 
@@ -25,7 +25,7 @@ import { sharedStyles } from '../shared-styles';
  * @element create-invitation-form
  */
 export class CreateInvitation extends ScopedElementsMixin(LitElement) {
-  @contextProvided({context: invitationsStoreContext})
+  @contextProvided({ context: invitationsStoreContext })
   _store!: InvitationsStore;
 
   @state()
@@ -53,11 +53,16 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
     });
 
     if (invitees_list.length > 0) {
-      await this._store.sendInvitation(invitees_list);
+      try {
+        await this._store.sendInvitation(invitees_list);
+      } catch (e) {
+        (this.shadowRoot?.getElementById('error-message') as Snackbar).show();
+      }
       await this._store.fetchMyPendingInvitations();
       this.requestUpdate();
     }
   }
+
   async _pedignInvitations() {
     await this._store.fetchMyPendingInvitations();
   }
@@ -82,8 +87,17 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
       </mwc-list>
     `;
   }
+
+  renderInvitationError() {
+    return html`<mwc-snackbar
+      id="error-message"
+      labelText="Can't send invitation. Please try again later."
+    ></mwc-snackbar>`;
+  }
+
   render() {
     return html`
+      ${this.renderInvitationError()}
       <mwc-card style="flex: 1;">
         <div class="column" style="margin: 16px; flex: 1;">
           <span class="title" style="margin-bottom: 16px;"
@@ -120,6 +134,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
       'mwc-list': List,
       'mwc-card': Card,
       'mwc-list-item': ListItem,
+      'mwc-snackbar': Snackbar,
       'mwc-button': Button,
     };
   }
