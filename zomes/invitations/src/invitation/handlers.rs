@@ -67,8 +67,7 @@ pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
     let pending_invitations_links: Vec<Link> = get_links(
         agent_pub_key.into(),
         Some(LinkTag::new(String::from("Invitee"))),
-    )?
-    .into_inner();
+    )?;
 
     let get_input = pending_invitations_links
         .into_iter()
@@ -92,8 +91,7 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
     let my_pending_invitations_links = get_links(
         my_pub_key.clone().into(),
         Some(LinkTag::new(String::from("Invitee"))),
-    )?
-    .into_inner();
+    )?;
 
     let invitation_link_to_reject: Vec<Link> = my_pending_invitations_links
         .into_iter()
@@ -206,7 +204,6 @@ pub fn clear_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool> 
     )?;
 
     links
-        .into_inner()
         .into_iter()
         .filter(|link| link.target == invitation_entry_hash.clone())
         .map(|link_to_invitation| -> ExternResult<()> {
@@ -255,7 +252,6 @@ fn get_invitations_entry_info_from_details(
                 invitation_entry_hash.clone(),
                 Some(LinkTag::new("Accepted")),
             )?
-            .into_inner()
             .into_iter()
             .map(|link| -> AgentPubKeyB64 {
                 let agent_pub_key: AgentPubKey = link.target.into();

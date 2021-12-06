@@ -18,7 +18,7 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     let tag: String = "recv_remote_signal_cap_grant".into();
     let access: CapAccess = CapAccess::Unrestricted;
 
-    let zome_name: ZomeName = zome_info()?.zome_name;
+    let zome_name: ZomeName = zome_info()?.name;
     let function_name: FunctionName = FunctionName("recv_remote_signal".into());
 
     functions.insert((zome_name, function_name));
