@@ -20,3 +20,4 @@
 /dist/
 /out-tsc/
 .dist
+*.tsbuildinfo
