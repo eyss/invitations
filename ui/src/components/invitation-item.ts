@@ -29,8 +29,6 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
   _profilesStore!: ProfilesStore;
 
   @state()
-  loaded = false;
-  @state()
   clicked = false;
   @state()
   invitationEntryHash = '';
@@ -51,19 +49,6 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     const my_pub_key = this._profilesStore.myAgentPubKey;
 
     return this._invitation.value.invitation.inviter === my_pub_key;
-  }
-
-  async firstUpdated() {
-    await this._profilesStore.fetchAgentProfile(
-      this._invitation.value.invitation.inviter
-    );
-
-    const promises = this._invitation.value.invitation.invitees.map(
-      invitee_pub_key => this._profilesStore.fetchAgentProfile(invitee_pub_key)
-    );
-    await Promise.all(promises);
-
-    this.loaded = true;
   }
 
   async _rejectInvitation() {
@@ -150,7 +135,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     return false;
   }
   render() {
-    if (this.loaded && this._invitation.value) {
+    if (this._invitation.value) {
       return html`
         <mwc-list-item
           id="element"

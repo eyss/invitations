@@ -5,12 +5,14 @@ import {
   Dictionary,
   serializeHash,
 } from '@holochain-open-dev/core-types';
+import { ProfilesStore } from '@holochain-open-dev/profiles';
+import { Agent } from 'http';
 import { writable, Writable, derived } from 'svelte/store';
 
 import { InvitationsService } from '../invitations-service';
 
 import { InvitationEntryInfo } from '../types';
-import { isInvitationCompleted } from './selectors';
+import { getAllAgentsFor, isInvitationCompleted } from './selectors';
 
 export interface InvitationsConfig {
   clearOnInvitationComplete: boolean;
@@ -35,12 +37,15 @@ export class InvitationsStore {
 
   constructor(
     protected cellClient: CellClient,
+    protected profilesStore: ProfilesStore,
     protected config: InvitationsConfig = {
-      clearOnInvitationComplete: false
+      clearOnInvitationComplete: false,
     }
   ) {
     this.invitationsService = new InvitationsService(cellClient);
-    this.invitationsService.cellClient.addSignalHandler(s => this.signalHandler(s));
+    this.invitationsService.cellClient.addSignalHandler(s =>
+      this.signalHandler(s)
+    );
   }
 
   invitationInfo(invitationHash: EntryHashB64) {
@@ -58,6 +63,14 @@ export class InvitationsStore {
     // Pedir al backend
     const pending_invitations_entries_info: InvitationEntryInfo[] =
       await this.invitationsService.getMyPendingInvitations();
+
+    const agents = pending_invitations_entries_info.map(info =>
+      getAllAgentsFor(info.invitation)
+    );
+
+    await this.profilesStore.fetchAgentsProfiles(
+      ([] as AgentPubKeyB64[]).concat(...agents)
+    );
 
     this.invitations.update(invitations => {
       pending_invitations_entries_info.map(invitation_entry_info => {
@@ -113,8 +126,12 @@ export class InvitationsStore {
     await this.invitationsService.clearInvitation(invitation_entry_hash);
   }
 
-  invitationReceived(signal: any) {
+  async invitationReceived(signal: any) {
     const invitation = signal.payload.InvitationReceived;
+
+    const agents = getAllAgentsFor(invitation.invitation);
+
+    await this.profilesStore.fetchAgentsProfiles(agents);
 
     this.invitations.update(invitations => {
       invitations[invitation.invitation_entry_hash] = invitation;
@@ -129,7 +146,10 @@ export class InvitationsStore {
       return invitations;
     });
 
-    if (this.config.clearOnInvitationComplete && isInvitationCompleted(invitation)) {
+    if (
+      this.config.clearOnInvitationComplete &&
+      isInvitationCompleted(invitation)
+    ) {
       await this.clearInvitation(invitation.invitation_entry_hash);
     }
   }
