@@ -64,13 +64,10 @@ export class InvitationsStore {
     const pending_invitations_entries_info: InvitationEntryInfo[] =
       await this.invitationsService.getMyPendingInvitations();
 
-    const agents = pending_invitations_entries_info.map(info =>
-      getAllAgentsFor(info.invitation)
+    const promises = pending_invitations_entries_info.map(i =>
+      this.fetchProfilesForInvitation(i.invitation)
     );
-
-    await this.profilesStore.fetchAgentsProfiles(
-      ([] as AgentPubKeyB64[]).concat(...agents)
-    );
+    await Promise.all(promises);
 
     this.invitations.update(invitations => {
       pending_invitations_entries_info.map(invitation_entry_info => {

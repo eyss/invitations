@@ -32,8 +32,8 @@ export class InvitationsStore {
     async fetchMyPendingInvitations() {
         // Pedir al backend
         const pending_invitations_entries_info = await this.invitationsService.getMyPendingInvitations();
-        const agents = pending_invitations_entries_info.map(info => getAllAgentsFor(info.invitation));
-        await this.profilesStore.fetchAgentsProfiles([].concat(...agents));
+        const promises = pending_invitations_entries_info.map(i => this.fetchProfilesForInvitation(i.invitation));
+        await Promise.all(promises);
         this.invitations.update(invitations => {
             pending_invitations_entries_info.map(invitation_entry_info => {
                 invitations[invitation_entry_info.invitation_entry_hash] =
