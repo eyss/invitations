@@ -2,7 +2,7 @@ import { CellClient } from '@holochain-open-dev/cell-client';
 import { AgentPubKeyB64, EntryHashB64, Dictionary } from '@holochain-open-dev/core-types';
 import { ProfilesStore } from '@holochain-open-dev/profiles';
 import { InvitationsService } from '../invitations-service';
-import { InvitationEntryInfo } from '../types';
+import { Invitation, InvitationEntryInfo } from '../types';
 export interface InvitationsConfig {
     clearOnInvitationComplete: boolean;
 }
@@ -21,6 +21,7 @@ export declare class InvitationsStore {
     acceptInvitation(invitation_entry_hash: EntryHashB64): Promise<unknown>;
     rejectInvitation(invitation_entry_hash: EntryHashB64): Promise<void>;
     clearInvitation(invitation_entry_hash: EntryHashB64): Promise<void>;
+    fetchProfilesForInvitation(invitation: Invitation, retryCount?: number): Promise<void>;
     invitationReceived(signal: any): Promise<void>;
     invitationAccepted(signal: any): Promise<void>;
     invitationRejected(signal: any): void;

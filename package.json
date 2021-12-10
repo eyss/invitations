@@ -23,7 +23,7 @@
     "publish-to-branch": "npm run lint && npm run build && rm -rf node_modules && gh-pages -d ./ -b ui-build && cd .. && npm i"
   },
   "dependencies": {
-    "@holochain-open-dev/cell-client": "^0.1.2",
+    "@holochain-open-dev/cell-client": "^0.1.4",
     "@holochain-open-dev/core-types": "^0.1.1",
     "@holochain-open-dev/profiles": "github:holochain-open-dev/profiles#ui-build",
     "@holochain/conductor-api": "^0.2.4",

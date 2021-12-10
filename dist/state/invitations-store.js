@@ -1,6 +1,7 @@
 import { serializeHash, } from '@holochain-open-dev/core-types';
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { InvitationsService } from '../invitations-service';
+import { sleep } from '../utils';
 import { getAllAgentsFor, isInvitationCompleted } from './selectors';
 export class InvitationsStore {
     constructor(cellClient, profilesStore, config = {
@@ -72,10 +73,21 @@ export class InvitationsStore {
     async clearInvitation(invitation_entry_hash) {
         await this.invitationsService.clearInvitation(invitation_entry_hash);
     }
+    async fetchProfilesForInvitation(invitation, retryCount = 4) {
+        if (retryCount === 0) {
+            return;
+        }
+        const agents = getAllAgentsFor(invitation);
+        await this.profilesStore.fetchAgentsProfiles(agents);
+        const knownProfiles = get(this.profilesStore.knownProfiles);
+        if (agents.some(agent => !knownProfiles[agent])) {
+            await sleep(1500);
+            return this.fetchProfilesForInvitation(invitation, retryCount - 1);
+        }
+    }
     async invitationReceived(signal) {
         const invitation = signal.payload.InvitationReceived;
-        const agents = getAllAgentsFor(invitation.invitation);
-        await this.profilesStore.fetchAgentsProfiles(agents);
+        await this.fetchProfilesForInvitation(invitation);
         this.invitations.update(invitations => {
             invitations[invitation.invitation_entry_hash] = invitation;
             return invitations;

@@ -72,11 +72,12 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     `;
     }
     _invitationInviterAgent() {
+        var _a, _b;
         if (this.fromMe) {
             return html `
         <span>
           <span class="secondary-text">to </span>
-          ${this._knownProfiles.value[this._invitation.value.invitation.invitees[0]].nickname}
+          ${(_a = this._knownProfiles.value[this._invitation.value.invitation.invitees[0]]) === null || _a === void 0 ? void 0 : _a.nickname}
         </span>
       `;
         }
@@ -84,8 +85,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
             return html `
         <span
           ><span class="secondary-text">from </span>
-          ${this._knownProfiles.value[this._invitation.value.invitation.inviter]
-                .nickname}
+          ${(_b = this._knownProfiles.value[this._invitation.value.invitation.inviter]) === null || _b === void 0 ? void 0 : _b.nickname}
         </span>
       `;
     }
