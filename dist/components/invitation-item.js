@@ -17,7 +17,6 @@ import { InvitationStatus } from '../types';
 export class InvitationItem extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
-        this.loaded = false;
         this.clicked = false;
         this.invitationEntryHash = '';
         this._invitation = new StoreSubscriber(this, () => this._store.invitationInfo(this.invitationEntryHash));
@@ -29,12 +28,6 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     get fromMe() {
         const my_pub_key = this._profilesStore.myAgentPubKey;
         return this._invitation.value.invitation.inviter === my_pub_key;
-    }
-    async firstUpdated() {
-        await this._profilesStore.fetchAgentProfile(this._invitation.value.invitation.inviter);
-        const promises = this._invitation.value.invitation.invitees.map(invitee_pub_key => this._profilesStore.fetchAgentProfile(invitee_pub_key));
-        await Promise.all(promises);
-        this.loaded = true;
     }
     async _rejectInvitation() {
         const result = await this._store.rejectInvitation(this.invitationEntryHash);
@@ -106,7 +99,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
         return false;
     }
     render() {
-        if (this.loaded && this._invitation.value) {
+        if (this._invitation.value) {
             return html `
         <mwc-list-item
           id="element"
@@ -173,9 +166,6 @@ __decorate([
 __decorate([
     contextProvided({ context: profilesStoreContext })
 ], InvitationItem.prototype, "_profilesStore", void 0);
-__decorate([
-    state()
-], InvitationItem.prototype, "loaded", void 0);
 __decorate([
     state()
 ], InvitationItem.prototype, "clicked", void 0);

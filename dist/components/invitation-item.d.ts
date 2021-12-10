@@ -13,14 +13,12 @@ declare const InvitationItem_base: typeof LitElement & import("@open-wc/dedupe-m
 export declare class InvitationItem extends InvitationItem_base {
     _store: InvitationsStore;
     _profilesStore: ProfilesStore;
-    loaded: boolean;
     clicked: boolean;
     invitationEntryHash: string;
     _invitation: StoreSubscriber<import("../types").InvitationEntryInfo>;
     _knownProfiles: StoreSubscriber<import("@holochain-open-dev/core-types").Dictionary<import("@holochain-open-dev/profiles").Profile>>;
     get invitationStatus(): InvitationStatus;
     get fromMe(): boolean;
-    firstUpdated(): Promise<void>;
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
     _clickHandler(): void;

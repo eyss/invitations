@@ -1,4 +1,4 @@
-import { InvitationStatus } from "../types";
+import { InvitationStatus } from '../types';
 export function isInvitationCompleted(invitation) {
     return (invitation.invitation.invitees.length ===
         invitation.invitees_who_accepted.length);
@@ -12,5 +12,8 @@ export function getInvitationStatus(invitation) {
         return InvitationStatus.Completed;
     }
     return InvitationStatus.Pending;
+}
+export function getAllAgentsFor(invitation) {
+    return [...invitation.invitees, invitation.inviter];
 }
 //# sourceMappingURL=selectors.js.map
