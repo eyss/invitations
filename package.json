@@ -8,7 +8,7 @@
   "module": "dist/index.js",
   "scripts": {
     "start": "concurrently -k --names tsc,dev-server \"npm run build:watch\" \"web-dev-server --config web-dev-server.config.mjs\"",
-    "build": "rimraf dist && tsc --incremental",
+    "build": "rimraf dist && tsc",
     "build-watch": "tsc -w --preserveWatchOutput --incremental",
     "test": "npm run build && web-test-runner --coverage --puppeteer",
     "test-debug": "npm run build && DEBUG=true web-test-runner --coverage --puppeteer",
