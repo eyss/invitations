@@ -6,12 +6,12 @@ import {
   serializeHash,
 } from '@holochain-open-dev/core-types';
 import { ProfilesStore } from '@holochain-open-dev/profiles';
-import { Agent } from 'http';
-import { writable, Writable, derived } from 'svelte/store';
+import { writable, Writable, derived, get } from 'svelte/store';
 
 import { InvitationsService } from '../invitations-service';
 
-import { InvitationEntryInfo } from '../types';
+import { Invitation, InvitationEntryInfo } from '../types';
+import { sleep } from '../utils';
 import { getAllAgentsFor, isInvitationCompleted } from './selectors';
 
 export interface InvitationsConfig {
@@ -64,13 +64,10 @@ export class InvitationsStore {
     const pending_invitations_entries_info: InvitationEntryInfo[] =
       await this.invitationsService.getMyPendingInvitations();
 
-    const agents = pending_invitations_entries_info.map(info =>
-      getAllAgentsFor(info.invitation)
+    const promises = pending_invitations_entries_info.map(i =>
+      this.fetchProfilesForInvitation(i.invitation)
     );
-
-    await this.profilesStore.fetchAgentsProfiles(
-      ([] as AgentPubKeyB64[]).concat(...agents)
-    );
+    await Promise.all(promises);
 
     this.invitations.update(invitations => {
       pending_invitations_entries_info.map(invitation_entry_info => {
@@ -126,12 +123,31 @@ export class InvitationsStore {
     await this.invitationsService.clearInvitation(invitation_entry_hash);
   }
 
+  async fetchProfilesForInvitation(
+    invitation: Invitation,
+    retryCount = 4
+  ): Promise<void> {
+    if (retryCount === 0) {
+      return;
+    }
+
+    const agents = getAllAgentsFor(invitation);
+
+    await this.profilesStore.fetchAgentsProfiles(agents);
+
+    const knownProfiles = get(this.profilesStore.knownProfiles);
+
+    if (agents.some(agent => !knownProfiles[agent])) {
+      await sleep(1500);
+
+      return this.fetchProfilesForInvitation(invitation, retryCount - 1);
+    }
+  }
+
   async invitationReceived(signal: any) {
     const invitation = signal.payload.InvitationReceived;
 
-    const agents = getAllAgentsFor(invitation.invitation);
-
-    await this.profilesStore.fetchAgentsProfiles(agents);
+    await this.fetchProfilesForInvitation(invitation);
 
     this.invitations.update(invitations => {
       invitations[invitation.invitation_entry_hash] = invitation;

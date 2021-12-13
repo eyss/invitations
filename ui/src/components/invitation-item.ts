@@ -105,7 +105,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
           <span class="secondary-text">to </span>
           ${this._knownProfiles.value[
             this._invitation.value.invitation.invitees[0]
-          ].nickname}
+          ]?.nickname}
         </span>
       `;
     } else
@@ -113,7 +113,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
         <span
           ><span class="secondary-text">from </span>
           ${this._knownProfiles.value[this._invitation.value.invitation.inviter]
-            .nickname}
+            ?.nickname}
         </span>
       `;
   }
