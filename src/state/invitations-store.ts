@@ -147,7 +147,7 @@ export class InvitationsStore {
   async invitationReceived(signal: any) {
     const invitation = signal.payload.InvitationReceived;
 
-    await this.fetchProfilesForInvitation(invitation);
+    await this.fetchProfilesForInvitation(invitation.invitation);
 
     this.invitations.update(invitations => {
       invitations[invitation.invitation_entry_hash] = invitation;
