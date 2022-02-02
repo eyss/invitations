@@ -53,6 +53,10 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     return this._invitation.value.invitation.inviter === my_pub_key;
   }
 
+  async _clearInvitation() {
+    await this._store.clearInvitation(this.invitationEntryHash);
+  }
+
   async _rejectInvitation() {
     const result = await this._store.rejectInvitation(this.invitationEntryHash);
   }
@@ -86,7 +90,21 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
   }
 
   _invitationActionButtons() {
-    if (this._haveYouInteracted() || this.fromMe) return html``;
+    if (this._haveYouInteracted()) return html``;
+    if (this.fromMe) {
+      if (this.invitationStatus === InvitationStatus.Rejected) {
+        return html`
+          <div slot="secondary">
+            <mwc-button icon="clear_all" @click="${this._clearInvitation}"
+              >Clear</mwc-button
+            >
+          </div>
+        `;
+      } else {
+        return html``;
+      }
+    }
+
     return html`
       <span slot="secondary">
         <mwc-button icon="check" @click="${this._acceptInvitation}"

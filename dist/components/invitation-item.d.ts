@@ -20,6 +20,7 @@ export declare class InvitationItem extends InvitationItem_base {
     _knownProfiles: StoreSubscriber<import("@holochain-open-dev/core-types").Dictionary<import("@holochain-open-dev/profiles").Profile>>;
     get invitationStatus(): InvitationStatus;
     get fromMe(): boolean;
+    _clearInvitation(): Promise<void>;
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
     _clickHandler(): void;
