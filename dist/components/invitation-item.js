@@ -2,7 +2,7 @@ import { __decorate } from "tslib";
 import { html, css, LitElement } from 'lit';
 import { state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { contextProvided } from '@lit-labs/context';
+import { contextProvided } from '@holochain-open-dev/context';
 import { StoreSubscriber } from 'lit-svelte-stores';
 /**mwc-elements imports */
 import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';

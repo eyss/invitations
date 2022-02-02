@@ -1,6 +1,6 @@
 import { __decorate } from "tslib";
 import { LitElement, css, html } from 'lit';
-import { contextProvided } from '@lit-labs/context';
+import { contextProvided } from '@holochain-open-dev/context';
 import { state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 /**mwc-elements imports */
