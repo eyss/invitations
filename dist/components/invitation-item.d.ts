@@ -6,6 +6,7 @@ import { InvitationsStore } from '../state/invitations-store';
 import { AgentAvatar, ProfilesStore } from '@holochain-open-dev/profiles';
 import { InvitationStatus } from '../types';
 import { SlBadge } from '@scoped-elements/shoelace';
+import { EntryHashB64 } from '@holochain-open-dev/core-types';
 declare const InvitationItem_base: typeof LitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
 /**
  * @element invitation-item
@@ -14,8 +15,8 @@ declare const InvitationItem_base: typeof LitElement & import("@open-wc/dedupe-m
 export declare class InvitationItem extends InvitationItem_base {
     _store: InvitationsStore;
     _profilesStore: ProfilesStore;
+    invitationEntryHash: EntryHashB64;
     clicked: boolean;
-    invitationEntryHash: string;
     _invitation: StoreSubscriber<import("../types").InvitationEntryInfo>;
     _knownProfiles: StoreSubscriber<import("@holochain-open-dev/core-types").Dictionary<import("@holochain-open-dev/profiles").Profile>>;
     get invitationStatus(): InvitationStatus;

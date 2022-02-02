@@ -72,6 +72,10 @@ export class InvitationsStore {
     }
     async clearInvitation(invitation_entry_hash) {
         await this.invitationsService.clearInvitation(invitation_entry_hash);
+        this.invitations.update(invitations => {
+            delete invitations[invitation_entry_hash];
+            return invitations;
+        });
     }
     async fetchProfilesForInvitation(invitation, retryCount = 4) {
         if (retryCount === 0) {

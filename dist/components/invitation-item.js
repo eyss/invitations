@@ -1,6 +1,6 @@
 import { __decorate } from "tslib";
 import { html, css, LitElement } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { contextProvided } from '@holochain-open-dev/context';
 import { StoreSubscriber } from 'lit-svelte-stores';
@@ -19,7 +19,6 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
         this.clicked = false;
-        this.invitationEntryHash = '';
         this._invitation = new StoreSubscriber(this, () => this._store.invitationInfo(this.invitationEntryHash));
         this._knownProfiles = new StoreSubscriber(this, () => this._profilesStore.knownProfiles);
     }
@@ -66,27 +65,29 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
         if (this.fromMe) {
             if (this.invitationStatus === InvitationStatus.Rejected) {
                 return html `
-          <div slot="secondary">
+          <span slot="secondary">
             <mwc-button icon="clear_all" @click="${this._clearInvitation}"
               >Clear</mwc-button
             >
-          </div>
+          </span>
         `;
             }
             else {
                 return html ``;
             }
         }
-        return html `
-      <span slot="secondary">
-        <mwc-button icon="check" @click="${this._acceptInvitation}"
-          >ACCEPT</mwc-button
-        >
-        <mwc-button icon="close" @click="${this._rejectInvitation}">
-          REJECT</mwc-button
-        >
-      </span>
-    `;
+        else {
+            return html `
+        <span slot="secondary">
+          <mwc-button icon="check" @click="${this._acceptInvitation}"
+            >ACCEPT</mwc-button
+          >
+          <mwc-button icon="close" @click="${this._rejectInvitation}">
+            REJECT</mwc-button
+          >
+        </span>
+      `;
+        }
     }
     _invitationInviterAgent() {
         var _a, _b;
@@ -200,9 +201,9 @@ __decorate([
     contextProvided({ context: profilesStoreContext })
 ], InvitationItem.prototype, "_profilesStore", void 0);
 __decorate([
-    state()
-], InvitationItem.prototype, "clicked", void 0);
+    property({ type: String, attribute: 'invitation-entry-hash' })
+], InvitationItem.prototype, "invitationEntryHash", void 0);
 __decorate([
     state()
-], InvitationItem.prototype, "invitationEntryHash", void 0);
+], InvitationItem.prototype, "clicked", void 0);
 //# sourceMappingURL=invitation-item.js.map

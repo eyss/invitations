@@ -1,5 +1,5 @@
 import { html, css, LitElement } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { contextProvided } from '@holochain-open-dev/context';
@@ -19,6 +19,7 @@ import {
 import { getInvitationStatus, isInvitationCompleted } from '../state/selectors';
 import { InvitationStatus } from '../types';
 import { SlBadge } from '@scoped-elements/shoelace';
+import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 /**
  * @element invitation-item
@@ -30,10 +31,11 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
   @contextProvided({ context: profilesStoreContext })
   _profilesStore!: ProfilesStore;
 
+  @property({ type: String, attribute: 'invitation-entry-hash' })
+  invitationEntryHash!: EntryHashB64;
+
   @state()
   clicked = false;
-  @state()
-  invitationEntryHash = '';
 
   _invitation = new StoreSubscriber(this, () =>
     this._store.invitationInfo(this.invitationEntryHash)
@@ -94,27 +96,27 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     if (this.fromMe) {
       if (this.invitationStatus === InvitationStatus.Rejected) {
         return html`
-          <div slot="secondary">
+          <span slot="secondary">
             <mwc-button icon="clear_all" @click="${this._clearInvitation}"
               >Clear</mwc-button
             >
-          </div>
+          </span>
         `;
       } else {
         return html``;
       }
+    } else {
+      return html`
+        <span slot="secondary">
+          <mwc-button icon="check" @click="${this._acceptInvitation}"
+            >ACCEPT</mwc-button
+          >
+          <mwc-button icon="close" @click="${this._rejectInvitation}">
+            REJECT</mwc-button
+          >
+        </span>
+      `;
     }
-
-    return html`
-      <span slot="secondary">
-        <mwc-button icon="check" @click="${this._acceptInvitation}"
-          >ACCEPT</mwc-button
-        >
-        <mwc-button icon="close" @click="${this._rejectInvitation}">
-          REJECT</mwc-button
-        >
-      </span>
-    `;
   }
   _invitationInviterAgent() {
     if (this.fromMe) {
