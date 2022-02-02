@@ -17,7 +17,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
         this.invitees = {};
     }
     addInvitee(e) {
-        this.invitees[e.detail.agent.agent_pub_key] =
+        this.invitees[e.detail.agentPubKey] =
             e.detail.agent.profile.nickname;
         this.requestUpdate();
     }

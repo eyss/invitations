@@ -32,7 +32,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
   invitees: Dictionary<string> = {};
 
   addInvitee(e: CustomEvent) {
-    this.invitees[e.detail.agent.agent_pub_key] =
+    this.invitees[e.detail.agentPubKey] =
       e.detail.agent.profile.nickname;
     this.requestUpdate();
   }
