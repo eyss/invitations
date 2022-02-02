@@ -5,7 +5,7 @@ import { state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 /**mwc-elements imports */
 import { Card, List, Icon, Button, ListItem, Snackbar, } from '@scoped-elements/material-web';
-import { ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
+import { AgentAvatar, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 import { invitationsStoreContext } from '../context';
 import { sharedStyles } from '../shared-styles';
 import { StoreSubscriber } from 'lit-svelte-stores';
@@ -106,6 +106,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
     static get scopedElements() {
         return {
             'search-agent': SearchAgent,
+            'agent-avatar': AgentAvatar,
             'profile-prompt': ProfilePrompt,
             'mwc-icon': Icon,
             'mwc-list': List,

@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
 /**mwc-elements imports */
 import { Card, List, Icon, Button, ListItem, Snackbar } from '@scoped-elements/material-web';
-import { ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
+import { AgentAvatar, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 import { InvitationsStore } from '../state/invitations-store';
 import { AgentPubKeyB64, Dictionary } from '@holochain-open-dev/core-types';
 import { StoreSubscriber } from 'lit-svelte-stores';
@@ -22,6 +22,7 @@ export declare class CreateInvitation extends CreateInvitation_base {
     render(): import("lit-html").TemplateResult<1>;
     static get scopedElements(): {
         'search-agent': typeof SearchAgent;
+        'agent-avatar': typeof AgentAvatar;
         'profile-prompt': typeof ProfilePrompt;
         'mwc-icon': typeof Icon;
         'mwc-list': typeof List;
