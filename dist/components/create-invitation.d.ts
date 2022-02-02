@@ -14,7 +14,7 @@ export declare class CreateInvitation extends CreateInvitation_base {
     invitees: AgentPubKeyB64[];
     _allProfiles: StoreSubscriber<Dictionary<import("@holochain-open-dev/profiles").Profile>>;
     addInvitee(e: CustomEvent): void;
-    removeInvitee(e: Event): void;
+    removeInvitee(index: number): void;
     sendInvitation(): Promise<void>;
     _pedignInvitations(): Promise<void>;
     renderInviteesList(): import("lit-html").TemplateResult<1>;

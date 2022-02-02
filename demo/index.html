@@ -58,16 +58,13 @@
             client.cellDataByRoleId('invitations')
           );
 
-          new ContextProvider(
-            this,
-            profilesStoreContext,
-            new ProfilesStore(cellClient)
-          );
+          const profilesStore = new ProfilesStore(cellClient);
+          new ContextProvider(this, profilesStoreContext, profilesStore);
 
           new ContextProvider(
             this,
             invitationsStoreContext,
-            new InvitationsStore(cellClient)
+            new InvitationsStore(cellClient, profilesStore)
           );
           this.loaded = true;
         }

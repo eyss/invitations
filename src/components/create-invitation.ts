@@ -34,17 +34,15 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
 
   _allProfiles = new StoreSubscriber(
     this,
-    () => this._store.profilesStore.knownProfiles
+    () => this._store?.profilesStore.knownProfiles
   );
 
   addInvitee(e: CustomEvent) {
-    this.invitees.push(e.detail.agentPubKey);
-    this.requestUpdate();
+    this.invitees = [...this.invitees, e.detail.agentPubKey];
   }
 
-  removeInvitee(e: Event) {
-    const node: any = e.target;
-    delete this.invitees[node.id];
+  removeInvitee(index: number) {
+    this.invitees.splice(index, 1);
     this.requestUpdate();
   }
 
@@ -69,7 +67,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
     return html`
       <mwc-list>
         ${this.invitees.map(
-          agentPubKey => html` <mwc-list-item hasMeta graphic="avatar">
+          (agentPubKey, index) => html` <mwc-list-item hasMeta graphic="avatar">
             <agent-avatar slot="graphic" .agentPubKey=${agentPubKey}>
             </agent-avatar>
 
@@ -77,7 +75,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
             <mwc-icon
               slot="meta"
               id="${agentPubKey}"
-              @click="${this.removeInvitee}"
+              @click=${() => this.removeInvitee(index)}
               >close</mwc-icon
             >
           </mwc-list-item>`

@@ -16,15 +16,13 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
         this.invitees = [];
-        this._allProfiles = new StoreSubscriber(this, () => this._store.profilesStore.knownProfiles);
+        this._allProfiles = new StoreSubscriber(this, () => { var _a; return (_a = this._store) === null || _a === void 0 ? void 0 : _a.profilesStore.knownProfiles; });
     }
     addInvitee(e) {
-        this.invitees.push(e.detail.agentPubKey);
-        this.requestUpdate();
+        this.invitees = [...this.invitees, e.detail.agentPubKey];
     }
-    removeInvitee(e) {
-        const node = e.target;
-        delete this.invitees[node.id];
+    removeInvitee(index) {
+        this.invitees.splice(index, 1);
         this.requestUpdate();
     }
     async sendInvitation() {
@@ -47,7 +45,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
     renderInviteesList() {
         return html `
       <mwc-list>
-        ${this.invitees.map(agentPubKey => {
+        ${this.invitees.map((agentPubKey, index) => {
             var _a;
             return html ` <mwc-list-item hasMeta graphic="avatar">
             <agent-avatar slot="graphic" .agentPubKey=${agentPubKey}>
@@ -57,7 +55,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
             <mwc-icon
               slot="meta"
               id="${agentPubKey}"
-              @click="${this.removeInvitee}"
+              @click=${() => this.removeInvitee(index)}
               >close</mwc-icon
             >
           </mwc-list-item>`;
