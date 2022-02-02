@@ -33,10 +33,9 @@
         InvitationsService,
         InvitationsStore,
         invitationsStoreContext,
-      } from '../out-tsc';
+      } from '../dist';
 
-      import { ContextProvider } from '@lit-labs/context';
-      import { AppWebsocket } from '@holochain/conductor-api';
+      import { ContextProvider } from '@holochain-open-dev/context';
       import { HolochainClient } from '@holochain-open-dev/cell-client';
       import { ScopedElementsMixin } from '@open-wc/scoped-elements';
       import { LitElement, html } from 'lit';
@@ -51,15 +50,13 @@
         }
 
         async firstUpdated() {
-          const appWebsocket = await AppWebsocket.connect(
-            `ws://localhost:${process.env.HC_PORT}`
+          const client = await HolochainClient.connect(
+            `ws://localhost:${process.env.HC_PORT}`,
+            'test-app'
           );
-          const appInfo = await appWebsocket.appInfo({
-            installed_app_id: 'test-app',
-          });
-
-          const cellData = appInfo.cell_data[0];
-          const cellClient = new HolochainClient(appWebsocket, cellData);
+          const cellClient = client.forCell(
+            client.cellDataByRoleId('invitations')
+          );
 
           new ContextProvider(
             this,
