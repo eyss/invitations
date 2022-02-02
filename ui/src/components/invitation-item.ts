@@ -1,5 +1,5 @@
 import { html, css, LitElement } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { contextProvided } from '@holochain-open-dev/context';
@@ -12,11 +12,14 @@ import { InvitationsStore } from '../state/invitations-store';
 
 import { invitationsStoreContext } from '../context';
 import {
+  AgentAvatar,
   ProfilesStore,
   profilesStoreContext,
 } from '@holochain-open-dev/profiles';
 import { getInvitationStatus, isInvitationCompleted } from '../state/selectors';
 import { InvitationStatus } from '../types';
+import { SlBadge } from '@scoped-elements/shoelace';
+import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 /**
  * @element invitation-item
@@ -28,10 +31,11 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
   @contextProvided({ context: profilesStoreContext })
   _profilesStore!: ProfilesStore;
 
+  @property({ type: String, attribute: 'invitation-entry-hash' })
+  invitationEntryHash!: EntryHashB64;
+
   @state()
   clicked = false;
-  @state()
-  invitationEntryHash = '';
 
   _invitation = new StoreSubscriber(this, () =>
     this._store.invitationInfo(this.invitationEntryHash)
@@ -49,6 +53,10 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     const my_pub_key = this._profilesStore.myAgentPubKey;
 
     return this._invitation.value.invitation.inviter === my_pub_key;
+  }
+
+  async _clearInvitation() {
+    await this._store.clearInvitation(this.invitationEntryHash);
   }
 
   async _rejectInvitation() {
@@ -73,30 +81,42 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     this.clicked = !this.clicked;
   }
 
-  _invitationIcon() {
+  _invitationStatus() {
     if (this.invitationStatus === InvitationStatus.Rejected) {
-      return html` <mwc-icon slot="graphic">close</mwc-icon> `;
+      return html`<sl-badge pill variant="danger">Rejected</sl-badge> `;
+    } else if (this.invitationStatus === InvitationStatus.Completed) {
+      return html`<sl-badge pill variant="success">Accepted</sl-badge>`;
     } else {
-      return html`
-        ${this.invitationStatus === InvitationStatus.Completed
-          ? html`<mwc-icon slot="graphic">check</mwc-icon>`
-          : html`<mwc-icon slot="graphic">pending</mwc-icon>`}
-      `;
+      return html`<sl-badge pill variant="warning">Pending</sl-badge> `;
     }
   }
 
   _invitationActionButtons() {
-    if (this._haveYouInteracted() || this.fromMe) return html``;
-    return html`
-      <span slot="secondary">
-        <mwc-button icon="check" @click="${this._acceptInvitation}"
-          >ACCEPT</mwc-button
-        >
-        <mwc-button icon="close" @click="${this._rejectInvitation}">
-          REJECT</mwc-button
-        >
-      </span>
-    `;
+    if (this._haveYouInteracted()) return html``;
+    if (this.fromMe) {
+      if (this.invitationStatus === InvitationStatus.Rejected) {
+        return html`
+          <span slot="secondary">
+            <mwc-button icon="clear_all" @click="${this._clearInvitation}"
+              >Clear</mwc-button
+            >
+          </span>
+        `;
+      } else {
+        return html``;
+      }
+    } else {
+      return html`
+        <span slot="secondary">
+          <mwc-button icon="check" @click="${this._acceptInvitation}"
+            >ACCEPT</mwc-button
+          >
+          <mwc-button icon="close" @click="${this._rejectInvitation}">
+            REJECT</mwc-button
+          >
+        </span>
+      `;
+    }
   }
   _invitationInviterAgent() {
     if (this.fromMe) {
@@ -137,30 +157,45 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
   render() {
     if (this._invitation.value) {
       return html`
-        <mwc-list-item
-          id="element"
-          twoline
-          graphic="avatar"
-          hasMeta
-          @click="${this._clickHandler}"
-        >
-          ${this._invitationIcon()} ${this._invitationInviterAgent()}
-          ${this._invitationActionButtons()}
-        </mwc-list-item>
+        <div class="row" style="flex: 1;">
+          <mwc-list-item
+            id="element"
+            twoline
+            graphic="avatar"
+            @click="${this._clickHandler}"
+            style="flex: 1;"
+          >
+            <agent-avatar
+              slot="graphic"
+              .agentPubKey=${this._invitation.value?.invitation.inviter}
+            ></agent-avatar>
+            ${this._invitationInviterAgent()} ${this._invitationActionButtons()}
+          </mwc-list-item>
+          <div style="align-self: center; margin-right: 16px;">
+            ${this._invitationStatus()}
+          </div>
+        </div>
       `;
     }
   }
 
   static get scopedElements() {
     return {
+      'agent-avatar': AgentAvatar,
       'mwc-icon': Icon,
       'mwc-list': List,
+      'sl-badge': SlBadge,
       'mwc-button': Button,
       'mwc-list-item': ListItem,
     };
   }
 
   static styles = css`
+    .row {
+      display: flex;
+      flex-direction: row;
+    }
+
     .invitation_info {
       font-family: 'Roboto';
 

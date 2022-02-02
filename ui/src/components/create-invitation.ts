@@ -13,7 +13,7 @@ import {
   Snackbar,
 } from '@scoped-elements/material-web';
 
-import { ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
+import { AgentAvatar, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 
 import { InvitationsStore } from '../state/invitations-store';
 
@@ -129,6 +129,7 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
   static get scopedElements() {
     return {
       'search-agent': SearchAgent,
+      'agent-avatar': AgentAvatar,
       'profile-prompt': ProfilePrompt,
       'mwc-icon': Icon,
       'mwc-list': List,

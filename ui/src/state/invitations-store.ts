@@ -121,6 +121,11 @@ export class InvitationsStore {
 
   async clearInvitation(invitation_entry_hash: EntryHashB64) {
     await this.invitationsService.clearInvitation(invitation_entry_hash);
+
+    this.invitations.update(invitations => {
+      delete invitations[invitation_entry_hash];
+      return invitations;
+    });
   }
 
   async fetchProfilesForInvitation(
