@@ -37,8 +37,8 @@ export class InvitationsStore {
 
   constructor(
     protected cellClient: CellClient,
-    protected profilesStore: ProfilesStore,
-    protected config: InvitationsConfig = {
+    public profilesStore: ProfilesStore,
+    public config: InvitationsConfig = {
       clearOnInvitationComplete: false,
     }
   ) {

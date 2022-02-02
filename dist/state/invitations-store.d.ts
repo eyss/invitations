@@ -8,8 +8,8 @@ export interface InvitationsConfig {
 }
 export declare class InvitationsStore {
     protected cellClient: CellClient;
-    protected profilesStore: ProfilesStore;
-    protected config: InvitationsConfig;
+    profilesStore: ProfilesStore;
+    config: InvitationsConfig;
     private invitations;
     pendingInvitations: import("svelte/store").Readable<Dictionary<InvitationEntryInfo>>;
     invitationsService: InvitationsService;

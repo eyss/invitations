@@ -20,6 +20,7 @@ import { InvitationsStore } from '../state/invitations-store';
 import { invitationsStoreContext } from '../context';
 import { AgentPubKeyB64, Dictionary } from '@holochain-open-dev/core-types';
 import { sharedStyles } from '../shared-styles';
+import { StoreSubscriber } from 'lit-svelte-stores';
 
 /**
  * @element create-invitation-form
@@ -29,11 +30,15 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
   _store!: InvitationsStore;
 
   @state()
-  invitees: Dictionary<string> = {};
+  invitees: AgentPubKeyB64[] = [];
+
+  _allProfiles = new StoreSubscriber(
+    this,
+    () => this._store.profilesStore.knownProfiles
+  );
 
   addInvitee(e: CustomEvent) {
-    this.invitees[e.detail.agentPubKey] =
-      e.detail.agent.profile.nickname;
+    this.invitees.push(e.detail.agentPubKey);
     this.requestUpdate();
   }
 
@@ -44,17 +49,10 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
   }
 
   async sendInvitation() {
-    //this is the input for the create invitation method define in the holochain side
-    const invitees_list: AgentPubKeyB64[] = [];
-
-    Object.entries(this.invitees).map(element => {
-      invitees_list.push(element[0]);
-      delete this.invitees[element[0]];
-    });
-
-    if (invitees_list.length > 0) {
+    if (this.invitees.length > 0) {
       try {
-        await this._store.sendInvitation(invitees_list);
+        await this._store.sendInvitation(this.invitees);
+        this.invitees = [];
       } catch (e) {
         (this.shadowRoot?.getElementById('error-message') as Snackbar).show();
       }
@@ -68,22 +66,22 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
   }
 
   renderInviteesList() {
-    const invitees = Object.entries(this.invitees);
     return html`
       <mwc-list>
-        ${invitees.map(element => {
-          const invitee_nickname = element[1];
+        ${this.invitees.map(
+          agentPubKey => html` <mwc-list-item hasMeta graphic="avatar">
+            <agent-avatar slot="graphic" .agentPubKey=${agentPubKey}>
+            </agent-avatar>
 
-          return html` <mwc-list-item hasMeta>
-            <span>${invitee_nickname}</span>
+            <span>${this._allProfiles.value[agentPubKey]?.nickname || ''}</span>
             <mwc-icon
               slot="meta"
-              id="${element[0]}"
+              id="${agentPubKey}"
               @click="${this.removeInvitee}"
               >close</mwc-icon
             >
-          </mwc-list-item>`;
-        })}
+          </mwc-list-item>`
+        )}
       </mwc-list>
     `;
   }
