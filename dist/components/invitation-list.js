@@ -50,7 +50,7 @@ export class InvitationsList extends ScopedElementsMixin(LitElement) {
       <mwc-card style="flex: 1;">
         <div class="column" style="margin: 16px; flex: 1;">
           <span class="title" style="margin-bottom: 8px;"
-            >Pending Invitations</span
+            >My Invitations</span
           >
           ${this.loaded
             ? this.renderPendingInvitations()

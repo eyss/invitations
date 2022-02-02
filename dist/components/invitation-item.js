@@ -7,9 +7,10 @@ import { StoreSubscriber } from 'lit-svelte-stores';
 /**mwc-elements imports */
 import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';
 import { invitationsStoreContext } from '../context';
-import { profilesStoreContext, } from '@holochain-open-dev/profiles';
+import { AgentAvatar, profilesStoreContext, } from '@holochain-open-dev/profiles';
 import { getInvitationStatus, isInvitationCompleted } from '../state/selectors';
 import { InvitationStatus } from '../types';
+import { SlBadge } from '@scoped-elements/shoelace';
 /**
  * @element invitation-item
  * @fires invitation-completed - after the invitation its accepted by all the invitees
@@ -45,16 +46,15 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     _clickHandler() {
         this.clicked = !this.clicked;
     }
-    _invitationIcon() {
+    _invitationStatus() {
         if (this.invitationStatus === InvitationStatus.Rejected) {
-            return html ` <mwc-icon slot="graphic">close</mwc-icon> `;
+            return html `<sl-badge pill variant="danger">Rejected</sl-badge> `;
+        }
+        else if (this.invitationStatus === InvitationStatus.Completed) {
+            return html `<sl-badge pill variant="success">Accepted</sl-badge>`;
         }
         else {
-            return html `
-        ${this.invitationStatus === InvitationStatus.Completed
-                ? html `<mwc-icon slot="graphic">check</mwc-icon>`
-                : html `<mwc-icon slot="graphic">pending</mwc-icon>`}
-      `;
+            return html `<sl-badge pill variant="warning">Pending</sl-badge> `;
         }
     }
     _invitationActionButtons() {
@@ -99,31 +99,47 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
         return false;
     }
     render() {
+        var _a;
         if (this._invitation.value) {
             return html `
-        <mwc-list-item
-          id="element"
-          twoline
-          graphic="avatar"
-          hasMeta
-          @click="${this._clickHandler}"
-        >
-          ${this._invitationIcon()} ${this._invitationInviterAgent()}
-          ${this._invitationActionButtons()}
-        </mwc-list-item>
+        <div class="row" style="flex: 1;">
+          <mwc-list-item
+            id="element"
+            twoline
+            graphic="avatar"
+            @click="${this._clickHandler}"
+            style="flex: 1;"
+          >
+            <agent-avatar
+              slot="graphic"
+              .agentPubKey=${(_a = this._invitation.value) === null || _a === void 0 ? void 0 : _a.invitation.inviter}
+            ></agent-avatar>
+            ${this._invitationInviterAgent()} ${this._invitationActionButtons()}
+          </mwc-list-item>
+          <div style="align-self: center; margin-right: 16px;">
+            ${this._invitationStatus()}
+          </div>
+        </div>
       `;
         }
     }
     static get scopedElements() {
         return {
+            'agent-avatar': AgentAvatar,
             'mwc-icon': Icon,
             'mwc-list': List,
+            'sl-badge': SlBadge,
             'mwc-button': Button,
             'mwc-list-item': ListItem,
         };
     }
 }
 InvitationItem.styles = css `
+    .row {
+      display: flex;
+      flex-direction: row;
+    }
+
     .invitation_info {
       font-family: 'Roboto';
 

@@ -3,8 +3,9 @@ import { StoreSubscriber } from 'lit-svelte-stores';
 /**mwc-elements imports */
 import { List, Icon, Button, ListItem } from '@scoped-elements/material-web';
 import { InvitationsStore } from '../state/invitations-store';
-import { ProfilesStore } from '@holochain-open-dev/profiles';
+import { AgentAvatar, ProfilesStore } from '@holochain-open-dev/profiles';
 import { InvitationStatus } from '../types';
+import { SlBadge } from '@scoped-elements/shoelace';
 declare const InvitationItem_base: typeof LitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
 /**
  * @element invitation-item
@@ -22,14 +23,16 @@ export declare class InvitationItem extends InvitationItem_base {
     _rejectInvitation(): Promise<void>;
     _acceptInvitation(): Promise<void>;
     _clickHandler(): void;
-    _invitationIcon(): import("lit-html").TemplateResult<1>;
+    _invitationStatus(): import("lit-html").TemplateResult<1>;
     _invitationActionButtons(): import("lit-html").TemplateResult<1>;
     _invitationInviterAgent(): import("lit-html").TemplateResult<1>;
     _haveYouInteracted(): boolean;
     render(): import("lit-html").TemplateResult<1> | undefined;
     static get scopedElements(): {
+        'agent-avatar': typeof AgentAvatar;
         'mwc-icon': typeof Icon;
         'mwc-list': typeof List;
+        'sl-badge': typeof SlBadge;
         'mwc-button': typeof Button;
         'mwc-list-item': typeof ListItem;
     };
