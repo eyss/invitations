@@ -112,7 +112,8 @@ pub fn reject_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
 
     let mut invitation_entry_info: InvitationEntryInfo =
         get_invitations_entry_info(invitation_entry_hash.clone())?;
-    delete_entry(invitation_entry_info.clone().invitation_header_hash.into())?;
+    let  variable: HeaderHash = invitation_entry_info.clone().invitation_header_hash.into();
+    delete_entry(variable)?;
 
     // NOTIFY ALL THE INVITEES (except for those who rejected this invitation before and myself)
 
