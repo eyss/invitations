@@ -34,6 +34,7 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
     create_link(
         agent_pub_key.into(),
         invitation_entry_hash.clone(),
+        LinkType(0),
         LinkTag::new(String::from("Invitee")),
     )?;
 
@@ -41,6 +42,7 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
         create_link(
             agent.into(),
             invitation_entry_hash.clone(),
+            LinkType(0),
             LinkTag::new(String::from("Invitee")),
         )?;
     }
@@ -168,6 +170,7 @@ pub fn accept_invitation(invitation_entry_hash: EntryHash) -> ExternResult<bool>
         create_link(
             invitation_entry_hash.clone(),
             agent_info()?.agent_latest_pubkey.into(),
+            LinkType(0),
             LinkTag::new(String::from("Accepted")),
         )?;
 
