@@ -1,9 +1,8 @@
 [workspace]
 members = [
-  "zomes/invitations",
-  "zomes/profiles"
+  "invitations",
+  "profiles"
 ]
-exclude = ["*"]
 
 [profile.dev]
 opt-level = "z"
