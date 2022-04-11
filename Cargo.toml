@@ -3,7 +3,7 @@ members = [
   "zomes/invitations",
   "zomes/profiles"
 ]
-default-members = ["zomes/invitations", "zomes/profiles"]
+exclude = ["*"]
 
 [profile.dev]
 opt-level = "z"
