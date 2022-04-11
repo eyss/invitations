@@ -1,8 +1,9 @@
 [workspace]
 members = [
   "zomes/invitations",
-  "zomes/profiles",
+  "zomes/profiles"
 ]
+default-members = ["zomes/invitations", "zomes/profiles"]
 
 [profile.dev]
 opt-level = "z"
