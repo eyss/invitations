@@ -1,4 +1,4 @@
-import {
+/*import {
   Config,
   NetworkType,
   InstallAgentsHapps,
@@ -23,3 +23,12 @@ const invitations_dna = path.join("../workdir/dna/invitations.dna");
 const installAgents: InstallAgentsHapps = [[[invitations_dna]], [[invitations_dna]]];
 
 invitations(config, installAgents);
+*/
+
+  
+import { Orchestrator } from "@holochain/tryorama";
+import invitations from "./invitations/invitations";
+
+const orchestrator = new Orchestrator();
+invitations(orchestrator);
+orchestrator.run();
