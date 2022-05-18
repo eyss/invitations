@@ -1,40 +1,835 @@
 {
-  "version": "experimental",
-  "tags": [
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
     {
-      "name": "hod-calendar-event",
-      "path": "./src/index.ts",
-      "attributes": [
+      "kind": "javascript-module",
+      "path": "src/context.ts",
+      "declarations": [
         {
-          "name": "title",
-          "description": "This is a description of a property with an attribute with exactly the same name: \"color\".",
-          "type": "\"red\"|\"green\"|\"blue\"",
-          "default": "\"Hey there\""
-        },
-        {
-          "name": "counter",
-          "type": "number",
-          "default": "5"
+          "kind": "variable",
+          "name": "invitationsStoreContext",
+          "type": {
+            "text": "Context<InvitationsStore>"
+          }
         }
       ],
-      "properties": [
+      "exports": [
         {
-          "name": "styles",
-          "type": "CSSResult",
-          "default": "\"css`\\n    :host {\\n      display: block;\\n      padding: 25px;\\n      color: var(--hod-calendar-event-text-color, #000);\\n    }\\n  `\""
+          "kind": "js",
+          "name": "invitationsStoreContext",
+          "declaration": {
+            "name": "invitationsStoreContext",
+            "module": "src/context.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/index.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InvitationsList",
+          "declaration": {
+            "name": "InvitationsList",
+            "module": "./components/invitation-list"
+          }
         },
         {
-          "name": "title",
-          "attribute": "title",
-          "description": "This is a description of a property with an attribute with exactly the same name: \"color\".",
-          "type": "\"red\"|\"green\"|\"blue\"",
-          "default": "\"Hey there\""
+          "kind": "js",
+          "name": "CreateInvitation",
+          "declaration": {
+            "name": "CreateInvitation",
+            "module": "./components/create-invitation"
+          }
         },
         {
-          "name": "counter",
-          "attribute": "counter",
-          "type": "number",
-          "default": "5"
+          "kind": "js",
+          "name": "InvitationsStore",
+          "declaration": {
+            "name": "InvitationsStore",
+            "module": "./state/invitations-store"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "InvitationsService",
+          "declaration": {
+            "name": "InvitationsService",
+            "module": "./invitations-service"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./context"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/invitations-service.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "InvitationsService",
+          "members": [
+            {
+              "kind": "method",
+              "name": "sendInvitation",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "text": "AgentPubKeyB64[]"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "getMyPendingInvitations",
+              "return": {
+                "type": {
+                  "text": "Promise<InvitationEntryInfo[]>"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "acceptInvitation",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "invitation_header_hash",
+                  "type": {
+                    "text": "HeaderHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "rejectInvitation",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "invitation_header_hash",
+                  "type": {
+                    "text": "HeaderHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "clearInvitation",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "invitation_header_hash",
+                  "type": {
+                    "text": "HeaderHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "callZome",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "fn_name",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "payload",
+                  "type": {
+                    "text": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InvitationsService",
+          "declaration": {
+            "name": "InvitationsService",
+            "module": "src/invitations-service.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/shared-styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "sharedStyles",
+          "default": "css`\n  .column {\n    display: flex;\n    flex-direction: column;\n  }\n  .row {\n    display: flex;\n    flex-direction: row;\n  }\n\n  .title {\n    font-size: 20px;\n  }\n\n  .fill {\n    flex: 1;\n  }\n\n  .center-content {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n  }\n  :host {\n    display: flex;\n  }\n\n  .placeholder {\n    color: rgba(0, 0, 0, 0.6);\n    text-align: center;\n  }\n\n  .flex-scrollable-parent {\n    position: relative;\n    display: flex;\n    flex: 1;\n  }\n\n  .flex-scrollable-container {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n  }\n\n  .flex-scrollable-x {\n    max-width: 100%;\n    overflow-x: auto;\n  }\n  .flex-scrollable-y {\n    max-height: 100%;\n    overflow-y: auto;\n  }\n`"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "sharedStyles",
+          "declaration": {
+            "name": "sharedStyles",
+            "module": "src/shared-styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/types.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/utils.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "sleep",
+          "parameters": [
+            {
+              "name": "ms",
+              "type": {
+                "text": "number"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "sleep",
+          "declaration": {
+            "name": "sleep",
+            "module": "src/utils.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/create-invitation.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "CreateInvitation",
+          "members": [
+            {
+              "kind": "field",
+              "name": "_store",
+              "type": {
+                "text": "InvitationsStore"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "invitees",
+              "type": {
+                "text": "AgentPubKeyB64[]"
+              },
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_allProfiles",
+              "default": "new StoreSubscriber(\n    this,\n    () => this._store?.profilesStore.knownProfiles\n  )"
+            },
+            {
+              "kind": "method",
+              "name": "addInvitee",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "CustomEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "removeInvitee",
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "sendInvitation"
+            },
+            {
+              "kind": "method",
+              "name": "_pedignInvitations"
+            },
+            {
+              "kind": "method",
+              "name": "renderInviteesList"
+            },
+            {
+              "kind": "method",
+              "name": "renderInvitationError"
+            },
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "static": true
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "create-invitation-form",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CreateInvitation",
+          "declaration": {
+            "name": "CreateInvitation",
+            "module": "src/components/create-invitation.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/invitation-item.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "InvitationItem",
+          "members": [
+            {
+              "kind": "field",
+              "name": "_store",
+              "type": {
+                "text": "InvitationsStore"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "_profilesStore",
+              "type": {
+                "text": "ProfilesStore"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "invitationEntryHash",
+              "type": {
+                "text": "EntryHashB64"
+              },
+              "attribute": "invitation-entry-hash"
+            },
+            {
+              "kind": "field",
+              "name": "clicked",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "_invitation",
+              "default": "new StoreSubscriber(this, () =>\n    this._store.invitationInfo(this.invitationEntryHash)\n  )"
+            },
+            {
+              "kind": "field",
+              "name": "_knownProfiles",
+              "default": "new StoreSubscriber(\n    this,\n    () => this._profilesStore.knownProfiles\n  )"
+            },
+            {
+              "kind": "field",
+              "name": "invitationStatus",
+              "type": {
+                "text": "InvitationStatus"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "fromMe"
+            },
+            {
+              "kind": "method",
+              "name": "_clearInvitation"
+            },
+            {
+              "kind": "method",
+              "name": "_rejectInvitation"
+            },
+            {
+              "kind": "method",
+              "name": "_acceptInvitation"
+            },
+            {
+              "kind": "method",
+              "name": "_clickHandler"
+            },
+            {
+              "kind": "method",
+              "name": "_invitationStatus"
+            },
+            {
+              "kind": "method",
+              "name": "_invitationActionButtons"
+            },
+            {
+              "kind": "method",
+              "name": "_invitationInviterAgent"
+            },
+            {
+              "kind": "method",
+              "name": "_haveYouInteracted"
+            },
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "static": true
+            }
+          ],
+          "events": [
+            {
+              "name": "invitation-completed",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "after the invitation its accepted by all the invitees"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "invitation-entry-hash",
+              "type": {
+                "text": "EntryHashB64"
+              },
+              "fieldName": "invitationEntryHash"
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "invitation-item",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InvitationItem",
+          "declaration": {
+            "name": "InvitationItem",
+            "module": "src/components/invitation-item.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/invitation-list.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "InvitationsList",
+          "members": [
+            {
+              "kind": "field",
+              "name": "_store",
+              "type": {
+                "text": "InvitationsStore"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "_pendingInvitations",
+              "default": "new StoreSubscriber(\n    this,\n    () => this._store.pendingInvitations\n  )"
+            },
+            {
+              "kind": "field",
+              "name": "loaded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "method",
+              "name": "renderPendingInvitations"
+            },
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "static": true
+            }
+          ],
+          "events": [
+            {
+              "name": "invitation-completed",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "invitation-list",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InvitationsList",
+          "declaration": {
+            "name": "InvitationsList",
+            "module": "src/components/invitation-list.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/invitations-store.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "InvitationsStore",
+          "members": [
+            {
+              "kind": "field",
+              "name": "invitations",
+              "type": {
+                "text": "Writable<Dictionary<InvitationEntryInfo>>"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "pendingInvitations",
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "invitationsService",
+              "type": {
+                "text": "InvitationsService"
+              },
+              "default": "new InvitationsService(cellClient)"
+            },
+            {
+              "kind": "method",
+              "name": "invitationInfo",
+              "parameters": [
+                {
+                  "name": "invitationHash",
+                  "type": {
+                    "text": "EntryHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "myAgentPubKey"
+            },
+            {
+              "kind": "method",
+              "name": "fetchMyPendingInvitations",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "sendInvitation",
+              "privacy": "public",
+              "parameters": [
+                {
+                  "name": "inviteesList",
+                  "type": {
+                    "text": "AgentPubKeyB64[]"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "acceptInvitation",
+              "parameters": [
+                {
+                  "name": "invitation_entry_hash",
+                  "type": {
+                    "text": "EntryHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "rejectInvitation",
+              "parameters": [
+                {
+                  "name": "invitation_entry_hash",
+                  "type": {
+                    "text": "EntryHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "clearInvitation",
+              "parameters": [
+                {
+                  "name": "invitation_entry_hash",
+                  "type": {
+                    "text": "EntryHashB64"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "fetchProfilesForInvitation",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "invitation",
+                  "type": {
+                    "text": "Invitation"
+                  }
+                },
+                {
+                  "name": "retryCount",
+                  "default": "4"
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "invitationReceived",
+              "parameters": [
+                {
+                  "name": "signal",
+                  "type": {
+                    "text": "any"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "invitationAccepted",
+              "parameters": [
+                {
+                  "name": "signal",
+                  "type": {
+                    "text": "any"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "invitationRejected",
+              "parameters": [
+                {
+                  "name": "signal",
+                  "type": {
+                    "text": "any"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "signalHandler",
+              "parameters": [
+                {
+                  "name": "signal",
+                  "type": {
+                    "text": "any"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InvitationsStore",
+          "declaration": {
+            "name": "InvitationsStore",
+            "module": "src/state/invitations-store.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/selectors.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "isInvitationCompleted",
+          "parameters": [
+            {
+              "name": "invitation",
+              "type": {
+                "text": "InvitationEntryInfo"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "getInvitationStatus",
+          "return": {
+            "type": {
+              "text": "InvitationStatus"
+            }
+          },
+          "parameters": [
+            {
+              "name": "invitation",
+              "type": {
+                "text": "InvitationEntryInfo"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "getAllAgentsFor",
+          "return": {
+            "type": {
+              "text": "Array<AgentPubKeyB64>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "invitation",
+              "type": {
+                "text": "Invitation"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "isInvitationCompleted",
+          "declaration": {
+            "name": "isInvitationCompleted",
+            "module": "src/state/selectors.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "getInvitationStatus",
+          "declaration": {
+            "name": "getInvitationStatus",
+            "module": "src/state/selectors.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "getAllAgentsFor",
+          "declaration": {
+            "name": "getAllAgentsFor",
+            "module": "src/state/selectors.ts"
+          }
         }
       ]
     }

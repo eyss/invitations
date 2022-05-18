@@ -3,7 +3,7 @@ import { LitElement } from 'lit';
 import { Card, List, Icon, Button, ListItem, Snackbar } from '@scoped-elements/material-web';
 import { AgentAvatar, ProfilePrompt, SearchAgent } from '@holochain-open-dev/profiles';
 import { InvitationsStore } from '../state/invitations-store';
-import { AgentPubKeyB64, Dictionary } from '@holochain-open-dev/core-types';
+import { AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 import { StoreSubscriber } from 'lit-svelte-stores';
 declare const CreateInvitation_base: typeof LitElement & import("@open-wc/dedupe-mixin").Constructor<import("@open-wc/scoped-elements/types/src/types").ScopedElementsHost>;
 /**
@@ -12,7 +12,7 @@ declare const CreateInvitation_base: typeof LitElement & import("@open-wc/dedupe
 export declare class CreateInvitation extends CreateInvitation_base {
     _store: InvitationsStore;
     invitees: AgentPubKeyB64[];
-    _allProfiles: StoreSubscriber<Dictionary<import("@holochain-open-dev/profiles").Profile>>;
+    _allProfiles: StoreSubscriber<Record<string, import("@holochain-open-dev/profiles").Profile>>;
     addInvitee(e: CustomEvent): void;
     removeInvitee(index: number): void;
     sendInvitation(): Promise<void>;
