@@ -8,6 +8,57 @@ use crate::signals::{SignalDetails, SignalName, SignalPayload};
 
 use super::{Invitation, InvitationEntryInfo, InviteesList};
 
+#[hdk_extern(infallible)]
+fn post_commit(headers: Vec<SignedHeaderHashed>) {
+
+    let invitation_entry_type = EntryType::App(AppEntryType::new(
+        entry_def_index!(Invitation).unwrap(),
+        zome_info().unwrap().id,
+        EntryVisibility::Private,
+    ));
+    let filter = ChainQueryFilter::new()
+        .entry_type(invitation_entry_type)
+        .include_entries(true);
+    let elements = query(filter).unwrap();
+
+    let header_hashes: Vec<HeaderHash> = headers
+        .into_iter()
+        .map(|shh| shh.header_address().clone())
+        .collect();
+
+    let new_invitation_elements: Vec<Element> = elements
+        .into_iter()
+        .filter(|el| header_hashes.contains(el.header_address()))
+        .collect();
+
+    for el in new_invitation_elements.into_iter() {
+        let (_, inv) = element_to_invitation(el.clone()).unwrap();
+        let invitation_header_hash = el.signed_header().as_hash(); //.entry().hash.entry_hash().unwrap();
+        let invitation_entry_hash = el.header().entry_hash().unwrap();
+
+        let signal: SignalDetails = SignalDetails {
+            name: SignalName::INVITATION_RECEIVED.to_owned(),
+            payload: SignalPayload::InvitationReceived(InvitationEntryInfo {
+                invitation: inv.clone(),
+                invitation_entry_hash: EntryHashB64::from(invitation_entry_hash.clone()),
+                invitation_header_hash: HeaderHashB64::from(invitation_header_hash.clone()),
+                invitees_who_accepted: vec![],
+                invitees_who_rejected: vec![],
+            }),
+        };
+        let invitees = inv.invitees
+        .into_iter()
+        .map(|invitee| {
+            HoloHash::from(invitee.clone())
+        }).collect();
+
+        let result = remote_signal(ExternIO::encode(signal).unwrap(), invitees);
+        if let Err(err) = result {
+            error!("Error executing remote_signal in post_commit function: {:?}", err);
+        };
+    }
+}
+
 pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
     let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
 
@@ -29,7 +80,7 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
     };
 
     let invitation_entry_hash: EntryHash = hash_entry(invitation.clone())?;
-    let invitation_header_hash: HeaderHash = create_entry(invitation.clone())?;
+    create_entry(invitation.clone())?;
 
     create_link(
         agent_pub_key.into(),
@@ -46,19 +97,6 @@ pub fn send_invitation(invitees_list: InviteesList) -> ExternResult<()> {
             LinkTag::new(String::from("Invitee")),
         )?;
     }
-
-    let signal: SignalDetails = SignalDetails {
-        name: SignalName::INVITATION_RECEIVED.to_owned(),
-        payload: SignalPayload::InvitationReceived(InvitationEntryInfo {
-            invitation,
-            invitation_entry_hash: EntryHashB64::from(invitation_entry_hash),
-            invitation_header_hash: HeaderHashB64::from(invitation_header_hash),
-            invitees_who_accepted: vec![],
-            invitees_who_rejected: vec![],
-        }),
-    };
-
-    remote_signal(ExternIO::encode(signal)?, invitees_list.0)?;
     return Ok(());
 }
 
@@ -286,4 +324,29 @@ fn get_invitations_entry_info_from_details(
     return Err(WasmError::Guest(
         "we dont the entry details for the given hash".into(),
     ));
+
+}
+
+fn element_to_invitation(element: Element) -> ExternResult<(HeaderHashed, Invitation)> {
+    let entry = element
+        .entry()
+        .as_option()
+        .ok_or(WasmError::Guest("Malformed Invitation entry".into()))?;
+
+    let invitation = entry_to_invitation(entry)?;
+
+    Ok((element.header_hashed().clone(), invitation))
+}
+
+fn entry_to_invitation(entry: &Entry) -> ExternResult<Invitation> {
+    let bytes = match entry.clone() {
+        Entry::App(bytes) => Ok(bytes.into_sb()),
+        Entry::CounterSign(_, bytes) => Ok(bytes.into_sb()),
+        _ => Err(WasmError::Guest("Malformed Invitation entry".into())),
+    }?;
+
+    let result = Invitation::try_from(bytes)
+        .or(Err(WasmError::Guest("Malformed GameResults entry".into())))?;
+
+    Ok(result)
 }

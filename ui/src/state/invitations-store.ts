@@ -137,7 +137,6 @@ export class InvitationsStore {
     }
 
     const agents = getAllAgentsFor(invitation);
-
     await this.profilesStore.fetchAgentsProfiles(agents);
 
     const knownProfiles = get(this.profilesStore.knownProfiles);
