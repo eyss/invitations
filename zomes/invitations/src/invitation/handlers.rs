@@ -14,22 +14,28 @@ fn post_commit(headers: Vec<SignedHeaderHashed>) {
     let invitation_entry_type = EntryType::App(AppEntryType::new(
         entry_def_index!(Invitation).unwrap(),
         zome_info().unwrap().id,
-        EntryVisibility::Private,
+        EntryVisibility::Public,
     ));
     let filter = ChainQueryFilter::new()
         .entry_type(invitation_entry_type)
         .include_entries(true);
     let elements = query(filter).unwrap();
 
+    debug!("{}", elements.len());
+
     let header_hashes: Vec<HeaderHash> = headers
         .into_iter()
         .map(|shh| shh.header_address().clone())
         .collect();
 
+        debug!("{}", header_hashes.len());
+
     let new_invitation_elements: Vec<Element> = elements
         .into_iter()
         .filter(|el| header_hashes.contains(el.header_address()))
         .collect();
+
+        debug!("{}", new_invitation_elements.len());
 
     for el in new_invitation_elements.into_iter() {
         let (_, inv) = element_to_invitation(el.clone()).unwrap();
@@ -51,6 +57,7 @@ fn post_commit(headers: Vec<SignedHeaderHashed>) {
         .map(|invitee| {
             HoloHash::from(invitee.clone())
         }).collect();
+       
 
         let result = remote_signal(ExternIO::encode(signal).unwrap(), invitees);
         if let Err(err) = result {

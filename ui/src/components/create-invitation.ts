@@ -27,9 +27,6 @@ import { StoreSubscriber } from 'lit-svelte-stores';
  * @element create-invitation-form
  */
 export class CreateInvitation extends ScopedElementsMixin(LitElement) {
-
-  @property({ type: String, attribute: 'include-myself' })
-  includeMyself = "";
   
   @contextProvided({ context: invitationsStoreContext })
   _store!: InvitationsStore;
@@ -108,7 +105,6 @@ export class CreateInvitation extends ScopedElementsMixin(LitElement) {
             @agent-selected="${this.addInvitee}"
             clear-on-select
             style="margin-bottom: 16px;"
-            ${this.includeMyself}
           ></search-agent>
 
           <div
