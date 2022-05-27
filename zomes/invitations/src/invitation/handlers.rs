@@ -21,21 +21,15 @@ fn post_commit(headers: Vec<SignedHeaderHashed>) {
         .include_entries(true);
     let elements = query(filter).unwrap();
 
-    debug!("{}", elements.len());
-
     let header_hashes: Vec<HeaderHash> = headers
         .into_iter()
         .map(|shh| shh.header_address().clone())
         .collect();
 
-        debug!("{}", header_hashes.len());
-
     let new_invitation_elements: Vec<Element> = elements
         .into_iter()
         .filter(|el| header_hashes.contains(el.header_address()))
         .collect();
-
-        debug!("{}", new_invitation_elements.len());
 
     for el in new_invitation_elements.into_iter() {
         let (_, inv) = element_to_invitation(el.clone()).unwrap();

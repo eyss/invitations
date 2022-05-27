@@ -32,6 +32,9 @@ export default (orchestrator: Orchestrator<any>) =>
     const alicePubKey = alice_happ.agent;
     const bobPubKey = bob_happ.agent;
 
+    const alicePubkeyB64 = serializeHash(alice_happ.agent);
+    const bobPubKeyB64 = serializeHash(bob_happ.agent);
+
     const alice = alice_happ.cells.find((cell) =>
       cell.cellRole.includes("/invitations.dna")
     ) as Cell;
@@ -39,18 +42,21 @@ export default (orchestrator: Orchestrator<any>) =>
       cell.cellRole.includes("/invitations.dna")
     ) as Cell;
 
-    //let alice_invitations = await alice.call("invitations", "get_my_pending_invitations",);
-      //  await delay(2000);
-
       alice_player.setSignalHandler((signal) => {
-          console.log("Player Alice has received Signal:",signal.data.payload.payload);
+          console.log("Alice has received Signal:",signal.data.payload.payload);
       })
 
       bob_player.setSignalHandler((signal) => {
-        console.log("Player has received Signal:",signal.data.payload.payload);
+        console.log("Bob has received Signal:",signal.data.payload.payload);
       })
 
-      let result = await sendInvitation(bobPubKey)(bob);
+      console.log("bob's public key:",bobPubKeyB64);
+      console.log('-')
+      console.log("Alice's public key:",alicePubkeyB64);
+      console.log("-")
+
+      //Bob invites Alice:
+      let result = await sendInvitation(alicePubkeyB64)(bob);
       await delay(4000);
 
       // {
@@ -67,49 +73,52 @@ export default (orchestrator: Orchestrator<any>) =>
   
 
       let bobby_invitations = await getPendingInvitations(bob);
-      await delay(2000);
+     // await delay(2000);
+      t.equal(bobby_invitations.length, 1)
       let  alice_invitations = await getPendingInvitations(alice);
-      await delay(2000);
-
+     // await delay(2000);
       t.equal(alice_invitations.length, 1)
 
-      console.log("bob's public key:",bobPubKey);
-      console.log(`Bobby Invitation list:`);
+      console.log("invitees:",alice_invitations[0].invitation.invitees);
+      console.log("-")
+      console.log(`Bobby Invitations pending list:`);
       console.log(bobby_invitations);
       console.log(bobby_invitations[0].invitation.timestamp);
-      
-      
-      console.log("Alice's public key:",alicePubKey);
-      console.log(`Alice Invitation list:`);
+      t.equal(bobby_invitations[0].invitation.inviter, bobPubKeyB64)
+
+      console.log(`Alice Invitations pending list:`);
       console.log(alice_invitations);
+      t.equal(alice_invitations[0].invitation.invitees[0],alicePubkeyB64)
 
 
-      // await rejectInvitation(bobby_invitations[0].invitation_entry_hash)(bobby_conductor);
-      // await delay(1000);
-      await acceptInvitation(bobby_invitations[0].invitation_entry_hash)(bob);
-      await delay(1000);
+
+      console.log(`Alice Excepts Invitation:`);
+      console.log('-')
+      await acceptInvitation(bobby_invitations[0].invitation_entry_hash)(alice);
+      await delay(4000);
+
+      console.log(`Bobbys history Invitation list:`);
+      console.log(bobby_invitations);
+
+      console.log(`Alices history Invitation list:`);
+      console.log(alice_invitations);
+      // test that alice is in the accepted list.... 
 
       await clearInvitation(bobby_invitations[0].invitation_entry_hash)(bob);
-      await delay(3000);
+      //await delay(3000);
 
       await clearInvitation(bobby_invitations[0].invitation_entry_hash)(alice);
+      //await delay(2000);
       alice_invitations = await getPendingInvitations(alice);
-      console.log("alice's invitations:",alice_invitations)
+      bobby_invitations = await getPendingInvitations(bob);
+     
+ 
+      console.log(`Bobbys new pending list:`);
+      console.log(bobby_invitations);
+      t.equal(bobby_invitations.length, 0)
 
+      console.log(`Alices new pending list:`);
+      console.log(alice_invitations);
       t.equal(alice_invitations.length, 0)
-      // bobby_invitations = await getPendingInvitations(bobby_conductor);
-      // await delay(100);
-
-      // alice_invitations = await getPendingInvitations(alice_conductor);
-      // await delay(100);
-
-      // console.log(bobbyPubKey);
-      // console.log(`Bobby Invitation list:`);
-      // console.log(bobby_invitations);
-
-      // console.log(alicePubKey);
-      // console.log(`Alice Invitation list:`);
-      // console.log(alice_invitations);
-      
 
   });
