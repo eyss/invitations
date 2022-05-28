@@ -98,7 +98,7 @@ export class InvitationsStore {
       //if e = entry hash not found
       console.log("waiting 2 seconds for network to synch")
       await sleep(2000)
-      this.acceptInvitation(invitation_entry_hash, retryCount-1)
+      return new Promise(resolve => {this.acceptInvitation(invitation_entry_hash, retryCount-1)})
     }
 
     return new Promise(resolve => {
@@ -131,7 +131,7 @@ export class InvitationsStore {
       //if e = entry hash not found
       console.log("waiting 2 seconds for network to synch")
       await sleep(2000)
-      this.rejectInvitation(invitation_entry_hash, retryCount-1)
+      return new Promise(resolve => {this.rejectInvitation(invitation_entry_hash, retryCount-1)})
     }
     this.invitations.update(invitations => {
       delete invitations[invitation_entry_hash];
