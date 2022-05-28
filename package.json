@@ -16,11 +16,12 @@
     "publish-to-branch": "npm run build && rimraf node_modules && gh-pages -d ./ -b ui-build && cd .. && npm i"
   },
   "dependencies": {
-    "@holochain/client": "^0.3.2",
     "@holochain-open-dev/cell-client": "^0.3.5",
     "@holochain-open-dev/context": "^0.0.3",
     "@holochain-open-dev/core-types": "^0.2.0",
     "@holochain-open-dev/profiles": "^0.0.14",
+    "@holochain/client": "^0.3.2",
+    "@lit/localize": "^0.11.2",
     "@open-wc/scoped-elements": "^2.1.1",
     "@scoped-elements/material-web": "^0.0.19",
     "@scoped-elements/shoelace": "^0.0.8",

@@ -18,8 +18,8 @@ export declare class InvitationsStore {
     get myAgentPubKey(): string;
     fetchMyPendingInvitations(): Promise<void>;
     sendInvitation(inviteesList: AgentPubKeyB64[]): Promise<void>;
-    acceptInvitation(invitation_entry_hash: EntryHashB64): Promise<unknown>;
-    rejectInvitation(invitation_entry_hash: EntryHashB64): Promise<void>;
+    acceptInvitation(invitation_entry_hash: EntryHashB64, retryCount?: number): Promise<unknown>;
+    rejectInvitation(invitation_entry_hash: EntryHashB64, retryCount?: number): Promise<void>;
     clearInvitation(invitation_entry_hash: EntryHashB64): Promise<void>;
     fetchProfilesForInvitation(invitation: Invitation, retryCount?: number): Promise<void>;
     invitationReceived(signal: any): Promise<void>;

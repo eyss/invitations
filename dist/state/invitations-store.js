@@ -46,8 +46,19 @@ export class InvitationsStore {
         const create_invitation = await this.invitationsService.sendInvitation(inviteesList);
         await this.fetchMyPendingInvitations();
     }
-    async acceptInvitation(invitation_entry_hash) {
-        const accept_invitation = await this.invitationsService.acceptInvitation(invitation_entry_hash);
+    async acceptInvitation(invitation_entry_hash, retryCount = 5) {
+        if (retryCount === 0) {
+            return;
+        }
+        try {
+            const accept_invitation = await this.invitationsService.acceptInvitation(invitation_entry_hash);
+        }
+        catch (e) {
+            //if e = entry hash not found
+            console.log("waiting 2 seconds for network to synch");
+            await sleep(2000);
+            this.acceptInvitation(invitation_entry_hash, retryCount - 1);
+        }
         return new Promise(resolve => {
             this.invitations.update(invitations => {
                 const invitationInfo = invitations[invitation_entry_hash];
@@ -63,8 +74,19 @@ export class InvitationsStore {
             });
         });
     }
-    async rejectInvitation(invitation_entry_hash) {
-        const reject_invitation = await this.invitationsService.rejectInvitation(invitation_entry_hash);
+    async rejectInvitation(invitation_entry_hash, retryCount = 5) {
+        if (retryCount === 0) {
+            return;
+        }
+        try {
+            const reject_invitation = await this.invitationsService.rejectInvitation(invitation_entry_hash);
+        }
+        catch (e) {
+            //if e = entry hash not found
+            console.log("waiting 2 seconds for network to synch");
+            await sleep(2000);
+            this.rejectInvitation(invitation_entry_hash, retryCount - 1);
+        }
         this.invitations.update(invitations => {
             delete invitations[invitation_entry_hash];
             return invitations;
