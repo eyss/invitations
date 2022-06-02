@@ -17,6 +17,7 @@ export declare class InvitationItem extends InvitationItem_base {
     _profilesStore: ProfilesStore;
     invitationEntryHash: EntryHashB64;
     clicked: boolean;
+    _locked: boolean;
     _invitation: StoreSubscriber<import("../types").InvitationEntryInfo>;
     _knownProfiles: StoreSubscriber<Record<string, import("@holochain-open-dev/profiles").Profile>>;
     get invitationStatus(): InvitationStatus;

@@ -19,6 +19,7 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     constructor() {
         super(...arguments);
         this.clicked = false;
+        this._locked = false;
         this._invitation = new StoreSubscriber(this, () => this._store.invitationInfo(this.invitationEntryHash));
         this._knownProfiles = new StoreSubscriber(this, () => this._profilesStore.knownProfiles);
     }
@@ -33,16 +34,27 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
         await this._store.clearInvitation(this.invitationEntryHash);
     }
     async _rejectInvitation() {
-        const result = await this._store.rejectInvitation(this.invitationEntryHash);
+        if (!this._locked) {
+            this._locked = true;
+            const result = await this._store.rejectInvitation(this.invitationEntryHash);
+            this._locked = false;
+        }
     }
     async _acceptInvitation() {
-        await this._store.acceptInvitation(this.invitationEntryHash);
-        if (isInvitationCompleted(this._invitation.value)) {
-            this.dispatchEvent(new CustomEvent('invitation-completed', {
-                detail: this._invitation.value,
-                bubbles: true,
-                composed: true,
-            }));
+        if (!this._locked) {
+            this._locked = true;
+            await this._store.acceptInvitation(this.invitationEntryHash);
+            this._locked = false;
+            if (isInvitationCompleted(this._invitation.value)) {
+                this.dispatchEvent(new CustomEvent('invitation-completed', {
+                    detail: this._invitation.value,
+                    bubbles: true,
+                    composed: true,
+                }));
+            }
+            else {
+                console.warn("invitation was not accepted, try again");
+            }
         }
     }
     _clickHandler() {
@@ -119,6 +131,10 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     render() {
         var _a;
         if (this._invitation.value) {
+            if (this._locked)
+                return html `<div class="fill center-content">
+        <mwc-circular-progress indeterminate></mwc-circular-progress>
+      </div>`;
             return html `
         <div class="row" style="flex: 1;">
           <mwc-list-item
@@ -206,4 +222,7 @@ __decorate([
 __decorate([
     state()
 ], InvitationItem.prototype, "clicked", void 0);
+__decorate([
+    state()
+], InvitationItem.prototype, "_locked", void 0);
 //# sourceMappingURL=invitation-item.js.map
