@@ -131,10 +131,13 @@ export class InvitationItem extends ScopedElementsMixin(LitElement) {
     render() {
         var _a;
         if (this._invitation.value) {
-            if (this._locked)
-                return html `<div class="fill center-content">
-        <mwc-circular-progress indeterminate></mwc-circular-progress>
-      </div>`;
+            if (this._locked) {
+                return html `<div class="row" style="flex: 1;">
+          <div class="fill center-content">
+            Synching network, retry if your action fails  <mwc-circular-progress indeterminate></mwc-circular-progress>
+          </div>
+        </div>`;
+            }
             return html `
         <div class="row" style="flex: 1;">
           <mwc-list-item
