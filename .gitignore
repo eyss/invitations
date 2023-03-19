@@ -1,5 +1,6 @@
 
 /node_modules/
+/tests/node_modules/
 /dist/
 /target/
 /.cargo/
@@ -10,3 +11,4 @@
 .hc*
 .hc
 .running
+.github
