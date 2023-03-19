@@ -6,7 +6,7 @@ use invitation_integrity::*;
 pub struct InviteesListInput(pub Vec<AgentPubKey>);
 
 #[hdk_extern]
-fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<()> {
+fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<Record> {
   let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
 
   let invited_agents: Vec<AgentPubKey> = invitees_list
@@ -27,7 +27,13 @@ fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<()> {
     };
 
     let invitation_entry_hash: EntryHash = hash_entry(invitation.clone())?;
-    create_entry(&EntryTypes::Invitation(invitation.clone()))?;
+    let new_entry_hash = create_entry(&EntryTypes::Invitation(invitation.clone()))?;
+    let record = get(new_entry_hash.clone(), GetOptions::default())?
+        .ok_or(
+            wasm_error!(
+                WasmErrorInner::Guest(String::from("Could not find the newly created Invitation"))
+            ),
+        )?;
 
     create_link(
         agent_pub_key,
@@ -44,5 +50,5 @@ fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<()> {
             LinkTag::new(String::from("Invitee")),
         )?;
     }
-    return Ok(());
+    return Ok(record);
 }

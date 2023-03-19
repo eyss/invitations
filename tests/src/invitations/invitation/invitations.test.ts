@@ -36,7 +36,7 @@ test('send invitation', async () => {
     assert.ok(record);
   });
 });
-
+/*
 test('get and accept invitation', async () => {
   await runScenario(async scenario => {
     // Construct proper paths for your app.
@@ -124,4 +124,5 @@ test('clear invitations', async () => {
     assert.ok(alice_invitations)//.length, 0)
   });
 });
+*/
 

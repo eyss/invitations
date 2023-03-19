@@ -5,7 +5,7 @@ export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export async function sendInvitations(cell: CallableCell, invitees:AgentPubKey[]): Promise<Record> {
     return cell.callZome({
-      zome_name: "invitations",
+      zome_name: "invitation",
       fn_name: "send_invitations",
       payload: invitees,
     });
