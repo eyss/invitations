@@ -1,11 +1,19 @@
-[workspace]
-members = [
-  "zomes/invitations",
-  "zomes/profiles",
-]
-
 [profile.dev]
 opt-level = "z"
 
 [profile.release]
 opt-level = "z"
+
+[workspace]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
+
+[workspace.dependencies]
+hdi = "=0.2.1"
+hdk = "=0.1.1"
+serde = "1"
+
+[workspace.dependencies.invitation]
+path = "dnas/invitations/zomes/coordinator/invitation"
+
+[workspace.dependencies.invitation_integrity]
+path = "dnas/invitations/zomes/integrity/invitation"

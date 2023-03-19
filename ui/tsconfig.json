@@ -4,6 +4,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
+    "useDefineForClassFields": false,
     "lib": ["es2017", "dom"],
     "strict": true,
     "esModuleInterop": false,
@@ -13,8 +14,8 @@
     "outDir": "dist",
     "sourceMap": true,
     "inlineSources": true,
-    "declaration": true,
-    "rootDir": "./src"
+    "incremental": true,
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts"]
 }

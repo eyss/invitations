@@ -19,5 +19,7 @@
 /_site/
 /dist/
 /out-tsc/
-.dist
+
+storybook-static
+.rollup.cache
 *.tsbuildinfo
