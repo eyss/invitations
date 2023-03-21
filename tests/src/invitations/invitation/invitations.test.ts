@@ -4,7 +4,7 @@ import { runScenario, pause, CallableCell, AppOptions } from '@holochain/tryoram
 import { NewEntryAction, ActionHash, Record, AppBundleSource, fakeDnaHash, fakeActionHash, fakeAgentPubKey, fakeEntryHash, AppSignalCb, AppSignal } from '@holochain/client';
 import { decode } from '@msgpack/msgpack';
 
-import { sendInvitations, getPendingInvitations, acceptInvitation, delay, clearInvitation } from './common.js';
+import { sendInvitations, getPendingInvitations, acceptInvitation, delay, clearInvitation, create_invitation } from './common.js';
 
 let processSignal: AppSignalCb | undefined;
 const signalReceived = new Promise<AppSignal>((resolve) => {
@@ -19,6 +19,7 @@ test('send invitation', async () => {
     // Construct proper paths for your app.
     // This assumes app bundle created by the `hc app pack` command.
     const testAppPath = process.cwd() + '/../workdir/invitations.happ';
+    console.log(process.cwd())
 
     // Set up the app to be installed 
     const appSource = { appBundleSource: { path: testAppPath }, options: {signalHandler: processSignal} };
@@ -32,8 +33,12 @@ test('send invitation', async () => {
     await scenario.shareAllAgents();
 
     // Alice creates a Post
-    const record: Record = await sendInvitations(alice.cells[0],  [bob.agentPubKey]);
-    assert.ok(record);
+    const record1: Record = await create_invitation(alice.cells[0]);
+    assert.ok(record1);
+
+    // Alice creates a Post
+   // const record2: Record = await sendInvitations(alice.cells[0],  [bob.agentPubKey]);
+   // assert.ok(record2);
   });
 });
 /*

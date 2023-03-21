@@ -3,6 +3,16 @@ import { NewEntryAction, ActionHash, Record, AppBundleSource, fakeActionHash, fa
 
 export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
+
+
+export async function create_invitation(cell: CallableCell): Promise<Record> {
+  return cell.callZome({
+    zome_name: "invitation",
+    fn_name: "create_invitation",
+    payload: null,
+  });
+}
+
 export async function sendInvitations(cell: CallableCell, invitees:AgentPubKey[]): Promise<Record> {
     return cell.callZome({
       zome_name: "invitation",

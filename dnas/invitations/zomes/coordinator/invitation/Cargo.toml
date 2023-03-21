@@ -1,14 +1,14 @@
 [package]
-name = "invitation"
+name = "invitation_coordinator"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "invitation"
+name = "invitation_coordinator"
 
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
-chrono = {version = "0.4.24", features = ["serde"]}
+chrono = { workspace = true }
 invitation_integrity = { workspace = true } 

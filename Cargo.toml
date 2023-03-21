@@ -6,13 +6,15 @@ opt-level = "z"
 
 [workspace]
 members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
+#, "tests/sweettest"]
 
 [workspace.dependencies]
 hdi = "=0.2.1"
 hdk = "=0.1.1"
 serde = "1"
+chrono = "0.4.24"
 
-[workspace.dependencies.invitation]
+[workspace.dependencies.invitation_coordinator]
 path = "dnas/invitations/zomes/coordinator/invitation"
 
 [workspace.dependencies.invitation_integrity]

@@ -12,8 +12,8 @@ integrity:
       dependencies: ~
 coordinator:
   zomes:
-    - name: invitation
+    - name: invitation_coordinator
       hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/invitation.wasm"
+      bundled: "../../../target/wasm32-unknown-unknown/release/invitation_coordinator.wasm"
       dependencies:
         - name: invitation_integrity
