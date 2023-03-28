@@ -9,5 +9,5 @@ name = "invitation_integrity"
 
 [dependencies]
 hdi = { workspace = true }
-chrono = { workspace = true }
+
 serde = { workspace = true }

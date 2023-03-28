@@ -1,21 +1,22 @@
-pub mod invitation;
-pub mod invitation_entry_info;
-pub use invitation::*;
-pub use invitation_entry_info::*;
+pub mod invite_to_members;
+pub use invite_to_members::*;
+pub mod agent_to_invites;
+pub use agent_to_invites::*;
+pub mod invite;
+pub use invite::*;
 use hdi::prelude::*;
-
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
-    Invitation(Invitation),
-    InvitationEntryInfo(InvitationEntryInfo),
+    Invite(Invite),
 }
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
-    AgentToInvitation
+    AgentToInvites,
+    InviteToMembers,
 }
 #[hdk_extern]
 pub fn genesis_self_check(
@@ -29,7 +30,6 @@ pub fn validate_agent_joining(
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
-/* 
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.to_type::<EntryTypes, LinkTypes>()? {
@@ -37,32 +37,20 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match store_entry {
                 OpEntry::CreateEntry { app_entry, action } => {
                     match app_entry {
-                        EntryTypes::Post(post) => {
-                            validate_create_post(
+                        EntryTypes::Invite(invite) => {
+                            validate_create_invite(
                                 EntryCreationAction::Create(action),
-                                post,
-                            )
-                        }
-                        EntryTypes::Comment(comment) => {
-                            validate_create_comment(
-                                EntryCreationAction::Create(action),
-                                comment,
+                                invite,
                             )
                         }
                     }
                 }
                 OpEntry::UpdateEntry { app_entry, action, .. } => {
                     match app_entry {
-                        EntryTypes::Post(post) => {
-                            validate_create_post(
+                        EntryTypes::Invite(invite) => {
+                            validate_create_invite(
                                 EntryCreationAction::Update(action),
-                                post,
-                            )
-                        }
-                        EntryTypes::Comment(comment) => {
-                            validate_create_comment(
-                                EntryCreationAction::Update(action),
-                                comment,
+                                invite,
                             )
                         }
                     }
@@ -80,22 +68,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 } => {
                     match (app_entry, original_app_entry) {
                         (
-                            EntryTypes::Comment(comment),
-                            EntryTypes::Comment(original_comment),
+                            EntryTypes::Invite(invite),
+                            EntryTypes::Invite(original_invite),
                         ) => {
-                            validate_update_comment(
+                            validate_update_invite(
                                 action,
-                                comment,
+                                invite,
                                 original_action,
-                                original_comment,
-                            )
-                        }
-                        (EntryTypes::Post(post), EntryTypes::Post(original_post)) => {
-                            validate_update_post(
-                                action,
-                                post,
-                                original_action,
-                                original_post,
+                                original_invite,
                             )
                         }
                         _ => {
@@ -115,11 +95,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match delete_entry {
                 OpDelete::Entry { original_action, original_app_entry, action } => {
                     match original_app_entry {
-                        EntryTypes::Post(post) => {
-                            validate_delete_post(action, original_action, post)
-                        }
-                        EntryTypes::Comment(comment) => {
-                            validate_delete_comment(action, original_action, comment)
+                        EntryTypes::Invite(invite) => {
+                            validate_delete_invite(action, original_action, invite)
                         }
                     }
                 }
@@ -134,24 +111,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::PostUpdates => {
-                    validate_create_link_post_updates(
+                LinkTypes::AgentToInvites => {
+                    validate_create_link_agent_to_invites(
                         action,
                         base_address,
                         target_address,
                         tag,
                     )
                 }
-                LinkTypes::PostToComments => {
-                    validate_create_link_post_to_comments(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::AllPosts => {
-                    validate_create_link_all_posts(
+                LinkTypes::InviteToMembers => {
+                    validate_create_link_invite_to_members(
                         action,
                         base_address,
                         target_address,
@@ -169,8 +138,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::PostUpdates => {
-                    validate_delete_link_post_updates(
+                LinkTypes::AgentToInvites => {
+                    validate_delete_link_agent_to_invites(
                         action,
                         original_action,
                         base_address,
@@ -178,17 +147,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                LinkTypes::PostToComments => {
-                    validate_delete_link_post_to_comments(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::AllPosts => {
-                    validate_delete_link_all_posts(
+                LinkTypes::InviteToMembers => {
+                    validate_delete_link_invite_to_members(
                         action,
                         original_action,
                         base_address,
@@ -202,16 +162,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             match store_record {
                 OpRecord::CreateEntry { app_entry, action } => {
                     match app_entry {
-                        EntryTypes::Post(post) => {
-                            validate_create_post(
+                        EntryTypes::Invite(invite) => {
+                            validate_create_invite(
                                 EntryCreationAction::Create(action),
-                                post,
-                            )
-                        }
-                        EntryTypes::Comment(comment) => {
-                            validate_create_comment(
-                                EntryCreationAction::Create(action),
-                                comment,
+                                invite,
                             )
                         }
                     }
@@ -237,18 +191,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match app_entry {
-                        EntryTypes::Post(post) => {
-                            let result = validate_create_post(
+                        EntryTypes::Invite(invite) => {
+                            let result = validate_create_invite(
                                 EntryCreationAction::Update(action.clone()),
-                                post.clone(),
+                                invite.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_post: Option<Post> = original_record
+                                let original_invite: Option<Invite> = original_record
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
-                                let original_post = match original_post {
-                                    Some(post) => post,
+                                let original_invite = match original_invite {
+                                    Some(invite) => invite,
                                     None => {
                                         return Ok(
                                             ValidateCallbackResult::Invalid(
@@ -258,42 +212,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                         );
                                     }
                                 };
-                                validate_update_post(
+                                validate_update_invite(
                                     action,
-                                    post,
+                                    invite,
                                     original_action,
-                                    original_post,
-                                )
-                            } else {
-                                Ok(result)
-                            }
-                        }
-                        EntryTypes::Comment(comment) => {
-                            let result = validate_create_comment(
-                                EntryCreationAction::Update(action.clone()),
-                                comment.clone(),
-                            )?;
-                            if let ValidateCallbackResult::Valid = result {
-                                let original_comment: Option<Comment> = original_record
-                                    .entry()
-                                    .to_app_option()
-                                    .map_err(|e| wasm_error!(e))?;
-                                let original_comment = match original_comment {
-                                    Some(comment) => comment,
-                                    None => {
-                                        return Ok(
-                                            ValidateCallbackResult::Invalid(
-                                                "The updated entry type must be the same as the original entry type"
-                                                    .to_string(),
-                                            ),
-                                        );
-                                    }
-                                };
-                                validate_update_comment(
-                                    action,
-                                    comment,
-                                    original_action,
-                                    original_comment,
+                                    original_invite,
                                 )
                             } else {
                                 Ok(result)
@@ -353,14 +276,11 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match original_app_entry {
-                        EntryTypes::Post(original_post) => {
-                            validate_delete_post(action, original_action, original_post)
-                        }
-                        EntryTypes::Comment(original_comment) => {
-                            validate_delete_comment(
+                        EntryTypes::Invite(original_invite) => {
+                            validate_delete_invite(
                                 action,
                                 original_action,
-                                original_comment,
+                                original_invite,
                             )
                         }
                     }
@@ -373,24 +293,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match link_type {
-                        LinkTypes::PostUpdates => {
-                            validate_create_link_post_updates(
+                        LinkTypes::AgentToInvites => {
+                            validate_create_link_agent_to_invites(
                                 action,
                                 base_address,
                                 target_address,
                                 tag,
                             )
                         }
-                        LinkTypes::PostToComments => {
-                            validate_create_link_post_to_comments(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
-                        LinkTypes::AllPosts => {
-                            validate_create_link_all_posts(
+                        LinkTypes::InviteToMembers => {
+                            validate_create_link_invite_to_members(
                                 action,
                                 base_address,
                                 target_address,
@@ -422,8 +334,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match link_type {
-                        LinkTypes::PostUpdates => {
-                            validate_delete_link_post_updates(
+                        LinkTypes::AgentToInvites => {
+                            validate_delete_link_agent_to_invites(
                                 action,
                                 create_link.clone(),
                                 base_address,
@@ -431,17 +343,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
-                        LinkTypes::PostToComments => {
-                            validate_delete_link_post_to_comments(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        }
-                        LinkTypes::AllPosts => {
-                            validate_delete_link_all_posts(
+                        LinkTypes::InviteToMembers => {
+                            validate_delete_link_invite_to_members(
                                 action,
                                 create_link.clone(),
                                 base_address,
@@ -487,4 +390,3 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         }
     }
 }
-*/

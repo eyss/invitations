@@ -1,17 +1,17 @@
-# Developer
+# Invitations DNA
 
 ## Environment Setup
 
 > PREREQUISITE: set up the [holochain development environment](https://developer.holochain.org/docs/install/).
 
-Enter the nix shell by running this in the root folder of the repository: 
+Enter the nix develop shell by running this in the root folder of the repository: 
 
 ```bash
 nix develop
 npm install
 ```
 
-**Run all the other instructions in this README from inside this nix-shell, otherwise they won't work**.
+**Run all the other instructions in this README from inside this nix develop shell, otherwise they won't work**.
 
 ## Running 2 agents
  
@@ -23,6 +23,12 @@ This will create a network of 2 nodes connected to each other and their respecti
 It will also bring up the Holochain Playground for advanced introspection of the conductors.
 
 ## Running the backend tests
+
+```bash
+npm run sweettest
+```
+
+## Running the end-2-end tests (tryorama)
 
 ```bash
 npm test
@@ -46,8 +52,8 @@ To package the web happ:
 npm run package
 ```
 
-You'll have the `forum.webhapp` in `workdir`. This is what you should distribute so that the Holochain Launcher can install it.
-You will also have its subcomponent `forum.happ` in the same folder`.
+You'll have the `invitations.webhapp` in `workdir`. This is what you should distribute so that the Holochain Launcher can install it.
+You will also have its subcomponent `invitations.happ` in the same folder`.
 
 ## Documentation
 

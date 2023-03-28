@@ -4,7 +4,7 @@ name: invitations
 integrity:
   network_seed: ~
   properties: ~
-  origin_time: 1678542507623881
+  origin_time: 1679843444624527
   zomes:
     - name: invitation_integrity
       hash: ~
@@ -12,8 +12,8 @@ integrity:
       dependencies: ~
 coordinator:
   zomes:
-    - name: invitation_coordinator
+    - name: invitation
       hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/invitation_coordinator.wasm"
+      bundled: "../../../target/wasm32-unknown-unknown/release/invitation.wasm"
       dependencies:
         - name: invitation_integrity
