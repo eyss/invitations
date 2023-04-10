@@ -9,8 +9,8 @@ import { createInvite, sampleInvite, sendInvitations } from './common.js';
 
 let processSignal: AppSignalCb | undefined;
 const signalReceived = new Promise<AppSignal>((resolve) => {
-  processSignal = (signal) => {
-    console.log(signal)
+    processSignal = (signal) => {
+      console.log("signal found:",signal)
     resolve(signal);
   };
 });
@@ -28,6 +28,8 @@ test('create Invite', async () => {
     // can be destructured.
     const [alice, bob] = await scenario.addPlayersWithApps([appSource, appSource]);
 
+    alice.conductor.appWs().on("signal",processSignal)
+
     // Shortcut peer discovery through gossip and register all agents in every
     // conductor of the scenario.
     await scenario.shareAllAgents();
@@ -37,6 +39,7 @@ test('create Invite', async () => {
 
     //const record: Record = await createInvite(alice.cells[0]);
     assert.ok(record);
+    //console.log("signal recieved:",signalReceived)
   });
 });
 
@@ -47,11 +50,12 @@ test('create and read Invite', async () => {
     const testAppPath = process.cwd() + '/../workdir/invitations.happ';
 
     // Set up the app to be installed 
-    const appSource = { appBundleSource: { path: testAppPath } };
+    const appSource = { appBundleSource: { path: testAppPath } , options: {signalHandler: processSignal} };
 
     // Add 2 players with the test app to the Scenario. The returned players
     // can be destructured.
     const [alice, bob] = await scenario.addPlayersWithApps([appSource, appSource]);
+    alice.conductor.appWs().on("signal",processSignal)
 
     // Shortcut peer discovery through gossip and register all agents in every
     // conductor of the scenario.

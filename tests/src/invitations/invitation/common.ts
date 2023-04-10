@@ -1,6 +1,15 @@
 import { CallableCell } from '@holochain/tryorama';
-import { NewEntryAction, ActionHash, Record, AppBundleSource, fakeActionHash, fakeAgentPubKey, fakeEntryHash, fakeDnaHash, AgentPubKey } from '@holochain/client';
+import { NewEntryAction, ActionHash, Record, AppBundleSource, fakeActionHash, fakeAgentPubKey, fakeEntryHash, fakeDnaHash, AgentPubKey, EntryHash, Action } from '@holochain/client';
 
+export type InvitationEntryInfo = {
+  inviter: AgentPubKey
+  invitees: AgentPubKey[],
+  timestamp: number,
+  invitation_entry_hash: EntryHash,
+  invitation_action_hash: ActionHash,
+  invitees_who_accepted: AgentPubKey[],
+  invitees_who_rejected: AgentPubKey[]
+}
 
 export async function sendInvitations(cell: CallableCell, invitees:AgentPubKey[]): Promise<Record> {
   return cell.callZome({
