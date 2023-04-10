@@ -64,8 +64,8 @@ fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<Record> {
     return Ok(record);
 }
 
-
-pub fn get_my_pending_invitations() -> ExternResult<Vec<InvitationEntryInfo>> {
+#[hdk_extern]
+pub fn get_my_pending_invitations(_: ()) -> ExternResult<Vec<InvitationEntryInfo>> {
     let agent: AgentPubKey = agent_info()?.agent_latest_pubkey;
     let mut pending_invitations: Vec<InvitationEntryInfo> = vec![];
 

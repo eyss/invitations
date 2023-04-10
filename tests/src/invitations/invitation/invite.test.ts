@@ -1,7 +1,7 @@
 import { assert, test } from "vitest";
 
 import { runScenario, pause, CallableCell } from '@holochain/tryorama';
-import { NewEntryAction, ActionHash, Record, AppBundleSource, fakeDnaHash, fakeActionHash, fakeAgentPubKey, fakeEntryHash, AppSignalCb, AppSignal } from '@holochain/client';
+import { NewEntryAction, ActionHash, Record, AppBundleSource, fakeDnaHash, fakeActionHash, fakeAgentPubKey, fakeEntryHash, AppSignalCb, AppSignal, RecordEntry } from '@holochain/client';
 import { decode } from '@msgpack/msgpack';
 
 import { createInvite, sampleInvite, sendInvitations } from './common.js';
@@ -59,21 +59,34 @@ test('create and read Invite', async () => {
 
     //const sample = await sampleInvite(alice.cells[0]);
 
-    // Alice creates a Invite
+    console.log("Alice creates an Invite")
     //const record: Record = await createInvite(alice.cells[0], sample);
     const record: Record = await sendInvitations(alice.cells[0],[bob.agentPubKey]);
+    console.log(decode((record.entry as any).Present.entry as any))
     assert.ok(record);
 
     // Wait for the created entry to be propagated to the other node.
     await pause(1200);
 
-    // Bob gets the created Invite
+    console.log("Bob gets the created Invite")
     const createReadOutput: Record = await bob.cells[0].callZome({
       zome_name: "invitation",
-      fn_name: "get_invite",
-      payload: record.signed_action.hashed.hash,
+      fn_name: "get_my_pending_invitations",
+      payload: null //record.signed_action.hashed.hash,
     });
-    assert.deepEqual(decode((record.entry as any).Present.entry) as any, decode((createReadOutput.entry as any).Present.entry) as any);
+    console.log(createReadOutput)
+    assert(createReadOutput)
+    //assert.deepEqual(decode((record.entry as any).Present.entry) as any, decode((createReadOutput.entry as any).Present.entry) as any);
+  
+     console.log("Alice gets her created Invites")
+     const createReadOutput_alice: Record = await alice.cells[0].callZome({
+      zome_name: "invitation",
+      fn_name: "get_my_pending_invitations",
+      payload: null //record.signed_action.hashed.hash,
+    });
+    console.log(createReadOutput_alice)
+    assert.deepEqual(createReadOutput_alice,createReadOutput)
+  
   });
 });
 
