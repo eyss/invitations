@@ -6,12 +6,12 @@ export type InvitationEntryInfo = {
   invitees: AgentPubKey[],
   timestamp: number,
   invitation_entry_hash: EntryHash,
-  invitation_action_hash: ActionHash,
+  invitation_creation_hash: ActionHash,
   invitees_who_accepted: AgentPubKey[],
   invitees_who_rejected: AgentPubKey[]
 }
 
-export async function sendInvitations(cell: CallableCell, invitees:AgentPubKey[]): Promise<Record> {
+export async function sendInvitations(cell: CallableCell, invitees:AgentPubKey[]): Promise<InvitationEntryInfo> {
   return cell.callZome({
     zome_name: "invitation",
     fn_name: "send_invitations",
@@ -19,22 +19,54 @@ export async function sendInvitations(cell: CallableCell, invitees:AgentPubKey[]
   });
 }
 
-export async function sampleInvite(cell: CallableCell, partialInvite = {}) {
-    return {
-        ...{
-	  inviter: (await fakeAgentPubKey()),
-	  invitees: [(await fakeAgentPubKey())],
-	  timestamp: 1674053334548000,
-        },
-        ...partialInvite
-    };
+export async function getPendingInvites(cell: CallableCell): Promise<InvitationEntryInfo[]> {
+  return cell.callZome({
+    zome_name: "invitation",
+    fn_name: "get_my_pending_invitations",
+    payload: null
+  });
 }
 
-export async function createInvite(cell: CallableCell, invite = undefined): Promise<Record> {
+export async function acceptInvite(cell: CallableCell, creationHash:ActionHash): Promise<boolean> {
+  return cell.callZome({
+    zome_name: "invitation",
+    fn_name: "accept_invitation",
+    payload: creationHash
+  });
+}
+
+export async function rejectInvite(cell:CallableCell, creationHash: ActionHash): Promise<boolean> {
+  return cell.callZome({
+    zome_name: "invitation",
+    fn_name: "reject_invitation",
+    payload: creationHash
+  });
+}
+
+export async function clearInvite(cell:CallableCell, entryHash: EntryHash): Promise<boolean> {
+  return cell.callZome({
+    zome_name: "invitation",
+    fn_name: "clear_invitation",
+    payload: entryHash
+  });
+}
+
+/*export async function createInvite(cell: CallableCell, invite = undefined): Promise<Record> {
     return cell.callZome({
       zome_name: "invitation",
       fn_name: "create_invite",
       payload: invite || await sampleInvite(cell),
     });
 }
+
+export async function sampleInvite(cell: CallableCell, partialInvite = {}) {
+  return {
+      ...{
+  inviter: (await fakeAgentPubKey()),
+  invitees: [(await fakeAgentPubKey())],
+  timestamp: 1674053334548000,
+      },
+      ...partialInvite
+  };
+}*/
 

@@ -9,15 +9,15 @@ pub struct InviteesListInput(pub Vec<AgentPubKey>);
 pub struct InvitationEntryInfo {
     pub invitation: Invite,
     pub invitation_entry_hash: EntryHash,
-    pub invitation_action_hash: ActionHash,
+    pub invitation_creation_hash: ActionHash,
     pub invitees_who_accepted: Vec<AgentPubKey>,
     pub invitees_who_rejected: Vec<AgentPubKey>,
 }
 
 #[hdk_extern]
-fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<Record> {
+fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<InvitationEntryInfo> {
   let agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
-  debug!("my agentpubkey: {:?}",agent_pub_key);
+  //debug!("my agentpubkey: {:?}",agent_pub_key);
 
   let invited_agents: Vec<AgentPubKey> = invitees_list
       .0
@@ -26,7 +26,7 @@ fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<Record> {
       .map(|agent_pub_key| AgentPubKey::from(agent_pub_key))
       .collect();
     
-    debug!("invited agents: {:?}",invited_agents);
+   // debug!("invited agents: {:?}",invited_agents);
   //let now = sys_time()?.as_seconds_and_nanos();
 
   //let date_time = DateTime::from_utc(NaiveDateTime::from_timestamp_opt(now.0, now.1).unwrap(), Utc);
@@ -61,7 +61,7 @@ fn send_invitations(invitees_list: InviteesListInput) -> ExternResult<Record> {
             LinkTag::new(String::from("Invitee")),
         )?;
     }
-    return Ok(record);
+    return Ok(get_invitation_entry_info(record)?);
 }
 
 #[hdk_extern]
@@ -178,43 +178,21 @@ fn get_invitation_entry_info(invite: Record) -> ExternResult<InvitationEntryInfo
     .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
     .collect();
 
-    //.into_iter()
-    //.map(|link| -> AgentPubKey {
-        //let agent_pub_key: AgentPubKey = link.target;
-   //     return AgentPubKey::from(link.target).into();
-   // })
-   // .collect();
-    let details = get_details::<ActionHash>(invite_action_hash.clone(),GetOptions::default())?.ok_or(
-        wasm_error!(
-            WasmErrorInner::Guest(String::from("Could not find hash "))
-        ),
-    )?;
-    match details {
-        Details::Record(details)=>{
-    
-            let invitees_who_rejected: Vec<AgentPubKey> = details
-                .deletes
-                .into_iter()
-                .map(|signed_action_hash| -> AgentPubKey {
-                    return AgentPubKey::from(signed_action_hash.hashed.author().to_owned());//.action().author().to_owned());
-                })
-                .collect();
+    let invitees_who_rejected: Vec<AgentPubKey> = get_links(
+        invite_enty_hash.clone(),
+        LinkTypes::InviteToMembers,
+        Some(LinkTag::new("Rejected")),
+    )?.into_iter()
+    .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+    .collect();
         
-            return Ok(InvitationEntryInfo {
-                invitation: invitation.clone(),
-                invitation_entry_hash: hash_entry(invitation)?,
-                invitation_action_hash: invite_action_hash.clone(),
-                invitees_who_accepted,
-                invitees_who_rejected
-            })
-        },
-        Details::Entry(_) =>()
-
-    }
-    return Err(wasm_error!(
-        WasmErrorInner::Guest(String::from("Could not find details for given hash"))
-    ))
-    
+    return Ok(InvitationEntryInfo {
+        invitation: invitation.clone(),
+        invitation_entry_hash: hash_entry(invitation)?,
+        invitation_creation_hash: invite_action_hash.clone(),
+        invitees_who_accepted,
+        invitees_who_rejected
+    })
 }
 /* 
 
@@ -234,9 +212,9 @@ pub fn get_invite(original_invite_hash: ActionHash) -> ExternResult<Option<Recor
     get_latest_invite(original_invite_hash)
 }*/
 #[hdk_extern]
-pub fn accept_invitation(invitation_action_hash: ActionHash) -> ExternResult<Option<Record>> {
+pub fn accept_invitation(invitation_creation_hash: ActionHash) -> ExternResult<bool> {
     let my_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey;
-    let record = get(invitation_action_hash, GetOptions::default())?
+    let record = get(invitation_creation_hash, GetOptions::default())?
     .ok_or(
         wasm_error!(
             WasmErrorInner::Guest(String::from("Could not find the Invitation action"))
@@ -257,10 +235,10 @@ pub fn accept_invitation(invitation_action_hash: ActionHash) -> ExternResult<Opt
             LinkTypes::InviteToMembers,
             LinkTag::new(String::from("Accepted")),
         )?;
-        return Ok(Some(record))
+        return Ok(true)
     }
 
-    return Ok(None)
+    return Ok(false)
 }
 
 #[hdk_extern]
