@@ -1,4 +1,3 @@
-resolver ="2"
 
 [profile.dev]
 opt-level = "z"
@@ -7,12 +6,13 @@ opt-level = "z"
 opt-level = "z"
 
 [workspace]
+resolver ="2"
 members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
 
 [workspace.dependencies]
 hdi = "=0.2"
 hdk = "=0.1"
-#holochain = "0.1"
+holochain = "0.1"
 serde = "1"
 
 [workspace.dependencies.invitation]

@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use invitation_integrity::*;
+use crate::signals::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InviteesListInput(pub Vec<AgentPubKey>);
@@ -230,11 +231,28 @@ pub fn accept_invitation(invitation_creation_hash: ActionHash) -> ExternResult<b
         .contains(&AgentPubKey::from(my_pub_key.clone()))
     {
         create_link(
-            entry_info.invitation_entry_hash,
-            my_pub_key,
+            entry_info.invitation_entry_hash.clone(),
+            my_pub_key.clone(),
             LinkTypes::InviteToMembers,
             LinkTag::new(String::from("Accepted")),
         )?;
+        let signal: SignalDetails = SignalDetails {
+            name: SignalName::INVITATION_ACCEPTED.to_owned(),
+            payload: SignalPayload::InvitationAccepted(entry_info.clone()),
+        };
+
+        let mut send_signal_to: Vec<AgentPubKey> = entry_info
+            .clone()
+            .invitation
+            .invitees
+            .into_iter()
+            .filter(|invitee| !AgentPubKey::from(invitee.clone()).eq(&my_pub_key))
+            .map(|wrapped_agent_pub_key| wrapped_agent_pub_key.into())
+            .collect();
+
+        send_signal_to.push(entry_info.clone().invitation.inviter.into());
+        //let bump = ExternIO::encode(signal).unwrap();
+        remote_signal(signal, send_signal_to)?;
         return Ok(true)
     }
 

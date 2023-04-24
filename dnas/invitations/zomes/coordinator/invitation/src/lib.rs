@@ -1,26 +1,33 @@
 pub mod invite_to_members;
-
+pub mod signals;
 pub mod agent_to_invites;
 pub mod invite;
+
 use hdk::prelude::*;
 use invitation_integrity::*;
+use signals::Signal;
+use crate::signals::SignalDetails;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    let mut functions = BTreeSet::new();
+    functions.insert((zome_info()?.name, "recv_remote_signal".into()));
+
+    let grant = ZomeCallCapGrant {
+        access: CapAccess::Unrestricted, // Unrestricted access means any external agent can call the extern
+        functions: GrantedFunctions::Listed(functions),
+        tag: "recv_remote_signal_cap_grant".into()
+    };
+    create_cap_grant(grant)?;
     Ok(InitCallbackResult::Pass)
 }
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "type")]
-pub enum Signal {
-    EntryCreated { action: SignedActionHashed, app_entry: EntryTypes },
-    EntryUpdated {
-        action: SignedActionHashed,
-        app_entry: EntryTypes,
-        original_app_entry: EntryTypes,
-    },
-    EntryDeleted { action: SignedActionHashed, original_app_entry: EntryTypes },
-    LinkCreated { action: SignedActionHashed, link_type: LinkTypes },
-    LinkDeleted { action: SignedActionHashed, link_type: LinkTypes },
+
+#[hdk_extern] 
+fn recv_remote_signal(signal: SignalDetails) -> ExternResult<()> {
+    //let signal_detail: SignalDetails = signal.decode().map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
+    emit_signal(signal)?;
+    Ok(())
 }
+
 #[hdk_extern(infallible)]
 pub fn post_commit(committed_actions: Vec<SignedActionHashed>) {
     for action in committed_actions {

@@ -10,7 +10,7 @@ import { acceptInvite, clearInvite, getPendingInvites, InvitationEntryInfo, reje
 let processSignal: AppSignalCb | undefined;
 const signalReceived = new Promise<AppSignal>((resolve) => {
     processSignal = (signal) => {
-      console.log("signal found:",signal)
+      console.log("signal found for Alice:",signal)
     resolve(signal);
   };
 });
